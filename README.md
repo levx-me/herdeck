@@ -18,10 +18,12 @@ without scrolling back through the conversation.
 ┌ agent ─────────────────────┬ Herdeck ──────────────────────────────────┐
 │                            │  1 SERVERS ●  2 BUILD ✓  3 TEST ✗  4 GIT ✓ │
 │  > run the tests           │                                           │
-│                            │  ‹  ✗ forge test       2/2 · 2m ago  ›    │
-│                            │ $ forge test · ~/app/contracts · 2s · exit 1│
-│  ● Bash(forge test)        │ ──────────────────────────────────────────│
-│    ⎿ 2 passed, 1 failed    │ [PASS] test_add() (gas: 144)              │
+│                            │ ➜ ✗ forge test                     2m ago │
+│  ● Bash(forge test)        │   ✓ bun test                       5m ago │
+│    ⎿ 2 passed, 1 failed    │                                           │
+│                            │ $ forge test · ~/app/contracts · exit 1   │
+│                            │ ──────────────────────────────────────────│
+│                            │ [PASS] test_add() (gas: 144)              │
 │                            │ [FAIL: 2 + 2 should be 5] test_broken()   │
 └────────────────────────────┴───────────────────────────────────────────┘
 ```
@@ -34,12 +36,12 @@ without scrolling back through the conversation.
   starts a dev server, the deck opens (if needed) and switches to that section and run.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
   the colours you would in a shell; the agent still gets plain text and the real exit code.
-- **Run history** — each section keeps its runs (the last 20, git the last 50); step
-  through them with `[` `]` or the `‹` `›` arrows.
+- **Run history** — each section lists its runs, newest on top (the last 20, git the
+  last 50); pick one with `[` `]` or a click.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
 - **Dev servers** — ports opened by processes inside the project, clickable, one key
   to open in the browser.
-- **Mouse** — click sections, the `‹` `›` arrows, log lines and servers; scroll with the wheel.
+- **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
 ## Quick start
@@ -86,7 +88,7 @@ Focus the deck (click it, or herdr's pane navigation) and:
 | Keys | Action |
 |---|---|
 | `tab` `shift+tab`, `1`–`4` | switch section |
-| `[` `]` | previous / next run in the section |
+| `[` `]` | move up / down the run list |
 | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor |
 | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
 | `v` `V`, `y` | select by character / line, yank (the cursor line when nothing is selected) |

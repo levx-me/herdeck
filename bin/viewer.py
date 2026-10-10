@@ -9,12 +9,12 @@ end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, brings
 that section forward; a new run is also followed live.
 
-Keys: tab/shift-tab or 1-4 switch sections, [ ] switch runs, x drop the run,
+Keys: tab/shift-tab or 1-4 switch sections, [ ] move up / down the run list, x drop the run,
 q close the pane. Run logs take herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
 selected), / ? search, n N repeat, esc cancel. In servers, j/k pick a server and
 enter/o opens it.
-Mouse: click a section tab or the ‹ › of a run to switch, click in a log to place the
+Mouse: click a section tab or a run in the list to switch, click in a log to place the
 cursor, click a server to open it, wheel to scroll.
 
 Standard library only, so it runs on the python3 that macOS and Linux ship.
@@ -33,9 +33,10 @@ import tty
 BASE = sys.argv[1]
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["servers", "build", "test", "git"]
-# Screen rows (1-based, as in mouse reports): section tabs, a blank row, the
-# section's own strip (run tabs), the info line, a rule, then the body.
-STRIP_ROW, BODY_ROW = 3, 6
+# Screen rows (1-based, as in mouse reports): section tabs, a blank row, then
+# the section's head (run list, info line, rule) and its body.
+HEAD_ROW = 3
+LIST_ROWS = 5  # run list height before it scrolls
 
 RESET, DIM, BOLD = "\033[0m", "\033[2m", "\033[1m"
 STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
@@ -80,6 +81,10 @@ def fit(s, cols):
         out.append(m.group())
         pos = m.end()
     return "".join(out)
+
+
+def rule(cols):
+    return f"{DIM}{'─' * cols}{RESET}"
 
 
 def link(url, text):
@@ -354,12 +359,22 @@ class Runs:
     # drawing ---------------------------------------------------------------
 
     def frame(self, cols, rows):
+        """Head lines (run list, info, rule) and the visible log lines."""
         if not self.runs:
-            return f"{bg(STRIP_RGB)}\033[K{RESET}", f"{DIM}no {self.kind} runs yet{RESET}", []
+            return [f"{DIM} no {self.kind} runs yet{RESET}", rule(cols)], []
         run = self.runs[self.tab]
         self.raw = run.lines()
         self.plain = [ANSI.sub("", l) for l in self.raw]
-        self.height = height = max(1, rows - BODY_ROW + 1)
+        head = self.run_list(cols)
+        if self.search is not None:
+            info = f"{fg(ACCENT[self.kind])}{'?' if self.back else '/'}{RESET}{self.search}▏"
+        else:
+            mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
+            note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
+            info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
+        head += ["", info, rule(cols)]  # a blank row between the list and the output
+
+        self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head))
         if self.follow:  # pinned to the end while the run grows
             self.cy = max(0, len(self.plain) - 1)
         self.clamp()
@@ -368,6 +383,7 @@ class Runs:
         elif self.cy >= self.offset + height:
             self.offset = self.cy - height + 1
         self.offset = max(0, min(self.offset, max(0, len(self.plain) - height)))
+        self.body_row = HEAD_ROW + len(head)
 
         body = []
         for y in range(self.offset, min(len(self.raw), self.offset + height)):
@@ -375,29 +391,32 @@ class Runs:
                 body.append(self.marked(y))
             else:
                 body.append(self.raw[y])
-        if self.search is not None:
-            info = f"{fg(ACCENT[self.kind])}{'?' if self.back else '/'}{RESET}{self.search}▏"
-        else:
-            mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
-            note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
-            info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
-        return self.picker(cols), info, body
+        return head, body
 
-    def picker(self, cols):
-        """The run on show: ‹ status command … position · age ›."""
-        self.cols = cols
-        run, n = self.runs[self.tab], len(self.runs)
-        icon, colour = run.status()
-        on = lambda yes: fg(BRIGHT_RGB) if yes else fg("70;76;88")  # dim arrow at either end
-        right = f"{self.tab + 1}/{n} · {run.age()}"
-        # " ‹  ✗ label<gap>right  ›" is 9 columns plus label, gap and right.
-        label = run.label()
-        room = cols - 10 - len(right)
-        if len(label) > room:
-            label = label[:max(1, room - 1)] + "…"
-        gap = max(1, cols - 9 - len(label) - len(right))
-        return (f"{bg(STRIP_RGB)} {on(self.tab > 0)}‹  {fg(colour)}{icon} {fg(BRIGHT_RGB)}{BOLD}{label}\033[22m"
-                f"{' ' * gap}{fg(MUTED_RGB)}{right}  {on(self.tab < n - 1)}›\033[K{RESET}")
+    def run_list(self, cols):
+        """Newest run on top, the one on show raised; scrolls past LIST_ROWS."""
+        order = list(range(len(self.runs) - 1, -1, -1))
+        at = order.index(self.tab)
+        first = max(0, min(at - LIST_ROWS // 2, len(order) - LIST_ROWS))
+        self.listed = order[first:first + LIST_ROWS]
+        lines = []
+        for i in self.listed:
+            run = self.runs[i]
+            icon, colour = run.status()
+            age = run.age()
+            label = run.label()
+            # "➜ ✓ label<gap>age " and "  ✓ label<gap>age " both fill the line.
+            fixed = 5
+            room = cols - fixed - 1 - len(age)
+            if len(label) > room:
+                label = label[:max(1, room - 1)] + "…"
+            gap = " " * max(1, cols - fixed - len(label) - len(age))
+            if i == self.tab:
+                lines.append(f"{bg(ACTIVE_RGB)}{fg(ACCENT[self.kind])}➜{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
+                             f"\033[22m{gap}{fg(MUTED_RGB)}{age} \033[K{RESET}")
+            else:
+                lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{age} {RESET}")
+        return lines
 
     def marked(self, y):
         """A plain line with the selection shaded and the cursor in reverse."""
@@ -479,22 +498,20 @@ class Runs:
             self.anchor = None
         elif k in ("/", "?"):
             self.search, self.back = "", k == "?"
-        elif k == "]":
-            self.select(min(len(self.runs) - 1, self.tab + 1))
-        elif k == "[":
+        elif k == "]":  # down the list: an older run
             self.select(max(0, self.tab - 1))
+        elif k == "[":  # up the list: a newer run
+            self.select(min(len(self.runs) - 1, self.tab + 1))
         elif k == "x":
             shutil.rmtree(self.runs[self.tab].path, ignore_errors=True)
 
     def click(self, row, col):
-        """A click on the run strip switches runs; in the log it moves the cursor."""
-        if row == STRIP_ROW and self.runs:
-            if col <= 4:  # ‹
-                self.key("[")
-            elif col >= getattr(self, "cols", 0) - 3:  # ›
-                self.key("]")
-        elif row >= BODY_ROW and self.plain:
-            self.cy, self.cx, self.follow = self.offset + row - BODY_ROW, col - 1, False
+        """A click on the run list shows that run; in the log it moves the cursor."""
+        listed = getattr(self, "listed", [])
+        if self.runs and 0 <= row - HEAD_ROW < len(listed):
+            self.select(listed[row - HEAD_ROW])
+        elif row >= getattr(self, "body_row", 99) and self.plain:
+            self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
             self.clamp()
 
     def wheel(self, down):
@@ -531,22 +548,22 @@ class Servers:
 
     def frame(self, cols, rows):
         n = len(self.servers)
-        line2 = f"{bg(STRIP_RGB)}{fg(MUTED_RGB)} {n} running\033[K{RESET}"
-        info = f"{DIM}{read(os.path.join(BASE, 'root'))}{RESET}"
+        head = [f"{fg(MUTED_RGB)} {n} running {DIM}· {read(os.path.join(BASE, 'root'))}{RESET}", rule(cols)]
+        self.body_row = HEAD_ROW + len(head)
         if not n:
-            return line2, info, [f"{DIM}no dev servers running in this project{RESET}"]
+            return head, [f"{DIM}no dev servers running in this project{RESET}"]
         body = []
         for i, (port, pid, cmd) in enumerate(self.servers):
             url = f"http://localhost:{port}"
             mark = f"{fg(ACCENT['servers'])}▎{RESET}" if i == self.pick else " "
             body.append(f"{mark}{fg(GREEN_RGB)}●{RESET} {link(url, fg(CYAN_RGB) + url + RESET)}"
                         f"  {cmd}  {DIM}pid {pid}{RESET}")
-        return line2, info, body[:max(1, rows - BODY_ROW + 1)]
+        return head, body[:max(1, rows - self.body_row + 1)]
 
     def click(self, row, col):
         """A click on a server row opens that server."""
-        if 0 <= row - BODY_ROW < len(self.servers):
-            self.pick = row - BODY_ROW
+        if 0 <= row - self.body_row < len(self.servers):
+            self.pick = row - self.body_row
             self.key("o")
 
     def wheel(self, down):
@@ -603,10 +620,9 @@ class Deck:
 
     def draw(self):
         cols, rows = shutil.get_terminal_size()
-        line2, info, body = self.views[self.section].frame(cols, rows)
-        out = ["\033[H\033[2J", self.section_bar(cols), "\r\n\r\n", line2, "\r\n", fit(info, cols),
-               "\r\n", DIM, "─" * cols, RESET]
-        for line in body:
+        head, body = self.views[self.section].frame(cols, rows)
+        out = ["\033[H\033[2J", self.section_bar(cols), "\r\n"]
+        for line in head + body:
             out += ["\r\n", fit(line, cols), RESET]
         sys.stdout.write("".join(out))
         sys.stdout.flush()
