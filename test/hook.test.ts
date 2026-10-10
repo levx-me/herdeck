@@ -85,7 +85,7 @@ describe("hook passes the agent's description along as the run's label", () => {
     return parts[4] === "-" ? "" : Buffer.from(parts[4], "base64").toString();
   };
   test("kind prefix dropped", () => expect(label("forge test -vvv", "test: forge test -vvv")).toBe("forge test -vvv"));
-  test("a free-form description is kept as is", () => expect(label("forge test", "Run the tests")).toBe("Run the tests"));
+  test("prose is not a label: the command is", () => expect(label("cd contracts && forge test", "Run the tests")).toBe("forge test"));
 });
 
 describe("hook leaves everything else alone", () => {
@@ -203,7 +203,9 @@ describe("record keeps finished runs for the deck", () => {
   test("a free-form description falls back to the command for the kind, and still labels the run", () => {
     expect(ok("git push", "", "Push to origin")?.kind).toBe("git");
     expect(labelOf("Build giwaswap-status", 'cd x; pnpm build 2>&1 | grep -v "^$" | tail -25; echo "exit=$?"'))
-      .toEqual({ kind: "build", label: "Build giwaswap-status" });
+      .toEqual({ kind: "build", label: "pnpm build" });
+    expect(labelOf("Run tests", "git status -sb | head -1; forge test --match-path 'test/*' 2>&1 | grep FAIL"))
+      .toEqual({ kind: "test", label: "forge test --match-path 'test/*'" });
   });
 
   test("a git: description on a read-only command is still skipped", () =>
@@ -345,4 +347,23 @@ print(m.${fn}(sys.stdin.read()), end="")`;
     expect(summary("git status -sb | head -1; git add -A && git diff --cached --stat && git commit -m 'x'")).toBe('git add · git commit "x"'));
   test("heredoc commit message", () =>
     expect(summary("git commit -m \"$(cat <<'EOF'\nFix the flicker\n\nbody\nEOF\n)\"")).toBe('git commit "Fix the flicker"'));
+});
+
+describe("core cuts the simple command out of a shell line", () => {
+  const core = (cmd: string, at = 0) =>
+    Bun.spawnSync(["python3", "-I", join(root, "bin/core"), String(at)], { stdin: Buffer.from(cmd) }).stdout.toString();
+  const cases: [string, string][] = [
+    ['cd /x/y; pnpm build 2>&1 | grep -vE "^\\s*$" | tail -25; echo "exit=$?"', "pnpm build"],
+    ["forge test --match-path 'test/*' 2>&1 | grep -E \"Suite|FAIL\"", "forge test --match-path 'test/*'"],
+    ["/usr/bin/time -p ./build.sh > /tmp/b.log 2>&1; git status --short", "./build.sh"],
+    ["timeout 600 forge build --sizes 2>&1 | tail -3", "forge build --sizes"],
+    ["env FOO=1 pnpm test >> out.txt", "pnpm test"],
+    ["cd contracts && forge test -vvv", "forge test -vvv"],
+    ["npx vercel --prod --yes 2>&1 | tail -3", "npx vercel --prod --yes"],
+  ];
+  for (const [cmd, want] of cases) test(cmd, () => expect(core(cmd)).toBe(want));
+  test("from a byte offset past non-ASCII text", () => {
+    const cmd = "echo '한글' ; pnpm build | tail";
+    expect(core(cmd, Buffer.byteLength("echo '한글' "))).toBe("pnpm build");
+  });
 });

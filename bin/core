@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+"""Print the simple command that starts at OFFSET in the shell command on stdin.
+
+    core BYTE_OFFSET < command
+
+`cd x; pnpm build 2>&1 | grep -v x | tail -25; echo $?` with OFFSET at `pnpm`
+prints `pnpm build`. Shell tokens, not patterns: the command ends at the first
+control operator (; & && | || ( ) newline), redirections and their targets
+are dropped, and so are a leading `cd DIR` and wrappers (time, nice, timeout N,
+env) in front of it.
+"""
+import shlex
+import sys
+
+CONTROL = {";", "&", "&&", "|", "||", "(", ")", ";;", "|&", "\n"}
+REDIRECT = {">", ">>", "<", "<<", "<<<", ">&", "<&", "&>", "&>>", ">|"}
+WRAPPERS = {"time", "/usr/bin/time", "nice", "timeout", "env", "command", "exec"}
+
+
+def core(cmd):
+    lexer = shlex.shlex(cmd, posix=False, punctuation_chars=";&|()<>")
+    lexer.whitespace = " \t\r"  # keep newlines: they end a command
+    lexer.wordchars += "~-./=:+@%,*?[]{}$!^#"
+    words = []
+    for tok in lexer:
+        if tok in CONTROL or tok.strip("\n") == "":
+            if words and words != ["cd"] and words[0] != "cd":
+                break
+            words = []  # `cd x;` before the command: skip it
+            continue
+        words.append(tok)
+
+    out, skip = [], False
+    for i, w in enumerate(words):
+        if skip:
+            skip = False
+            continue
+        if w in REDIRECT or (w.isdigit() and i + 1 < len(words) and words[i + 1] in REDIRECT):
+            skip = w in REDIRECT  # drop the target too; a fd number is dropped by itself
+            continue
+        out.append(w)
+    while out and out[0] in WRAPPERS:  # time -p, timeout 600, nice -n 5, env A=b
+        out.pop(0)
+        while out and (out[0].startswith("-") or out[0].isdigit() or "=" in out[0]):
+            out.pop(0)
+    return " ".join(out)
+
+
+if __name__ == "__main__":
+    data = sys.stdin.buffer.read()
+    offset = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+    print(core(data[offset:].decode("utf-8", "replace")), end="")

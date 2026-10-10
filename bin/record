@@ -21,19 +21,25 @@ end='([[:space:]]|$|\))'
 
 # Only look at what the shell would run: drop heredoc bodies and quoted strings,
 # so `grep 'forge test' notes` or a script mentioning a runner is not a run.
-scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/'[^']*'//g; s/\"[^\"]*\"//g")
+# Quoted strings are blanked, not removed, so byte positions in scan match cmd.
+scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/('[^']*'|\"[^\"]*\")/'_' x length(\$1)/ge")
 # The session note asks for Bash descriptions like "build: ./build.sh"; when the
 # agent gives one, it names the section and labels the run.
 desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
-# Any other description still labels the run: it is the agent's own one-line
-# summary, readable whatever shape the command has.
-label=$desc
+label=""
 if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]]; then kind=${BASH_REMATCH[1]} label=${BASH_REMATCH[2]}
 elif [[ $scan =~ ${step}${tests}${end} ]]; then kind=test
 elif [[ $scan =~ ${step}${builds}${end} ]]; then kind=build
 elif [[ $scan =~ ${step}${deploys}${end} ]]; then kind=deploy
 elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
+fi
+
+# Without a "<kind>: ..." description, the label is the simple command the match
+# starts in, cut out by shell tokens (bin/core): `cd x; pnpm build | tail` -> `pnpm build`.
+if [ -z "$label" ] && [ "$kind" != git ] && [ -n "${BASH_REMATCH[0]:-}" ]; then
+  pre=${scan%%"${BASH_REMATCH[0]}"*}
+  label=$(printf '%s' "$cmd" | python3 -I "$(dirname "$0")/core" "$(LC_ALL=C; printf '%s' "${#pre}")")
 fi
 
 

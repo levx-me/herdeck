@@ -39,6 +39,8 @@ without scrolling back through the conversation.
   starts a dev server, the deck switches to that section and run.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
   the colours you would in a shell; the agent still gets plain text and the real exit code.
+- **Commands, not prose** — each run is listed by its core command: the agent is asked to
+  describe calls as `<kind>: <command>`, and anything else is cut down to the command by its shell tokens.
 - **Run history** — each section lists its runs, newest on top (the last 20, git the
   last 50); pick one with `j` `k` or a click.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
@@ -125,6 +127,7 @@ flowchart LR
 ```
 
 - `bin/runners.sh` defines what counts as a test run or a build, for both hooks.
+- `bin/core` cuts the core command out of a shell line by its tokens (`cd x; pnpm build | tail` → `pnpm build`), for runs the agent did not label.
 - `bin/hook` decides what a Bash call is. Tests and builds are rewritten to `bin/run`
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to
