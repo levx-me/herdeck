@@ -1,0 +1,17 @@
+{
+  "description": "Route the agent's builds and tests into Herdeck viewer panes",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

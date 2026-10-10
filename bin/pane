@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Make sure the agent has a viewer pane of KIND (test, build or servers) and
+# print its pane id. Viewers stack in one column right of the agent: the first
+# splits off to the right, later ones split below the lowest open viewer.
+#
+#   pane KIND [CWD]     (agent = $HERDR_PANE_ID; CWD defaults to $PWD)
+set -u
+kind=${1:?usage: pane test|build|servers [cwd]}
+cwd=${2:-$PWD}
+agent=${HERDR_PANE_ID:?not inside a herdr pane}
+root=$(cd "$(dirname "$0")/.." && pwd)
+
+base="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$agent" | tr ':/' '__')"
+dir="$base/$kind"
+mkdir -p "$dir/runs"
+# Project root, for the servers viewer.
+git -C "$cwd" rev-parse --show-toplevel 2>/dev/null > "$dir/root" || printf '%s\n' "$cwd" > "$dir/root"
+
+alive() { [ -n "$1" ] && herdr pane get "$1" >/dev/null 2>&1; }
+
+pane=$(cat "$dir/pane" 2>/dev/null)
+if alive "$pane"; then printf '%s\n' "$pane"; exit 0; fi
+
+# Lowest open viewer of this agent, if any.
+open=""
+for k in test build servers; do
+  p=$(cat "$base/$k/pane" 2>/dev/null)
+  alive "$p" && open="$open $p"
+done
+below=""
+if [ -n "$open" ]; then
+  below=$(herdr pane layout --pane "$agent" | jq -r --arg open "$open" '
+    [.result.layout.panes[] | select(.pane_id as $id | ($open | split(" ") | index($id)))]
+    | max_by(.rect.y) | .pane_id // empty')
+fi
+if [ -n "$below" ]; then
+  split=(--pane "$below" --direction down)
+else
+  split=(--pane "$agent" --direction right --ratio 0.55)
+fi
+
+pane=$(herdr pane split "${split[@]}" --cwd "$cwd" --no-focus | jq -r '.result.pane.pane_id // empty')
+[ -n "$pane" ] || exit 1
+printf '%s' "$pane" > "$dir/pane"
+herdr pane rename "$pane" "$kind" >/dev/null 2>&1
+sleep 0.4 # let the new shell reach its prompt
+# exec: the viewer replaces the shell, so quitting it closes the pane.
+herdr pane run "$pane" "exec python3 $(printf '%q' "$root/bin/viewer.py") $kind $(printf '%q' "$dir")" >/dev/null
+# Order the column (servers, build, test) and size it: test takes the rest.
+python3 "$root/bin/arrange" >/dev/null 2>&1
+printf '%s\n' "$pane"

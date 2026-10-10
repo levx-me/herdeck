@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# List dev servers of a project: TCP ports (>= 1024) listened on by processes
+# whose cwd is inside ROOT, minus container/VM plumbing (colima, docker, qemu)
+# that may have been started from there.
+#
+#   servers ROOT    ->  one "port<TAB>pid<TAB>command" line per port
+set -u
+root=${1:?usage: servers ROOT}
+
+listen=$(lsof -nP -iTCP -sTCP:LISTEN -Fpcn 2>/dev/null)
+pids=$(printf '%s\n' "$listen" | sed -n 's/^p//p' | sort -u | paste -sd, -)
+[ -n "$pids" ] || exit 0
+
+mine=$(lsof -a -d cwd -p "$pids" -Fpn 2>/dev/null | awk -v r="$root" '
+  /^p/ { pid = substr($0, 2) }
+  /^n/ { d = substr($0, 2); if (d == r || index(d, r "/") == 1) print pid }' | sort -u)
+[ -n "$mine" ] || exit 0
+
+printf '%s\n' "$listen" | awk -v mine=" $(echo $mine) " '
+  /^p/ { pid = substr($0, 2); ok = index(mine, " " pid " ") > 0 }
+  /^c/ { if ($0 ~ /^c(limactl|colima|com\.docker|docker|vpnkit|qemu|ssh|ControlCe)/) ok = 0 }
+  /^n/ && ok { n = split($0, a, ":"); if (a[n] >= 1024) print a[n] "\t" pid }' | sort -un |
+while IFS=$'\t' read -r port pid; do
+  printf '%s\t%s\t%s\n' "$port" "$pid" "$(ps -o command= -p "$pid" 2>/dev/null | cut -c1-80)"
+done

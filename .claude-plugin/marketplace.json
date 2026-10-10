@@ -1,0 +1,11 @@
+{
+  "name": "herdeck",
+  "owner": { "name": "levx" },
+  "plugins": [
+    {
+      "name": "herdeck",
+      "source": "./",
+      "description": "Agentic development environment for herdr: builds, tests and dev servers in panes beside the agent"
+    }
+  ]
+}

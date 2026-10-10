@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Claude Code PreToolUse hook (Bash): when the agent runs a test or build inside
+# herdr, rewrite the call so it runs through bin/run, which streams it into a
+# read-only viewer pane beside the agent and hands the output back.
+#
+# Only a plain invocation is rewritten:
+#   [cd DIR &&] [VAR=val ...] [npx|pnpm|yarn|bunx|uv run|poetry run|python -m] RUNNER [args]
+#   optionally followed by `2>&1` and one `| tail/head -n N` filter.
+# Anything with other pipes, chains, substitutions or redirects is left alone,
+# so "allow" below never approves more than a test or build.
+set -u
+
+input=$(cat)
+[ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
+[ -n "$cmd" ] || exit 0
+
+# Starting a dev server: leave the command alone, just open the servers pane.
+devs='(^|[;&|(] *)(npx |pnpm (exec |dlx )?|yarn |bunx )?((npm|pnpm|yarn|bun) (run )?(dev|start|serve|preview)|next (dev|start)|vite( |$)|astro dev|nuxt dev|remix dev|wrangler dev|python3? -m http\.server|uvicorn |flask run|rails (s|server)|anvil( |$)|php artisan serve)'
+if [[ $cmd =~ $devs ]]; then
+  cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
+  (cd "${cwd:-$PWD}" && "$CLAUDE_PLUGIN_ROOT/bin/pane" servers >/dev/null 2>&1 &)
+  exit 0
+fi
+
+safe='[^;&|`$<>()]'
+prefix="^(cd ${safe}+ && )?([A-Za-z_][A-Za-z0-9_]*=${safe}* )*(npx |pnpm (exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m )?"
+tests='(vitest|jest|pytest|cargo test|cargo nextest run|go test|bun test|deno test|forge test|npm (run )?test|pnpm (run )?test|yarn (run )?test|bun run test)'
+builds='(forge build|cargo build|cargo check|go build|tsc|next build|vite build|npm run build|pnpm (run )?build|yarn (run )?build|bun run build|swift build)'
+filter=' \| (tail|head)( -n)? -?[0-9]+$'
+
+core=$cmd post=""
+if [[ $core =~ $filter ]]; then
+  post=${BASH_REMATCH[0]# | }
+  core=${core%"${BASH_REMATCH[0]}"}
+fi
+core=${core% 2>&1}
+
+if [[ $core =~ ${prefix}${tests}( ${safe}*)?$ ]]; then kind=test
+elif [[ $core =~ ${prefix}${builds}( ${safe}*)?$ ]]; then kind=build
+else exit 0
+fi
+
+b64() { printf '%s' "$1" | base64 | tr -d '\n'; }
+wrapped="\"$CLAUDE_PLUGIN_ROOT/bin/run\" $kind $(b64 "$core") $(b64 "$post")"
+
+printf '%s' "$input" | jq --arg c "$wrapped" --arg k "$kind" '{
+  hookSpecificOutput: {
+    hookEventName: "PreToolUse",
+    permissionDecision: "allow",
+    permissionDecisionReason: ("\($k) run shown in the herdr \($k) pane"),
+    updatedInput: (.tool_input + {command: $c})
+  }
+}'

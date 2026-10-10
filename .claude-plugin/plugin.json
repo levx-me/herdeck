@@ -1,0 +1,7 @@
+{
+  "name": "herdeck",
+  "version": "0.1.0",
+  "description": "Herdeck for Claude Code: routes the agent's builds and tests into herdr viewer panes beside it and opens a dev-server pane when it starts one",
+  "author": { "name": "levx" },
+  "license": "MIT"
+}
