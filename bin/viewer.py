@@ -35,9 +35,9 @@ import tty
 BASE = sys.argv[1]
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["servers", "build", "test", "git", "deploy"]
-# Screen rows (1-based, as in mouse reports): section tabs, a blank row, then
-# the section's head (run list, info line, rule) and its body.
-HEAD_ROW = 3
+# Screen rows (1-based, as in mouse reports): section tabs, then the section's
+# head (run list box, command, info line, rule) and its body.
+HEAD_ROW = 2
 LIST_ROWS = 5  # run list height before it scrolls
 
 RESET, DIM, BOLD = "\033[0m", "\033[2m", "\033[1m"
@@ -663,7 +663,7 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("[ ]", "section"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("[ ]", "tabs"), ("q", "close")]
         return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
 
     def list_key(self, k):
@@ -730,7 +730,7 @@ class Servers:
         return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
 
     def hints(self):
-        return [("j/k", "select"), ("enter", "browser"), ("[ ]", "section"), ("q", "close")]
+        return [("j/k", "select"), ("enter", "browser"), ("[ ]", "tabs"), ("q", "close")]
 
     def frame(self, cols, rows):
         n = len(self.servers)
@@ -813,7 +813,7 @@ class Deck:
         head, body = view.frame(cols, rows - 1)  # the last row holds the key hints
         # Overwrite in place (each line clears its own tail, \033[J the rest)
         # instead of clearing the screen, so nothing flashes between frames.
-        out = [self.section_bar(cols), "\033[K\r\n\033[K"]
+        out = [self.section_bar(cols), "\033[K"]
         for line in head + body:
             out += ["\r\n", fit(line, cols), RESET, "\033[K"]
         out.append("\033[J")
