@@ -38,7 +38,7 @@ SECTIONS = ["servers", "build", "test", "git", "deploy"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
-LIST_ROWS = 5  # run list height before it scrolls
+LIST_ROWS = 10  # run list height (rows) before it scrolls
 
 RESET, DIM, BOLD = "\033[0m", "\033[2m", "\033[1m"
 STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
@@ -132,24 +132,36 @@ def git_summary(cmd):
     return " · ".join(git_steps(cmd))
 
 
+def _classify():
+    """bin/classify, loaded once: the shell-token reading both hooks use."""
+    global _CLASSIFY
+    if "_CLASSIFY" not in globals():
+        from importlib.machinery import SourceFileLoader
+        _CLASSIFY = SourceFileLoader("classify", os.path.join(os.path.dirname(os.path.abspath(__file__)), "classify")).load_module()
+    return _CLASSIFY
+
+
 def git_steps(cmd, messages=True):
-    """The git steps of cmd, flags dropped, read-only ones left out when there
-    are writes; with messages, a commit carries its first line."""
-    steps = []
+    """The git steps of cmd, read as shell tokens (quotes kept whole), flags
+    dropped, read-only ones left out when there are writes; with messages, a
+    commit carries its message's first line."""
+    c = _classify()
     heredoc = re.search(r"""<<-?\s*['"]?\w+['"]?\n\s*([^\n]*)""", cmd)  # first line of a heredoc message
-    body_free = re.sub(r"<<-?\s*['\"]?(\w+)['\"]?.*?\n\s*\1\b", "", cmd, flags=re.S)  # heredoc bodies only
-    for part in re.split(r"&&|\|\||;|\||\n", body_free):
-        words = part.strip().split()
-        if not words or words[0] != "git":
+    steps = []
+    for words, _ in c.simple_commands(cmd):
+        w = c.unwrap(words)
+        if not w or w[0] != "git":
             continue
-        sub = next((w for w in words[1:] if not w.startswith("-") and words[words.index(w) - 1] != "-C"), "")
+        args = w[1:]
+        while args and args[0] in ("-C", "-c"):
+            args = args[2:]
+        sub = next((a for a in args if not a.startswith("-")), "")
         step = f"git {sub}".strip()
-        m = re.search(r"""-m\s+(?:"([^"\n]*)|'([^'\n]*))""", part)
-        if sub == "commit" and m and messages:
-            msg = (m.group(1) or m.group(2) or "").strip()
+        if sub == "commit" and messages and "-m" in args[:-1]:
+            msg = args[args.index("-m") + 1].strip("'\"")
             if msg.startswith("$(") and heredoc:  # -m "$(cat <<'EOF' ... EOF)"
-                msg = heredoc.group(1).strip()
-            msg = msg or "…"
+                msg = heredoc.group(1)
+            msg = msg.strip().splitlines()[0].strip() if msg.strip() else "…"
             step += f' "{msg[:40]}…"' if len(msg) > 40 else f' "{msg}"'
         if step not in steps:
             steps.append(step)
@@ -599,31 +611,44 @@ class Runs:
         return [top, *rows, f"{edge}╰{'─' * inner}╯{RESET}"]
 
     def rows(self, cols):
-        """List rows, each exactly cols wide."""
-        order = list(range(len(self.runs) - 1, -1, -1))
-        at = order.index(self.tab)
-        first = max(0, min(at - LIST_ROWS // 2, len(order) - LIST_ROWS))
-        self.listed = order[first:first + LIST_ROWS]
-        lines = []
-        for i in self.listed:
+        """List rows, each exactly cols wide. A git run takes one row per git
+        step; status, age and hash sit on its first row. Scrolls by rows, keeping
+        the selected run in view; self.listed maps each row to its run."""
+        entries = []  # (run index, first row of the run?, text)
+        for i in range(len(self.runs) - 1, -1, -1):
             run = self.runs[i]
-            icon, colour = run.status()
-            age = run.age()
-            # git rows keep a fixed 7-column hash at the far right (blank when
-            # there is none), so the variable-width age lines up before it.
-            sha = run.hash()
-            right = f"{age}  {sha:7}" if self.kind == "git" else age
-            shown = f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age
-            label = run.label()
+            steps = git_steps(run.full) if self.kind == "git" else []
+            for n, text in enumerate(steps or [run.label()]):
+                entries.append((i, n == 0, text))
+        at = next(n for n, (i, first, _) in enumerate(entries) if i == self.tab)
+        span = sum(1 for i, _, _ in entries if i == self.tab)
+        top = max(0, min(at - max(0, (LIST_ROWS - span) // 2), len(entries) - LIST_ROWS))
+        shown_entries = entries[top:top + LIST_ROWS]
+        self.listed = [i for i, _, _ in shown_entries]
+
+        lines = []
+        for i, first, label in shown_entries:
+            run = self.runs[i]
+            selected = i == self.tab
+            if first:
+                icon, colour = run.status()
+                age = run.age()
+                # git rows keep a fixed 7-column hash at the far right (blank when
+                # there is none), so the variable-width age lines up before it.
+                sha = run.hash()
+                right = f"{age}  {sha:7}" if self.kind == "git" else age
+                shown = f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age
+            else:
+                icon, colour, right, shown = " ", MUTED_RGB, "", ""
             # "➜ ✓ label<gap>right " and "  ✓ label<gap>right " both fill the line.
             fixed = 5
             room = cols - fixed - 1 - len(right)
             if len(label) > room:
                 label = label[:max(1, room - 1)] + "…"
             gap = " " * max(1, cols - fixed - len(label) - len(right))
-            if i == self.tab:
-                arrow = fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)
-                lines.append(f"{bg(ACTIVE_RGB)}{arrow}➜{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
+            if selected:
+                arrow = (fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)) + ("➜" if first else " ")
+                lines.append(f"{bg(ACTIVE_RGB)}{arrow}{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
                              f"\033[22m{gap}{fg(MUTED_RGB)}{shown} {RESET}")
             else:
                 lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{shown} {RESET}")

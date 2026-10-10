@@ -343,6 +343,8 @@ print(m.${fn}(sys.stdin.read()), end="")`;
     expect(summary('cd repo && rm -rf x && git add -A && git diff --cached --stat && git commit -q -m "Ship it\n\nbody" && git push -q 2>&1 | tail -1'))
       .toBe('git add · git commit "Ship it" · git push'));
   test("-C path is not the subcommand", () => expect(summary("git -C ~/repo status --short")).toBe("git status"));
+  test("a message line starting with git is not a step", () =>
+    expect(summary('git add -A && git commit -q -m "Title\n\nright under\ngit commit." && git push -q')).toBe('git add · git commit "Title" · git push'));
   test("git after a heredoc is still found", () =>
     expect(summary("cd repo && python3 - <<'PY'\nprint('x')\nPY\nbash -n bin/x && git rm -q bin/a bin/b")).toBe("git rm"));
   test("reads dropped when there are writes", () =>
