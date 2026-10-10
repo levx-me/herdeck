@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Herdeck deck: one read-only pane beside the agent with four sections.
+"""Herdeck deck: one read-only pane beside the agent with five sections.
 
     viewer.py <base>
 
-<base>/<kind>/runs/<n>/ holds one run of kind build, test or git (written by
+<base>/<kind>/runs/<n>/ holds one run of kind build, test, git or deploy (written by
 bin/run and bin/record): cmd, cwd, log, start, pid, and once finished rc and
 end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, brings
 that section forward; a new run is also followed live.
 
-Keys: tab/shift-tab or 1-4 switch sections, [ ] move up / down the run list, x drop the run,
+Keys: tab/shift-tab or 1-5 switch sections, [ ] move up / down the run list, x drop the run,
 q close the pane. In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
@@ -34,7 +34,7 @@ import tty
 
 BASE = sys.argv[1]
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
-SECTIONS = ["servers", "build", "test", "git"]
+SECTIONS = ["servers", "build", "test", "git", "deploy"]
 # Screen rows (1-based, as in mouse reports): section tabs, a blank row, then
 # the section's head (run list, info line, rule) and its body.
 HEAD_ROW = 3
@@ -44,7 +44,7 @@ RESET, DIM, BOLD = "\033[0m", "\033[2m", "\033[1m"
 STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
 MUTED_RGB, BRIGHT_RGB = "120;127;140", "220;223;228"
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
-ACCENT = {"servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173"}
+ACCENT = {"servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 
@@ -145,6 +145,19 @@ def git_summary(cmd):
     return " · ".join(steps)
 
 
+def commit_message(cmd):
+    """The full message of a `git commit` in cmd: from -m "..." (any number of
+    lines) or from a heredoc fed to it; "" when there is none."""
+    if not re.search(r"\bgit\b[^\n;&|]*\bcommit\b", cmd):
+        return ""
+    heredoc = re.search(r"""<<-?\s*['"]?(\w+)['"]?\n(.*?)\n\s*\1\b""", cmd, re.S)
+    m = re.search(r"""-m\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""", cmd, re.S)
+    msg = (m.group(1) or m.group(2) or "") if m else ""
+    if (not msg or msg.startswith("$(")) and heredoc:
+        msg = heredoc.group(2)
+    return msg.replace('\\"', '"').strip()
+
+
 class Run:
     def __init__(self, path):
         self.path = path
@@ -208,8 +221,21 @@ class Run:
 
     CMD_LINES = 8  # longest command shown before it is cut
 
+    MSG_LINES = 15  # longest commit message shown
+
     def command(self, cols):
-        """The run's label, or else its whole command, wrapped to the pane."""
+        """The run's label, or else its whole command, wrapped to the pane.
+        A git commit also shows its whole message."""
+        message = commit_message(self.full)
+        if message:
+            rows = [f"{BOLD}$ {self.tag or 'git commit'}{RESET}"]
+            lines = []
+            for line in message.splitlines():
+                lines += textwrap.wrap(line, max(10, cols - 4)) or [""]
+            if len(lines) > self.MSG_LINES:
+                lines = lines[:self.MSG_LINES - 1] + [f"… {len(lines) - self.MSG_LINES + 1} more lines"]
+            rows += [f"{fg(ACCENT['git'])}  │ {RESET}{l}" for l in lines]
+            return rows
         if self.tag:
             rows = [f"{BOLD}{r}{RESET}" for r in textwrap.wrap(self.tag, max(10, cols), initial_indent="$ ",
                                                              subsequent_indent="    ")]
@@ -622,7 +648,7 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("tab", "section"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("tab 1-5", "section"), ("q", "close")]
         return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
 
     def list_key(self, k):
@@ -691,7 +717,7 @@ class Servers:
         return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
 
     def hints(self):
-        return [("j/k", "select"), ("enter", "browser"), ("tab", "section"), ("q", "close")]
+        return [("j/k", "select"), ("enter", "browser"), ("tab 1-5", "section"), ("q", "close")]
 
     def frame(self, cols, rows):
         n = len(self.servers)
@@ -758,11 +784,12 @@ class Deck:
         for i, view in enumerate(self.views):
             icon, colour = view.badge()
             name = view.kind.upper()
+            # No number on the tab (1-5 still jump there): five fit a narrow pane.
             if i == self.section:
-                text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {i + 1} {name} {icon} \033[22m"
+                text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {name} {icon} \033[22m"
             else:
-                text = f"{bg(TAB_RGB)}{fg(MUTED_RGB)} {i + 1} {name} {fg(colour)}{icon} "
-            cells.append((len(name) + 6, text))
+                text = f"{bg(TAB_RGB)}{fg(MUTED_RGB)} {name} {fg(colour)}{icon} "
+            cells.append((len(name) + 4, text))
         bar, self.spans = strip(cells, cols, self.section)
         return bar
 
@@ -802,7 +829,7 @@ class Deck:
             self.section = (self.section + 1) % len(self.views)
         elif k == "\x1b[Z":
             self.section = (self.section - 1) % len(self.views)
-        elif k in ("1", "2", "3", "4"):
+        elif k.isdigit() and 1 <= int(k) <= len(self.views):
             self.section = int(k) - 1
         else:
             self.views[self.section].key(k)

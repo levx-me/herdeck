@@ -45,7 +45,7 @@ fi
 b64() { if [ -n "$1" ]; then printf '%s' "$1" | base64 | tr -d '\n'; else printf -- -; fi; }
 # The agent's Bash description, "test: forge test --match-path 'test/*'" by the
 # session note, labels the run in the deck.
-label=$(printf '%s' "$input" | jq -r '.tool_input.description // empty' | sed -E 's/^(test|build|git):[[:space:]]*//')
+label=$(printf '%s' "$input" | jq -r '.tool_input.description // empty' | sed -E 's/^(test|build|git|deploy):[[:space:]]*//')
 wrapped="\"$CLAUDE_PLUGIN_ROOT/bin/run\" $kind $(b64 "$core") $(b64 "$post") $(b64 "$label")"
 
 printf '%s' "$input" | jq --arg c "$wrapped" --arg k "$kind" '{

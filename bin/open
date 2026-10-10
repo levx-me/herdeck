@@ -21,7 +21,8 @@ Run tests and builds as plain commands (\`forge test\`, \`npm test\`, \`./build.
 grep/head/sed, redirected to a file, or chained with other commands: Herdeck then streams them with colour \
 and still returns the full output and exit code to you. Append \`| tail -n N\` if you only need the end. \
 Keep them in the foreground unless a run takes many minutes. \
-For every test, build or git command, set the Bash description to its kind and the core command, \
-e.g. \`test: forge test --match-path 'test/*'\`, \`build: ./build.sh\`, \`git: git push\`: \
+For every test, build, git or deploy (vercel, railway) command, set the Bash description to its kind \
+and the core command, e.g. \`test: forge test --match-path 'test/*'\`, \`build: ./build.sh\`, \`git: git push\`, \
+\`deploy: vercel --prod\`: \
 Herdeck files the run under that kind and shows that line."
 jq -n --arg note "$note" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $note}}'

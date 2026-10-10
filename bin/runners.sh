@@ -9,4 +9,6 @@ launchers='(npx |pnpm (exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m 
 script_dir='(\./|[A-Za-z0-9_.~/-]*/)?'
 
 tests="(vitest|jest|pytest|cargo test|cargo nextest run|go test|deno test|forge test|(npm|pnpm|yarn|bun) (run )?test(:[A-Za-z0-9_-]+)?|(make|just|task) test|${script_dir}(test|[A-Za-z0-9_-]*[-_]test)[A-Za-z0-9_-]*\\.sh)"
+# Deploys are only recorded after they ran (they keep Claude's permission checks).
+deploys='(vercel|railway)'
 builds="(forge build|cargo build|cargo check|go build|tsc|next build|vite build|(npm|pnpm|yarn|bun) run build(:[A-Za-z0-9_-]+)?|(pnpm|yarn) build|(make|just|task) build|swift build|${script_dir}(build|[A-Za-z0-9_-]*[-_]build)[A-Za-z0-9_-]*\\.sh)"

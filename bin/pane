@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Make sure the agent has its Herdeck deck: one viewer pane split off to the
-# right, with servers, build, test and git sections. Prints the pane id.
+# right, with servers, build, test, git and deploy sections. Prints the pane id.
 #
-#   pane [SECTION] [CWD]    SECTION (servers|build|test|git) is brought forward;
+#   pane [SECTION] [CWD]    SECTION (servers|build|test|git|deploy) is brought forward;
 #                           CWD (default $PWD) picks the project for servers.
 set -u
 section=${1:-}

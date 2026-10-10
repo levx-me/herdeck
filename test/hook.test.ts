@@ -157,7 +157,7 @@ describe("record keeps finished runs for the deck", () => {
       env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent", ...env },
     });
     expect(r.exitCode).toBe(0);
-    for (const kind of ["test", "build", "git"]) {
+    for (const kind of ["test", "build", "git", "deploy"]) {
       const runs = join(tmp, "herdeck/w9_p9", kind, "runs");
       if (!existsSync(runs)) continue;
       const [n] = readdirSync(runs);
@@ -175,7 +175,7 @@ describe("record keeps finished runs for the deck", () => {
         tool_input: { command, description }, tool_response: { stdout: "x" } })),
       env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent" },
     });
-    for (const kind of ["test", "build", "git"]) {
+    for (const kind of ["test", "build", "git", "deploy"]) {
       const f = join(tmp, "herdeck/w9_p9", kind, "runs/1/label");
       if (existsSync(f)) return { kind, label: readFileSync(f, "utf8").trim() };
     }
@@ -189,6 +189,16 @@ describe("record keeps finished runs for the deck", () => {
   test("the description wins over the command's own guess", () =>
     expect(labelOf("test: forge test --match-path 'test/*'", "git status -sb | head -1; forge test --match-path 'test/*' | grep FAIL"))
       .toEqual({ kind: "test", label: "forge test --match-path 'test/*'" }));
+
+  test("vercel and railway go to deploy", () => {
+    expect(ok("vercel --prod")?.kind).toBe("deploy");
+    expect(ok("cd web && npx vercel deploy 2>&1 | tail -5")?.kind).toBe("deploy");
+    expect(ok("railway up --detach")?.kind).toBe("deploy");
+    expect(ok("echo vercel")).toBeNull();
+  });
+
+  test("a deploy: description", () =>
+    expect(labelOf("deploy: vercel --prod", "vercel --prod --yes 2>&1 | tail -3")).toEqual({ kind: "deploy", label: "vercel --prod" }));
 
   test("a free-form description falls back to the command", () =>
     expect(ok("git status --short", "", "Show working tree status")?.kind).toBe("git"));
@@ -281,14 +291,23 @@ describe("open tells the agent how to run things for the deck", () => {
 });
 
 describe("viewer sums up unlabelled git runs", () => {
-  const summary = (cmd: string) => {
+  // Call a function of bin/viewer.py on stdin.
+  const py = (fn: string, cmd: string) => {
     const code = `import sys, importlib.util as u
 sys.argv = ["v", "/tmp"]
-spec = u.spec_from_file_location("v", sys.argv[0] if False else "${join(root, "bin/viewer.py")}")
+spec = u.spec_from_file_location("v", "${join(root, "bin/viewer.py")}")
 m = u.module_from_spec(spec); spec.loader.exec_module(m)
-print(m.git_summary(sys.stdin.read()), end="")`;
+print(m.${fn}(sys.stdin.read()), end="")`;
     return Bun.spawnSync(["python3", "-I", "-c", code], { stdin: Buffer.from(cmd) }).stdout.toString();
   };
+  const summary = (cmd: string) => py("git_summary", cmd);
+
+  test("a commit shows its whole message", () =>
+    expect(py("commit_message", 'git add -A && git commit -q -m "Title\n\nBody with \\"quotes\\".\n\nCo-Authored-By: X" && git push'))
+      .toBe('Title\n\nBody with "quotes".\n\nCo-Authored-By: X'));
+  test("a heredoc commit message, whole", () =>
+    expect(py("commit_message", "git commit -m \"$(cat <<'EOF'\nFix it\n\nWhy.\nEOF\n)\"")).toBe("Fix it\n\nWhy."));
+  test("no message outside a commit", () => expect(py("commit_message", "git status")).toBe(""));
   test("git steps only, flags dropped, message cut", () =>
     expect(summary('cd repo && rm -rf x && git add -A && git diff --cached --stat && git commit -q -m "Ship it\n\nbody" && git push -q 2>&1 | tail -1'))
       .toBe('git add · git diff · git commit "Ship it" · git push'));

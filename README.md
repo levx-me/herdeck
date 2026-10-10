@@ -16,7 +16,7 @@ without scrolling back through the conversation.
 
 ```
 ┌ agent ─────────────────────┬ Herdeck ──────────────────────────────────┐
-│                            │  1 SERVERS ●  2 BUILD ✓  3 TEST ✗  4 GIT ✓ │
+│                            │  SERVERS ●  BUILD ✓  TEST ✗  GIT ✓  DEPLOY │
 │  > run the tests           │                                           │
 │                            │ ➜ ✗ forge test                     2m ago │
 │  ● Bash(forge test)        │   ✓ bun test                       5m ago │
@@ -30,8 +30,8 @@ without scrolling back through the conversation.
 
 ## Features
 
-- **One deck, four sections** — `servers`, `build`, `test`, `git`, each tab showing
-  the latest status (`✓` `✗` `⋯` `●`).
+- **One deck, five sections** — `servers`, `build`, `test`, `git`, `deploy`, each tab
+  showing the latest status (`✓` `✗`, a spinner while running, `●` for live servers).
 - **Always there** — the deck opens beside the agent when a Claude Code session starts
   inside herdr, and the agent is told to run tests and builds as plain commands so the
   deck can stream them (added to the session's context; no file is edited).
@@ -78,7 +78,8 @@ Nothing to start: the deck opens on the right when a session starts, and follows
 | `vitest`, `jest`, `pytest`, `cargo test`, `go test`, `bun test`, `deno test`, `forge test`, `npm/pnpm/yarn test[:x]`, `make`/`just test`, `./test.sh`-style scripts | **test** | runs inside the deck, output handed back |
 | `forge build`, `cargo build`/`check`, `go build`, `tsc`, `next build`, `vite build`, `npm run build[:x]`, `make`/`just build`, `./build.sh`-style scripts | **build** | runs inside the deck, output handed back |
 | tests and builds inside chains or pipes (`git status; forge test 2>&1 \| grep FAIL`) | **test** / **build** | recorded after they ran |
-| any command with `git …` | **git** | recorded after it ran (Claude's permission checks unchanged) |
+| any command with `git …` | **git** | recorded after it ran (Claude's permission checks unchanged); a commit shows its whole message |
+| `vercel …`, `railway …` | **deploy** | recorded after it ran (permission checks unchanged) |
 | `npm run dev`, `next dev`, `vite`, `anvil`, `uvicorn`, `flask run`, … | **servers** | command untouched, section brought forward |
 
 Only plain invocations run inside the deck (live, coloured):
@@ -93,7 +94,7 @@ the keys that apply right now.
 
 | Where | Keys | Action |
 |---|---|---|
-| anywhere | `tab` `shift+tab`, `1`–`4` | switch section |
+| anywhere | `tab` `shift+tab`, `1`–`5` | switch section |
 | | `q` | close the deck |
 | run list (build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |

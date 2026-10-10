@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Claude Code PostToolUse / PostToolUseFailure hook (Bash): after the agent ran
-# a command, record it in the deck when it holds a test run, a build or git.
+# a command, record it in the deck when it holds a test run, a build, git or a deploy.
 #
 # Plain tests and builds were already rewritten to bin/run and recorded live.
 # This catches the rest after the fact: tests and builds inside chains or pipes
@@ -26,9 +26,10 @@ scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/'[^']*'//g; s/\"[^\"]*\"//g")
 # agent gives one, it names the section and labels the run.
 desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
 label=""
-if [[ $desc =~ ^(test|build|git):[[:space:]]*(.+)$ ]]; then kind=${BASH_REMATCH[1]} label=${BASH_REMATCH[2]}
+if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]]; then kind=${BASH_REMATCH[1]} label=${BASH_REMATCH[2]}
 elif [[ $scan =~ ${step}${tests}${end} ]]; then kind=test
 elif [[ $scan =~ ${step}${builds}${end} ]]; then kind=build
+elif [[ $scan =~ ${step}${deploys}${end} ]]; then kind=deploy
 elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
 fi
