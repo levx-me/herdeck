@@ -18,7 +18,7 @@ function rewrite(command: string, env: Record<string, string> = {}) {
   expect(json.permissionDecision).toBe("allow");
   expect(json.updatedInput.description).toBe("x"); // other tool fields survive
   const [, kind, core = "", post = ""] = json.updatedInput.command.split(" ");
-  const dec = (s: string) => Buffer.from(s, "base64").toString();
+  const dec = (s: string) => (s === "-" ? "" : Buffer.from(s, "base64").toString());
   return { kind, core: dec(core), post: dec(post) };
 }
 
@@ -74,6 +74,20 @@ describe("hook rewrites plain builds", () => {
   }
 });
 
+describe("hook passes the agent's description along as the run's label", () => {
+  const label = (command: string, description: string) => {
+    const r = Bun.spawnSync([hook], {
+      stdin: Buffer.from(JSON.stringify({ tool_name: "Bash", tool_input: { command, description } })),
+      env: { PATH: process.env.PATH!, HERDR_ENV: "1", HERDR_PANE_ID: "w1:p1", CLAUDE_PLUGIN_ROOT: root },
+    });
+    const parts = JSON.parse(r.stdout.toString()).hookSpecificOutput.updatedInput.command.split(" ");
+    expect(parts).toHaveLength(5); // run, kind, command, filter, label: none may vanish
+    return parts[4] === "-" ? "" : Buffer.from(parts[4], "base64").toString();
+  };
+  test("kind prefix dropped", () => expect(label("forge test -vvv", "test: forge test -vvv")).toBe("forge test -vvv"));
+  test("a free-form description is kept as is", () => expect(label("forge test", "Run the tests")).toBe("Run the tests"));
+});
+
 describe("hook leaves everything else alone", () => {
   for (const cmd of [
     "npm install && npm test",
@@ -116,6 +130,13 @@ describe("bin/run outside herdr runs the command directly", () => {
     expect(r.exitCode).toBe(3);
   });
 
+  test("an empty filter followed by a label does not run the label", () => {
+    const r = Bun.spawnSync([join(root, "bin/run"), "test", b64("echo once"), "-", b64("echo twice")], {
+      env: { PATH: process.env.PATH!, HERDR_ENV: "" },
+    });
+    expect(r.stdout.toString()).toBe("once\n");
+  });
+
   test("applies the output filter and keeps the command's exit code", () => {
     const r = run("printf '1\\n2\\n3\\n'; exit 1", "tail -1");
     expect(r.stdout.toString()).toBe("3\n");
@@ -145,8 +166,32 @@ describe("record keeps finished runs for the deck", () => {
     }
     return null;
   }
-  const ok = (command: string, stdout = "") =>
-    record({ hook_event_name: "PostToolUse", tool_input: { command }, tool_response: { stdout, stderr: "" } });
+  const ok = (command: string, stdout = "", description?: string) =>
+    record({ hook_event_name: "PostToolUse", tool_input: { command, description }, tool_response: { stdout, stderr: "" } });
+  const labelOf = (description: string, command: string) => {
+    const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
+    Bun.spawnSync([join(root, "bin/record")], {
+      stdin: Buffer.from(JSON.stringify({ hook_event_name: "PostToolUse", tool_name: "Bash", cwd: "/tmp",
+        tool_input: { command, description }, tool_response: { stdout: "x" } })),
+      env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent" },
+    });
+    for (const kind of ["test", "build", "git"]) {
+      const f = join(tmp, "herdeck/w9_p9", kind, "runs/1/label");
+      if (existsSync(f)) return { kind, label: readFileSync(f, "utf8").trim() };
+    }
+    return null;
+  };
+
+  test("a description in the note's format names the section and the label", () =>
+    expect(labelOf("build: ./build.sh", "/usr/bin/time -p ./build.sh > /tmp/b.log 2>&1; git status --short"))
+      .toEqual({ kind: "build", label: "./build.sh" }));
+
+  test("the description wins over the command's own guess", () =>
+    expect(labelOf("test: forge test --match-path 'test/*'", "git status -sb | head -1; forge test --match-path 'test/*' | grep FAIL"))
+      .toEqual({ kind: "test", label: "forge test --match-path 'test/*'" }));
+
+  test("a free-form description falls back to the command", () =>
+    expect(ok("git status --short", "", "Show working tree status")?.kind).toBe("git"));
 
   test("a successful git command", () => {
     expect(ok("git status --short", " M bin/run")).toEqual({ kind: "git", cmd: "git status --short", log: "M bin/run", rc: "0", cwd: "/tmp" });

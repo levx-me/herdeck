@@ -46,6 +46,13 @@ MUTED_RGB, BRIGHT_RGB = "120;127;140", "220;223;228"
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
 ACCENT = {"servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
+SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+
+def spinner():
+    return SPIN[int(time.time() * 8) % len(SPIN)]
+
+
 ANSI = re.compile(r"\x1b\[[0-9;?]*[ -/]*[@-~]|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)")
 
 
@@ -118,6 +125,7 @@ class Run:
     def __init__(self, path):
         self.path = path
         self.full = read(os.path.join(path, "cmd"))
+        self.tag = read(os.path.join(path, "label"))  # "forge test", from the agent's description
         # For the run list, one line: a multi-line command (a heredoc, say) gets ⏎ marks.
         self.cmd = " ⏎ ".join(self.full.splitlines())
 
@@ -146,14 +154,16 @@ class Run:
         if rc:
             return ("✓", GREEN_RGB) if rc == "0" else ("✗", RED_RGB)
         if self.source():
-            return ("⋯", AMBER_RGB)  # background run still going
+            return (spinner(), AMBER_RGB)  # background run still going
         try:
             os.kill(int(read(os.path.join(self.path, "pid"), "0")), 0)
-            return ("⋯", AMBER_RGB)
+            return (spinner(), AMBER_RGB)
         except (OSError, ValueError):
             return ("⊘", MUTED_RGB)  # the runner died without an exit code
 
     def label(self):
+        if self.tag:
+            return self.tag
         cmd = re.sub(r"^cd \S+ && ", "", self.cmd)
         cmd = re.sub(r"^([A-Za-z_]\w*=\S* )+", "", cmd)
         return re.sub(r"^(npx|bunx|pnpm( exec| dlx)?|yarn|uv run|poetry run|python3? -m) ", "", cmd)
@@ -173,7 +183,16 @@ class Run:
     CMD_LINES = 8  # longest command shown before it is cut
 
     def command(self, cols):
-        """The whole command, every line, wrapped to the pane; cut after CMD_LINES."""
+        """The run's label, or else its whole command, wrapped to the pane."""
+        if self.tag:
+            rows = [f"{BOLD}{r}{RESET}" for r in textwrap.wrap(self.tag, max(10, cols), initial_indent="$ ",
+                                                             subsequent_indent="    ")]
+            if self.full.strip() != self.tag.strip():  # the real command, dimmed, two rows at most
+                full = textwrap.wrap(" ⏎ ".join(self.full.splitlines()), max(10, cols - 2))
+                rows += [f"{DIM}  {r}{RESET}" for r in full[:2]]
+                if len(full) > 2:
+                    rows[-1] = rows[-1][:-len(RESET)] + "…" + RESET
+            return rows
         rows = []
         for i, line in enumerate(self.full.splitlines() or [""]):
             rows += textwrap.wrap(line.expandtabs(4), max(10, cols), initial_indent="$ " if i == 0 else "  ",
@@ -427,7 +446,9 @@ class Runs:
         # A blank row between the list and the run, then its full command.
         head += ["", *run.command(cols), info, rule(cols)]
 
-        self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head))
+        running = run.status()[1] == AMBER_RGB
+        # While it runs, the last row shows a spinner under the output.
+        self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head) - (1 if running else 0))
         if self.follow or self.focus == "list":  # pinned to the end while the run grows
             self.cy = max(0, len(self.plain) - 1)
         self.clamp()
@@ -445,6 +466,10 @@ class Runs:
                 body.append(self.marked(y))
             else:
                 body.append(self.raw[y])
+        if running:
+            start = int(read(os.path.join(run.path, "start"), "0") or 0)
+            secs = f" {int(time.time()) - start}s" if start else ""
+            body.append(f"{fg(AMBER_RGB)}{spinner()} running{secs}{RESET}")
         return head, body
 
     def run_list(self, cols):

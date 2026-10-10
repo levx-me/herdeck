@@ -22,7 +22,12 @@ end='([[:space:]]|$|\))'
 # Only look at what the shell would run: drop heredoc bodies and quoted strings,
 # so `grep 'forge test' notes` or a script mentioning a runner is not a run.
 scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/'[^']*'//g; s/\"[^\"]*\"//g")
-if [[ $scan =~ ${step}${tests}${end} ]]; then kind=test
+# The session note asks for Bash descriptions like "build: ./build.sh"; when the
+# agent gives one, it names the section and labels the run.
+desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
+label=""
+if [[ $desc =~ ^(test|build|git):[[:space:]]*(.+)$ ]]; then kind=${BASH_REMATCH[1]} label=${BASH_REMATCH[2]}
+elif [[ $scan =~ ${step}${tests}${end} ]]; then kind=test
 elif [[ $scan =~ ${step}${builds}${end} ]]; then kind=build
 elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
@@ -39,6 +44,7 @@ r="$dir/runs/$n"
 mkdir -p "$r"
 
 printf '%s\n' "$cmd" > "$r/cmd"
+[ -n "$label" ] && printf '%s\n' "$label" > "$r/label"
 printf '%s' "$input" | jq -r '.cwd // empty' > "$r/cwd"
 end=$(date +%s)
 ms=$(printf '%s' "$input" | jq -r '.duration_ms // 0 | floor')

@@ -2,7 +2,7 @@
 # Run a test or build for the agent, record it for the deck, and hand the
 # output and exit code back to the caller (Claude's Bash tool).
 #
-#   run <test|build> <base64 command> [<base64 output filter>]
+#   run <test|build> <base64 command> [<base64 output filter>] [<base64 label>]
 #
 # Each run lives in $TMPDIR/herdeck/<agent pane>/<kind>/runs/<n>/ (cmd, cwd,
 # log, start, pid, then rc and end). The deck (bin/pane, bin/viewer.py) shows
@@ -10,8 +10,10 @@
 set -u
 
 kind=$1
-cmd=$(printf '%s' "$2" | base64 -d)
-post=$(printf '%s' "${3:-}" | base64 -d)
+arg() { [ "${1:--}" = - ] || printf '%s' "$1" | base64 -d; } # "-" stands for empty
+cmd=$(arg "$2")
+post=$(arg "${3:-}")
+label=$(arg "${4:-}")
 root=$(cd "$(dirname "$0")/.." && pwd)
 
 finish() { # stdout for the agent, then the command's exit code
@@ -34,6 +36,7 @@ ls "$dir/runs" | sort -rn | tail -n +20 | while read -r old; do rm -rf "${dir:?}
 r="$dir/runs/$n"
 mkdir -p "$r"
 printf '%s\n' "$cmd" > "$r/cmd"
+[ -n "$label" ] && printf '%s\n' "$label" > "$r/label"
 printf '%s\n' "$PWD" > "$r/cwd"
 date +%s > "$r/start"
 printf '%s\n' "$$" > "$r/pid"

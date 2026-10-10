@@ -20,5 +20,8 @@ note="Herdeck shows this session's tests, builds and git commands live in a herd
 Run tests and builds as plain commands (\`forge test\`, \`npm test\`, \`./build.sh\`), not piped through \
 grep/head/sed, redirected to a file, or chained with other commands: Herdeck then streams them with colour \
 and still returns the full output and exit code to you. Append \`| tail -n N\` if you only need the end. \
-Keep them in the foreground unless a run takes many minutes."
+Keep them in the foreground unless a run takes many minutes. \
+For every test, build or git command, set the Bash description to its kind and the core command, \
+e.g. \`test: forge test --match-path 'test/*'\`, \`build: ./build.sh\`, \`git: git push\`: \
+Herdeck files the run under that kind and shows that line."
 jq -n --arg note "$note" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $note}}'
