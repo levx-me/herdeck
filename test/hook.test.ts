@@ -110,11 +110,11 @@ describe("bin/run outside herdr runs the command directly", () => {
   });
 });
 
-describe("record keeps the agent's git commands for the git pane", () => {
+describe("record keeps finished runs for the deck", () => {
   const { mkdtempSync, readFileSync, readdirSync, existsSync } = require("node:fs");
   const { tmpdir } = require("node:os");
 
-  // Feed bin/record one hook event; returns the run dir it wrote, or null.
+  // Feed bin/record one hook event; returns the kind and run it wrote, or null.
   function record(event: object, env: Record<string, string> = {}) {
     const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
     const r = Bun.spawnSync([join(root, "bin/record")], {
@@ -123,20 +123,20 @@ describe("record keeps the agent's git commands for the git pane", () => {
       env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent", ...env },
     });
     expect(r.exitCode).toBe(0);
-    const runs = join(tmp, "herdeck/w9_p9/git/runs");
-    if (!existsSync(runs)) return null;
-    const [n] = readdirSync(runs);
-    const f = (name: string) => readFileSync(join(runs, n, name), "utf8").trim();
-    return { cmd: f("cmd"), log: f("log"), rc: f("rc"), cwd: f("cwd") };
+    for (const kind of ["test", "build", "git"]) {
+      const runs = join(tmp, "herdeck/w9_p9", kind, "runs");
+      if (!existsSync(runs)) continue;
+      const [n] = readdirSync(runs);
+      const f = (name: string) => readFileSync(join(runs, n, name), "utf8").trim();
+      return { kind, cmd: f("cmd"), log: f("log"), rc: f("rc"), cwd: f("cwd") };
+    }
+    return null;
   }
+  const ok = (command: string, stdout = "") =>
+    record({ hook_event_name: "PostToolUse", tool_input: { command }, tool_response: { stdout, stderr: "" } });
 
   test("a successful git command", () => {
-    const run = record({
-      hook_event_name: "PostToolUse",
-      tool_input: { command: "git status --short" },
-      tool_response: { stdout: " M bin/run", stderr: "" },
-    });
-    expect(run).toEqual({ cmd: "git status --short", log: "M bin/run", rc: "0", cwd: "/tmp" });
+    expect(ok("git status --short", " M bin/run")).toEqual({ kind: "git", cmd: "git status --short", log: "M bin/run", rc: "0", cwd: "/tmp" });
   });
 
   test("a failed git command keeps its exit code and output", () => {
@@ -145,21 +145,23 @@ describe("record keeps the agent's git commands for the git pane", () => {
       tool_input: { command: "cd repo && git push" },
       error: "Exit code 128\nfatal: no upstream",
     });
-    expect(run).toEqual({ cmd: "cd repo && git push", log: "fatal: no upstream", rc: "128", cwd: "/tmp" });
+    expect(run).toEqual({ kind: "git", cmd: "cd repo && git push", log: "fatal: no upstream", rc: "128", cwd: "/tmp" });
   });
 
-  test("git later in a chain", () => {
-    const run = record({
-      hook_event_name: "PostToolUse",
-      tool_input: { command: "npm run lint && git add -A" },
-      tool_response: { stdout: "", stderr: "" },
-    });
-    expect(run?.cmd).toBe("npm run lint && git add -A");
-  });
+  test("git later in a chain", () => expect(ok("npm run lint && git add -A")?.kind).toBe("git"));
 
-  for (const command of ["ls", "echo git status", "gitk", "npx digit run"]) {
-    test(`ignores: ${command}`, () =>
-      expect(record({ hook_event_name: "PostToolUse", tool_input: { command }, tool_response: { stdout: "x" } })).toBeNull());
+  test("a test run inside a chain and a pipe goes to test", () =>
+    expect(ok("git status -sb | head -1; forge test --match-path 'test/*' 2>&1 | grep -E 'Suite result|FAIL'")?.kind).toBe("test"));
+
+  test("a build piped through tail goes to build", () => expect(ok("forge build 2>&1 | tail -20")?.kind).toBe("build"));
+
+  test("a test run in a subshell", () => expect(ok("(cd contracts && forge test) | tail -5")?.kind).toBe("test"));
+
+  test("skips commands already routed through bin/run", () =>
+    expect(ok(`"${root}/bin/run" test Zm9yZ2UgdGVzdA== `)).toBeNull());
+
+  for (const command of ["ls", "echo git status", "gitk", "npx digit run", "echo forge test", "cat jest.config.js", "npm run testing"]) {
+    test(`ignores: ${command}`, () => expect(ok(command, "x")).toBeNull());
   }
 
   test("ignores everything outside herdr", () =>

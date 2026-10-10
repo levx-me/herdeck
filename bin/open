@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Claude Code SessionStart hook: open the deck beside the agent as soon as a
+# session starts inside herdr, so Herdeck is there before the first run.
+set -u
+input=$(cat)
+[ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
+[ -n "$(printf '%s' "$input" | jq -r '.agent_id // empty')" ] && exit 0 # not for subagents
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
+# In the background: the session should not wait for the pane to come up.
+(cd "${cwd:-$PWD}" 2>/dev/null && "$(dirname "$0")/pane" >/dev/null 2>&1 &)
+exit 0

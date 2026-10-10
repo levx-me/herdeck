@@ -1,6 +1,18 @@
 {
-  "description": "Route the agent's builds and tests into Herdeck viewer panes, and record its git commands in the git pane",
+  "description": "Herdeck: open the deck when a session starts, route plain builds and tests into it, and record chained runs and git commands after they ran",
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "^(startup|resume)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/open",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

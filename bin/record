@@ -1,24 +1,36 @@
 #!/usr/bin/env bash
 # Claude Code PostToolUse / PostToolUseFailure hook (Bash): after the agent ran
-# a git command, record it as a run of the "git" kind and show it in the deck.
+# a command, record it in the deck when it holds a test run, a build or git.
 #
-# Git commands are not rewritten like tests and builds: they keep Claude's own
-# permission checks (push, reset ...) and are recorded once they have finished.
+# Plain tests and builds were already rewritten to bin/run and recorded live.
+# This catches the rest after the fact: tests and builds inside chains or pipes
+# (`git status; forge test 2>&1 | grep FAIL`), and every git command. Nothing
+# here changes the command, so Claude's own permission checks stay in place.
 set -u
 
 input=$(cat)
 [ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
 cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
+[ -n "$cmd" ] || exit 0
+case $cmd in *"/bin/run\" "*) exit 0 ;; esac # routed through bin/run: already recorded
 
-# git at the start of the command or of any step in a chain.
-[[ $cmd =~ (^|(&&|\|\||;)[[:space:]]*)git[[:space:]] ]] || exit 0
+# A runner at the start of the command or of any step in a chain, pipe or subshell.
+step='(^|[;&|(]|&&|\|\|)[[:space:]]*(cd [^;&|]+ && )?([A-Za-z_][A-Za-z0-9_]*=[^ ]* )*(npx |pnpm (exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m )?'
+tests='(vitest|jest|pytest|cargo test|cargo nextest run|go test|bun test|deno test|forge test|npm (run )?test|pnpm (run )?test|yarn (run )?test|bun run test)([[:space:]]|$|\))'
+builds='(forge build|cargo build|cargo check|go build|tsc|next build|vite build|npm run build|pnpm (run )?build|yarn (run )?build|bun run build|swift build)([[:space:]]|$|\))'
+if [[ $cmd =~ ${step}${tests} ]]; then kind=test
+elif [[ $cmd =~ ${step}${builds} ]]; then kind=build
+elif [[ $cmd =~ ${step}git[[:space:]] ]]; then kind=git
+else exit 0
+fi
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-dir="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/git"
+dir="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/$kind"
 mkdir -p "$dir/runs"
 
+keep=20; [ "$kind" = git ] && keep=50
 n=$(ls "$dir/runs" | sort -n | tail -1); n=$(( ${n:-0} + 1 ))
-ls "$dir/runs" | sort -rn | tail -n +50 | while read -r old; do rm -rf "${dir:?}/runs/$old"; done
+ls "$dir/runs" | sort -rn | tail -n +"$keep" | while read -r old; do rm -rf "${dir:?}/runs/$old"; done
 r="$dir/runs/$n"
 mkdir -p "$r"
 
@@ -40,7 +52,7 @@ else
 fi
 printf '%s\n' "$end" > "$r/end"
 
-# Open (or reuse) the deck on its git section without holding up the agent.
+# Open (or reuse) the deck on that section without holding up the agent.
 cwd=$(cat "$r/cwd")
-(cd "${cwd:-$PWD}" 2>/dev/null && "$root/bin/pane" git >/dev/null 2>&1 &)
+(cd "${cwd:-$PWD}" 2>/dev/null && "$root/bin/pane" "$kind" >/dev/null 2>&1 &)
 exit 0

@@ -32,8 +32,10 @@ without scrolling back through the conversation.
 
 - **One deck, four sections** — `servers`, `build`, `test`, `git`, each tab showing
   the latest status (`✓` `✗` `⋯` `●`).
+- **Always there** — the deck opens beside the agent when a Claude Code session starts
+  inside herdr.
 - **Follows the agent** — when the agent runs a test, a build or a git command, or
-  starts a dev server, the deck opens (if needed) and switches to that section and run.
+  starts a dev server, the deck switches to that section and run.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
   the colours you would in a shell; the agent still gets plain text and the real exit code.
 - **Run history** — each section lists its runs, newest on top (the last 20, git the
@@ -68,18 +70,20 @@ claude plugin install herdeck@herdeck
 
 ## Usage
 
-Nothing to start: ask the agent to run your tests and the deck appears on the right.
+Nothing to start: the deck opens on the right when a session starts, and follows the agent.
 
 | The agent runs | Section | How |
 |---|---|---|
 | `vitest`, `jest`, `pytest`, `cargo test`, `go test`, `bun test`, `deno test`, `forge test`, `npm/pnpm/yarn test` | **test** | runs inside the deck, output handed back |
 | `forge build`, `cargo build`/`check`, `go build`, `tsc`, `next build`, `vite build`, `npm run build` | **build** | runs inside the deck, output handed back |
+| tests and builds inside chains or pipes (`git status; forge test 2>&1 \| grep FAIL`) | **test** / **build** | recorded after they ran |
 | any command with `git …` | **git** | recorded after it ran (Claude's permission checks unchanged) |
 | `npm run dev`, `next dev`, `vite`, `anvil`, `uvicorn`, `flask run`, … | **servers** | command untouched, section brought forward |
 
-Only plain invocations are routed: `[cd DIR &&] [VAR=val] [npx|pnpm|…] RUNNER [args]`,
-optionally with `2>&1` and one `| tail/head -n N`. Anything chained, piped elsewhere,
-redirected or using substitutions runs exactly as the agent wrote it.
+Only plain invocations run inside the deck (live, coloured):
+`[cd DIR &&] [VAR=val] [npx|pnpm|…] RUNNER [args]`, optionally with `2>&1` and one
+`| tail/head -n N`. Anything chained, piped elsewhere, redirected or using substitutions
+runs exactly as the agent wrote it, and shows up in the deck once it has finished.
 
 ### Keys
 
@@ -124,7 +128,8 @@ flowchart LR
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to
   `$TMPDIR/herdeck/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
-- `bin/record` keeps git commands after Claude ran them.
+- `bin/open` opens the deck when a session starts.
+- `bin/record` keeps git commands, and tests and builds that were not routed, after Claude ran them.
 - `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show.
 - `bin/viewer.py` draws the deck from those run directories and reloads itself when edited.
 
