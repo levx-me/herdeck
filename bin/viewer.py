@@ -9,7 +9,7 @@ end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, brings
 that section forward; a new run is also followed live.
 
-Keys: [ ] (or tab/shift-tab) and 1-5 switch sections, x drop the run,
+Keys: [ ] (or tab/shift-tab) and 1-5 switch sections,
 q close the pane. In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
@@ -706,14 +706,12 @@ class Runs:
                 self.focus, self.follow = "list", True
         elif k in ("/", "?"):
             self.search, self.back = "", k == "?"
-        elif k == "x":
-            shutil.rmtree(self.runs[self.tab].path, ignore_errors=True)
 
     def hints(self):
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("[ ]", "tabs"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "open"), ("[ ]", "tabs"), ("q", "close")]
         return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
 
     def list_key(self, k):
@@ -733,8 +731,6 @@ class Runs:
             self.select(0)
         elif k in ("\r", "\n", "l"):  # into the output, cursor on its last line
             self.focus, self.follow, self.cx = "log", False, 0
-        elif k == "x":
-            shutil.rmtree(self.runs[self.tab].path, ignore_errors=True)
 
     def click(self, row, col):
         """A click on the run list shows that run; in the log it moves the cursor."""

@@ -98,7 +98,6 @@ the keys that apply right now.
 | | `q` | close the deck |
 | run list (build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
-| | `x` | drop the run |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |
 | | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
 | | `v` `V`, `y` | select by character / line, yank (the cursor line when nothing is selected) |
