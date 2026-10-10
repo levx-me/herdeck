@@ -680,6 +680,7 @@ class Deck:
     def __init__(self):
         self.views = [Servers()] + [Runs(k) for k in SECTIONS[1:]]
         self.section = 0
+        self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
         self.focus_at = self.focus_mtime()
         if read(self.focus_path) in SECTIONS:  # open on the section that asked for the deck
@@ -718,12 +719,20 @@ class Deck:
         cols, rows = shutil.get_terminal_size()
         view = self.views[self.section]
         head, body = view.frame(cols, rows - 1)  # the last row holds the key hints
-        out = ["\033[H\033[2J", self.section_bar(cols), "\r\n"]
+        # Overwrite in place (each line clears its own tail, \033[J the rest)
+        # instead of clearing the screen, so nothing flashes between frames.
+        out = [self.section_bar(cols), "\033[K\r\n\033[K"]
         for line in head + body:
-            out += ["\r\n", fit(line, cols), RESET]
+            out += ["\r\n", fit(line, cols), RESET, "\033[K"]
+        out.append("\033[J")
         hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints())
         out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
-        sys.stdout.write("".join(out))
+        frame = "".join(out)
+        if frame == self.last_frame:  # nothing changed: leave the screen alone
+            return
+        self.last_frame = frame
+        # Synchronized output: terminals that support it show the frame at once.
+        sys.stdout.write("\033[?2026h\033[H" + frame + "\033[?2026l")
         sys.stdout.flush()
 
     def mouse(self, button, col, row):
