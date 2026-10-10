@@ -33,7 +33,8 @@ without scrolling back through the conversation.
 - **One deck, four sections** — `servers`, `build`, `test`, `git`, each tab showing
   the latest status (`✓` `✗` `⋯` `●`).
 - **Always there** — the deck opens beside the agent when a Claude Code session starts
-  inside herdr.
+  inside herdr, and the agent is told to run tests and builds as plain commands so the
+  deck can stream them (added to the session's context; no file is edited).
 - **Follows the agent** — when the agent runs a test, a build or a git command, or
   starts a dev server, the deck switches to that section and run.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
@@ -129,7 +130,7 @@ flowchart LR
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to
   `$TMPDIR/herdeck/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
-- `bin/open` opens the deck when a session starts.
+- `bin/open` opens the deck when a session starts and adds the run-it-plainly note to the session.
 - `bin/record` keeps git commands, and tests and builds that were not routed, after Claude ran them.
 - `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show.
 - `bin/viewer.py` draws the deck from those run directories and reloads itself when edited.

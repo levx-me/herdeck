@@ -213,3 +213,24 @@ describe("record keeps finished runs for the deck", () => {
   test("ignores everything outside herdr", () =>
     expect(record({ hook_event_name: "PostToolUse", tool_input: { command: "git log" }, tool_response: { stdout: "x" } }, { HERDR_ENV: "" })).toBeNull());
 });
+
+describe("open tells the agent how to run things for the deck", () => {
+  const open = (event: object, env: Record<string, string> = {}) =>
+    Bun.spawnSync([join(root, "bin/open")], {
+      stdin: Buffer.from(JSON.stringify({ hook_event_name: "SessionStart", cwd: "/tmp", ...event })),
+      // compact never opens the deck; the dead socket keeps tests off real herdr.
+      env: { PATH: process.env.PATH!, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent", ...env },
+    });
+
+  test("adds the note to the session", () => {
+    const r = open({ source: "compact" });
+    expect(r.exitCode).toBe(0);
+    const out = JSON.parse(r.stdout.toString()).hookSpecificOutput;
+    expect(out.hookEventName).toBe("SessionStart");
+    expect(out.additionalContext).toContain("plain commands");
+  });
+
+  test("says nothing outside herdr", () => expect(open({ source: "startup" }, { HERDR_ENV: "" }).stdout.toString()).toBe(""));
+
+  test("says nothing to subagents", () => expect(open({ source: "startup", agent_id: "sub" }).stdout.toString()).toBe(""));
+});
