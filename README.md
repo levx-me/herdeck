@@ -74,14 +74,14 @@ Nothing to start: the deck opens on the right when a session starts, and follows
 
 | The agent runs | Section | How |
 |---|---|---|
-| `vitest`, `jest`, `pytest`, `cargo test`, `go test`, `bun test`, `deno test`, `forge test`, `npm/pnpm/yarn test` | **test** | runs inside the deck, output handed back |
-| `forge build`, `cargo build`/`check`, `go build`, `tsc`, `next build`, `vite build`, `npm run build` | **build** | runs inside the deck, output handed back |
+| `vitest`, `jest`, `pytest`, `cargo test`, `go test`, `bun test`, `deno test`, `forge test`, `npm/pnpm/yarn test[:x]`, `make`/`just test`, `./test.sh`-style scripts | **test** | runs inside the deck, output handed back |
+| `forge build`, `cargo build`/`check`, `go build`, `tsc`, `next build`, `vite build`, `npm run build[:x]`, `make`/`just build`, `./build.sh`-style scripts | **build** | runs inside the deck, output handed back |
 | tests and builds inside chains or pipes (`git status; forge test 2>&1 \| grep FAIL`) | **test** / **build** | recorded after they ran |
 | any command with `git …` | **git** | recorded after it ran (Claude's permission checks unchanged) |
 | `npm run dev`, `next dev`, `vite`, `anvil`, `uvicorn`, `flask run`, … | **servers** | command untouched, section brought forward |
 
 Only plain invocations run inside the deck (live, coloured):
-`[cd DIR &&] [VAR=val] [npx|pnpm|…] RUNNER [args]`, optionally with `2>&1` and one
+`[cd DIR &&] [VAR=val] [time|nice|timeout N|env] [npx|pnpm|…] RUNNER [args]`, optionally with `2>&1` and one
 `| tail/head -n N`. Anything chained, piped elsewhere, redirected or using substitutions
 runs exactly as the agent wrote it, and shows up in the deck once it has finished.
 
@@ -124,6 +124,7 @@ flowchart LR
   V -- bin/servers --> L[lsof]
 ```
 
+- `bin/runners.sh` defines what counts as a test run or a build, for both hooks.
 - `bin/hook` decides what a Bash call is. Tests and builds are rewritten to `bin/run`
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to

@@ -4,7 +4,8 @@
 # read-only deck pane beside the agent and hands the output back.
 #
 # Only a plain invocation is rewritten:
-#   [cd DIR &&] [VAR=val ...] [npx|pnpm|yarn|bunx|uv run|poetry run|python -m] RUNNER [args]
+#   [cd DIR &&] [VAR=val ...] [time|nice|timeout N|env ...] [npx|pnpm|... ] RUNNER [args]
+#   (RUNNER per bin/runners.sh: tool runners, make/just targets, ./build.sh, ./test.sh ...)
 #   optionally followed by `2>&1` and one `| tail/head -n N` filter.
 # Anything with other pipes, chains, substitutions or redirects is left alone,
 # so "allow" below never approves more than a test or build.
@@ -24,9 +25,8 @@ if [[ $cmd =~ $devs ]]; then
 fi
 
 safe='[^;&|`$<>()]'
-prefix="^(cd ${safe}+ && )?([A-Za-z_][A-Za-z0-9_]*=${safe}* )*(npx |pnpm (exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m )?"
-tests='(vitest|jest|pytest|cargo test|cargo nextest run|go test|bun test|deno test|forge test|npm (run )?test|pnpm (run )?test|yarn (run )?test|bun run test)'
-builds='(forge build|cargo build|cargo check|go build|tsc|next build|vite build|npm run build|pnpm (run )?build|yarn (run )?build|bun run build|swift build)'
+. "$(dirname "$0")/runners.sh"
+prefix="^(cd ${safe}+ && )?([A-Za-z_][A-Za-z0-9_]*=${safe}* )*${wrappers}${launchers}"
 filter=' \| (tail|head)( -n)? -?[0-9]+$'
 
 core=$cmd post=""

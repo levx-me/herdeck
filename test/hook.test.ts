@@ -41,6 +41,10 @@ describe("hook rewrites plain test runs", () => {
     ["npm run test 2>&1", "npm run test", ""],
     ["npm run test 2>&1 | tail -40", "npm run test", "tail -40"],
     ["npx jest | head -n 20", "npx jest", "head -n 20"],
+    ["./test.sh", "./test.sh", ""],
+    ["make test", "make test", ""],
+    ["time forge test", "time forge test", ""],
+    ["npm run test:unit", "npm run test:unit", ""],
   ];
   for (const [cmd, core, post] of cases) {
     test(cmd, () => expect(rewrite(cmd)).toEqual({ kind: "test", core, post }));
@@ -59,6 +63,12 @@ describe("hook rewrites plain builds", () => {
     "npm run build",
     "pnpm build",
     "cd web && bun run build",
+    "./build.sh",
+    "/usr/bin/time -p ./build.sh",
+    "bash scripts/build-all.sh",
+    "make build",
+    "npm run build:prod",
+    "timeout 600 forge build",
   ]) {
     test(cmd, () => expect(rewrite(cmd)).toEqual({ kind: "build", core: cmd, post: "" }));
   }
@@ -73,6 +83,9 @@ describe("hook leaves everything else alone", () => {
     "forge test > out.txt",
     "npm test | grep FAIL",
     "forge fmt",
+    "./latest.sh",
+    "./rebuild.sh",
+    "make deploy",
     "echo vitest",
     'git commit -m "add test"',
     "vitest-like-tool run",
@@ -154,6 +167,9 @@ describe("record keeps finished runs for the deck", () => {
     expect(ok("git status -sb | head -1; forge test --match-path 'test/*' 2>&1 | grep -E 'Suite result|FAIL'")?.kind).toBe("test"));
 
   test("a build piped through tail goes to build", () => expect(ok("forge build 2>&1 | tail -20")?.kind).toBe("build"));
+
+  test("a timed build script with git status at the end goes to build", () =>
+    expect(ok('/usr/bin/time -p ./build.sh > /tmp/build.log 2>&1; echo "exit $?"; grep -E "error|^real" /tmp/build.log | head -20; git status --short')?.kind).toBe("build"));
 
   test("a test run in a subshell", () => expect(ok("(cd contracts && forge test) | tail -5")?.kind).toBe("test"));
 

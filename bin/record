@@ -15,14 +15,15 @@ cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
 case $cmd in *"/bin/run\" "*) exit 0 ;; esac # routed through bin/run: already recorded
 
 # A runner at the start of the command or of any step in a chain, pipe or subshell.
-step='(^|[;&|(]|&&|\|\|)[[:space:]]*(cd [^;&|]+ && )?([A-Za-z_][A-Za-z0-9_]*=[^ ]* )*(npx |pnpm (exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m )?'
-tests='(vitest|jest|pytest|cargo test|cargo nextest run|go test|bun test|deno test|forge test|npm (run )?test|pnpm (run )?test|yarn (run )?test|bun run test)([[:space:]]|$|\))'
-builds='(forge build|cargo build|cargo check|go build|tsc|next build|vite build|npm run build|pnpm (run )?build|yarn (run )?build|bun run build|swift build)([[:space:]]|$|\))'
+. "$(dirname "$0")/runners.sh"
+step="(^|[;&|(]|&&|\\|\\|)[[:space:]]*(cd [^;&|]+ && )?([A-Za-z_][A-Za-z0-9_]*=[^ ]* )*${wrappers}${launchers}"
+end='([[:space:]]|$|\))'
+
 # Only look at what the shell would run: drop heredoc bodies and quoted strings,
 # so `grep 'forge test' notes` or a script mentioning a runner is not a run.
 scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/'[^']*'//g; s/\"[^\"]*\"//g")
-if [[ $scan =~ ${step}${tests} ]]; then kind=test
-elif [[ $scan =~ ${step}${builds} ]]; then kind=build
+if [[ $scan =~ ${step}${tests}${end} ]]; then kind=test
+elif [[ $scan =~ ${step}${builds}${end} ]]; then kind=build
 elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
 fi
