@@ -18,9 +18,12 @@ case $cmd in *"/bin/run\" "*) exit 0 ;; esac # routed through bin/run: already r
 step='(^|[;&|(]|&&|\|\|)[[:space:]]*(cd [^;&|]+ && )?([A-Za-z_][A-Za-z0-9_]*=[^ ]* )*(npx |pnpm (exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m )?'
 tests='(vitest|jest|pytest|cargo test|cargo nextest run|go test|bun test|deno test|forge test|npm (run )?test|pnpm (run )?test|yarn (run )?test|bun run test)([[:space:]]|$|\))'
 builds='(forge build|cargo build|cargo check|go build|tsc|next build|vite build|npm run build|pnpm (run )?build|yarn (run )?build|bun run build|swift build)([[:space:]]|$|\))'
-if [[ $cmd =~ ${step}${tests} ]]; then kind=test
-elif [[ $cmd =~ ${step}${builds} ]]; then kind=build
-elif [[ $cmd =~ ${step}git[[:space:]] ]]; then kind=git
+# Only look at what the shell would run: drop heredoc bodies and quoted strings,
+# so `grep 'forge test' notes` or a script mentioning a runner is not a run.
+scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/'[^']*'//g; s/\"[^\"]*\"//g")
+if [[ $scan =~ ${step}${tests} ]]; then kind=test
+elif [[ $scan =~ ${step}${builds} ]]; then kind=build
+elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
 fi
 
@@ -40,7 +43,16 @@ end=$(date +%s)
 ms=$(printf '%s' "$input" | jq -r '.duration_ms // 0 | floor')
 printf '%s\n' "$(( end - ms / 1000 ))" > "$r/start"
 
-if [ "$(printf '%s' "$input" | jq -r .hook_event_name)" = PostToolUseFailure ]; then
+bg=$(printf '%s' "$input" | jq -r '.tool_response.backgroundTaskId // empty')
+if [ -n "$bg" ]; then
+  # Sent to the background: this hook fires at launch, not at the end. Point the
+  # deck at Claude's task output file instead; it follows it and reads the
+  # "[exited with code N]" line Claude Code appends when the command ends.
+  out=$(find "/private/tmp/claude-$(id -u)" "${TMPDIR:-/tmp}/claude-$(id -u)" -maxdepth 4 \
+    -name "$bg.output" -print -quit 2>/dev/null)
+  printf '%s\n' "${out:-}" > "$r/source"
+  [ -n "$out" ] || printf '(running in the background as %s; output not found)\n' "$bg" > "$r/log"
+elif [ "$(printf '%s' "$input" | jq -r .hook_event_name)" = PostToolUseFailure ]; then
   # "Exit code N" on the first line, then the combined output.
   err=$(printf '%s' "$input" | jq -r '.error // ""')
   rc=$(printf '%s\n' "$err" | sed -n '1s/^Exit code \([0-9][0-9]*\).*/\1/p')
@@ -50,7 +62,7 @@ else
   printf '%s' "$input" | jq -r '[.tool_response.stdout // "", .tool_response.stderr // ""] | map(select(. != "")) | join("\n")' > "$r/log"
   printf '0\n' > "$r/rc"
 fi
-printf '%s\n' "$end" > "$r/end"
+[ -n "$bg" ] || printf '%s\n' "$end" > "$r/end"
 
 # Open (or reuse) the deck on that section without holding up the agent.
 cwd=$(cat "$r/cwd")

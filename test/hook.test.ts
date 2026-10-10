@@ -157,12 +157,42 @@ describe("record keeps finished runs for the deck", () => {
 
   test("a test run in a subshell", () => expect(ok("(cd contracts && forge test) | tail -5")?.kind).toBe("test"));
 
+  test("quoted arguments do not hide the run", () =>
+    expect(ok("forge test --match-path 'test/*' 2>&1 | grep -E \"Suite|FAIL\"")?.kind).toBe("test"));
+
   test("skips commands already routed through bin/run", () =>
     expect(ok(`"${root}/bin/run" test Zm9yZ2UgdGVzdA== `)).toBeNull());
 
-  for (const command of ["ls", "echo git status", "gitk", "npx digit run", "echo forge test", "cat jest.config.js", "npm run testing"]) {
+  for (const command of [
+    "ls", "echo git status", "gitk", "npx digit run", "echo forge test", "cat jest.config.js", "npm run testing",
+    "grep 'forge test' notes.md",
+    'sed -i "s/|bun run test/x/" README.md',
+    "python3 - <<'PY'\nprint('ok')\n; forge test\nPY",
+  ]) {
     test(`ignores: ${command}`, () => expect(ok(command, "x")).toBeNull());
   }
+
+  test("a run sent to the background points at Claude's task output", () => {
+    const { mkdirSync, writeFileSync } = require("node:fs");
+    const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
+    const uid = Bun.spawnSync(["id", "-u"]).stdout.toString().trim();
+    const tasks = join(tmp, `claude-${uid}`, "project", "session", "tasks");
+    mkdirSync(tasks, { recursive: true });
+    writeFileSync(join(tasks, "bgtest123.output"), "Suite result: ok\n");
+    const r = Bun.spawnSync([join(root, "bin/record")], {
+      stdin: Buffer.from(JSON.stringify({
+        hook_event_name: "PostToolUse", tool_name: "Bash", cwd: "/tmp",
+        tool_input: { command: "forge test", run_in_background: true },
+        tool_response: { stdout: "", stderr: "", backgroundTaskId: "bgtest123" },
+      })),
+      env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent" },
+    });
+    expect(r.exitCode).toBe(0);
+    const run = join(tmp, "herdeck/w9_p9/test/runs/1");
+    expect(readFileSync(join(run, "source"), "utf8").trim()).toBe(join(tasks, "bgtest123.output"));
+    expect(existsSync(join(run, "rc"))).toBe(false); // still running: no exit code yet
+    expect(existsSync(join(run, "end"))).toBe(false);
+  });
 
   test("ignores everything outside herdr", () =>
     expect(record({ hook_event_name: "PostToolUse", tool_input: { command: "git log" }, tool_response: { stdout: "x" } }, { HERDR_ENV: "" })).toBeNull());

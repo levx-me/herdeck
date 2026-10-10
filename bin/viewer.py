@@ -28,6 +28,7 @@ import shutil
 import subprocess
 import sys
 import termios
+import textwrap
 import time
 import tty
 
@@ -116,13 +117,36 @@ def strip(cells, cols, active):
 class Run:
     def __init__(self, path):
         self.path = path
-        # Shown on one line: a multi-line command (a heredoc, say) gets ⏎ marks.
-        self.cmd = " ⏎ ".join(read(os.path.join(path, "cmd")).splitlines())
+        self.full = read(os.path.join(path, "cmd"))
+        # For the run list, one line: a multi-line command (a heredoc, say) gets ⏎ marks.
+        self.cmd = " ⏎ ".join(self.full.splitlines())
+
+    def source(self):
+        """Claude's task output file, for a run sent to the background."""
+        return read(os.path.join(self.path, "source"))
+
+    def rc(self):
+        """Exit code, or "" while running. A background run's code is the
+        "[exited with code N]" line Claude Code appends to its output file."""
+        rc = read(os.path.join(self.path, "rc"))
+        src = self.source()
+        if rc or not src:
+            return rc
+        try:
+            with open(src, "rb") as f:
+                f.seek(max(0, os.path.getsize(src) - 200))
+                tail = f.read().decode("utf-8", "replace")
+        except OSError:
+            return ""
+        m = re.search(r"\[exited with code (\d+)\]\s*$", tail)
+        return m.group(1) if m else ""
 
     def status(self):
-        rc = read(os.path.join(self.path, "rc"))
+        rc = self.rc()
         if rc:
             return ("✓", GREEN_RGB) if rc == "0" else ("✗", RED_RGB)
+        if self.source():
+            return ("⋯", AMBER_RGB)  # background run still going
         try:
             os.kill(int(read(os.path.join(self.path, "pid"), "0")), 0)
             return ("⋯", AMBER_RGB)
@@ -136,30 +160,56 @@ class Run:
 
     def age(self):
         """'running 4s' while it runs, else how long ago it finished."""
-        end = read(os.path.join(self.path, "end"))
+        end = self.end()
         if not end:
             start = int(read(os.path.join(self.path, "start"), "0") or 0)
-            return f"running {int(time.time()) - start}s"
+            return f"running {int(time.time()) - start}s" if start else "running"
         s = int(time.time()) - int(end)
         for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
             if s >= size:
                 return f"{s // size}{unit} ago"
         return f"{s}s ago"
 
-    def info(self):
-        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+    CMD_LINES = 8  # longest command shown before it is cut
+
+    def command(self, cols):
+        """The whole command, every line, wrapped to the pane; cut after CMD_LINES."""
+        rows = []
+        for i, line in enumerate(self.full.splitlines() or [""]):
+            rows += textwrap.wrap(line.expandtabs(4), max(10, cols), initial_indent="$ " if i == 0 else "  ",
+                                  subsequent_indent="    ", drop_whitespace=False) or ["  "]
+        if len(rows) > self.CMD_LINES:
+            rows = rows[:self.CMD_LINES - 1] + [f"{DIM}  … {len(rows) - self.CMD_LINES + 1} more lines{RESET}"]
+        return [f"{BOLD}{r}{RESET}" if not r.startswith(DIM) else r for r in rows]
+
+    def end(self):
+        """When it finished: the end file, or a finished background run's output mtime."""
         end = read(os.path.join(self.path, "end"))
-        secs = (int(end) if end else int(time.time())) - start
-        rc = read(os.path.join(self.path, "rc"))
-        tail = f" · exit {rc}" if rc else " · running"
-        return f"$ {self.cmd}  {DIM}· {read(os.path.join(self.path, 'cwd'))} · {secs}s{tail}{RESET}"
+        if not end and self.source() and self.rc():
+            try:
+                end = str(int(os.path.getmtime(self.source())))
+            except OSError:
+                pass
+        return end
+
+    def info(self):
+        """Where, how long, and how it ended."""
+        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+        end = self.end()
+        rc = self.rc()
+        parts = [read(os.path.join(self.path, "cwd")).replace(os.path.expanduser("~"), "~", 1)]
+        if start:
+            parts.append(f"{(int(end) if end else int(time.time())) - start}s")
+        parts.append(f"exit {rc}" if rc else "running in the background" if self.source() else "running")
+        return f"{DIM}  {' · '.join(p for p in parts if p)}{RESET}"
 
     def lines(self):
         try:
-            with open(os.path.join(self.path, "log"), "rb") as f:
+            with open(self.source() or os.path.join(self.path, "log"), "rb") as f:
                 text = f.read().decode("utf-8", "replace")
         except OSError:
             return []
+        text = re.sub(r"\n*\[exited with code \d+\]\s*$", "", text)
         return clean(text, git=os.path.basename(os.path.dirname(os.path.dirname(self.path))) == "git")
 
 
@@ -374,7 +424,8 @@ class Runs:
             mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
-        head += ["", info, rule(cols)]  # a blank row between the list and the output
+        # A blank row between the list and the run, then its full command.
+        head += ["", *run.command(cols), info, rule(cols)]
 
         self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head))
         if self.follow or self.focus == "list":  # pinned to the end while the run grows
