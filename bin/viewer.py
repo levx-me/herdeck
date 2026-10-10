@@ -9,7 +9,7 @@ end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, brings
 that section forward; a new run is also followed live.
 
-Keys: tab/shift-tab or 1-5 switch sections, [ ] move up / down the run list, x drop the run,
+Keys: [ ] (or tab/shift-tab) and 1-5 switch sections, x drop the run,
 q close the pane. In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
@@ -155,7 +155,7 @@ def git_summary(cmd):
 def commit_message(cmd):
     """The full message of a `git commit` in cmd: from -m "..." (any number of
     lines) or from a heredoc fed to it; "" when there is none."""
-    if not re.search(r"\bgit\b[^\n;&|]*\bcommit\b", cmd):
+    if not re.search(r"\bgit\b[^\n;&|]*\bcommit\b", cmd.split("<<", 1)[0]):  # not in a heredoc body
         return ""
     heredoc = re.search(r"""<<-?\s*['"]?(\w+)['"]?\n(.*?)\n\s*\1\b""", cmd, re.S)
     m = re.search(r"""-m\s+(?:"((?:[^"\\]|\\.)*)"|'([^']*)')""", cmd, re.S)
@@ -233,7 +233,8 @@ class Run:
     def command(self, cols):
         """The run's label, or else its whole command, wrapped to the pane.
         A git commit also shows its whole message."""
-        message = commit_message(self.full)
+        is_git = os.path.basename(os.path.dirname(os.path.dirname(self.path))) == "git"
+        message = commit_message(self.full) if is_git else ""
         if message:
             rows = [f"{BOLD}$ {self.tag or 'git commit'}{RESET}"]
             lines = []
@@ -502,8 +503,8 @@ class Runs:
             mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
-        # A blank row between the list and the run, then its full command.
-        head += ["", *run.command(cols), info, rule(cols)]
+        # The run list box, then the run's command.
+        head += [*run.command(cols), info, rule(cols)]
 
         running = run.status()[1] == AMBER_RGB
         # While it runs, the last row shows a spinner under the output.
@@ -532,7 +533,18 @@ class Runs:
         return head, body
 
     def run_list(self, cols):
-        """Newest run on top, the one on show raised; scrolls past LIST_ROWS."""
+        """The runs in a rounded box, newest on top, the one on show raised;
+        scrolls past LIST_ROWS. The border takes the accent while the list has
+        the focus."""
+        edge = fg(ACCENT[self.kind]) if self.focus == "list" else fg("70;76;88")
+        inner = cols - 2
+        title = f" runs · {len(self.runs)} "
+        top = f"{edge}╭─{fg(MUTED_RGB)}{title}{edge}{'─' * max(0, inner - 1 - len(title))}╮{RESET}"
+        rows = [f"{edge}│{RESET}{line}{RESET}{edge}│{RESET}" for line in self.rows(inner)]
+        return [top, *rows, f"{edge}╰{'─' * inner}╯{RESET}"]
+
+    def rows(self, cols):
+        """List rows, each exactly cols wide."""
         order = list(range(len(self.runs) - 1, -1, -1))
         at = order.index(self.tab)
         first = max(0, min(at - LIST_ROWS // 2, len(order) - LIST_ROWS))
@@ -552,7 +564,7 @@ class Runs:
             if i == self.tab:
                 arrow = fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)
                 lines.append(f"{bg(ACTIVE_RGB)}{arrow}➜{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
-                             f"\033[22m{gap}{fg(MUTED_RGB)}{age} \033[K{RESET}")
+                             f"\033[22m{gap}{fg(MUTED_RGB)}{age} {RESET}")
             else:
                 lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{age} {RESET}")
         return lines
@@ -644,10 +656,6 @@ class Runs:
                 self.focus, self.follow = "list", True
         elif k in ("/", "?"):
             self.search, self.back = "", k == "?"
-        elif k == "]":  # down the list: an older run
-            self.select(max(0, self.tab - 1))
-        elif k == "[":  # up the list: a newer run
-            self.select(min(len(self.runs) - 1, self.tab + 1))
         elif k == "x":
             shutil.rmtree(self.runs[self.tab].path, ignore_errors=True)
 
@@ -655,7 +663,7 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("tab 1-5", "section"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("[ ]", "section"), ("q", "close")]
         return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
 
     def list_key(self, k):
@@ -675,16 +683,14 @@ class Runs:
             self.select(0)
         elif k in ("\r", "\n", "l"):  # into the output, cursor on its last line
             self.focus, self.follow, self.cx = "log", False, 0
-        elif k in ("[", "]", "x"):
-            self.focus = "log"  # reuse the shared handling, then come back
-            self.key(k)
-            self.focus = "list"
+        elif k == "x":
+            shutil.rmtree(self.runs[self.tab].path, ignore_errors=True)
 
     def click(self, row, col):
         """A click on the run list shows that run; in the log it moves the cursor."""
         listed = getattr(self, "listed", [])
-        if self.runs and 0 <= row - HEAD_ROW < len(listed):
-            self.select(listed[row - HEAD_ROW])
+        if self.runs and 0 <= row - HEAD_ROW - 1 < len(listed):  # below the box's top border
+            self.select(listed[row - HEAD_ROW - 1])
             self.focus = "list"
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus = "log"
@@ -724,7 +730,7 @@ class Servers:
         return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
 
     def hints(self):
-        return [("j/k", "select"), ("enter", "browser"), ("tab 1-5", "section"), ("q", "close")]
+        return [("j/k", "select"), ("enter", "browser"), ("[ ]", "section"), ("q", "close")]
 
     def frame(self, cols, rows):
         n = len(self.servers)
@@ -802,6 +808,7 @@ class Deck:
 
     def draw(self):
         cols, rows = shutil.get_terminal_size()
+        cols -= 1  # herdr's pane scrollbar covers the last column
         view = self.views[self.section]
         head, body = view.frame(cols, rows - 1)  # the last row holds the key hints
         # Overwrite in place (each line clears its own tail, \033[J the rest)
@@ -832,9 +839,13 @@ class Deck:
             self.views[self.section].click(row, col)
 
     def key(self, k):
-        if k == "\t":
+        view = self.views[self.section]
+        if getattr(view, "search", None) is not None:  # typing a search: every key is text
+            view.key(k)
+            return
+        if k in ("\t", "]"):
             self.section = (self.section + 1) % len(self.views)
-        elif k == "\x1b[Z":
+        elif k in ("\x1b[Z", "["):
             self.section = (self.section - 1) % len(self.views)
         elif k.isdigit() and 1 <= int(k) <= len(self.views):
             self.section = int(k) - 1

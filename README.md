@@ -40,7 +40,7 @@ without scrolling back through the conversation.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
   the colours you would in a shell; the agent still gets plain text and the real exit code.
 - **Run history** — each section lists its runs, newest on top (the last 20, git the
-  last 50); pick one with `[` `]` or a click.
+  last 50); pick one with `j` `k` or a click.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
 - **Dev servers** — ports opened by processes inside the project, clickable, one key
   to open in the browser.
@@ -94,7 +94,7 @@ the keys that apply right now.
 
 | Where | Keys | Action |
 |---|---|---|
-| anywhere | `tab` `shift+tab`, `1`–`5` | switch section |
+| anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`5` | previous / next section, jump to one |
 | | `q` | close the deck |
 | run list (build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
@@ -104,7 +104,6 @@ the keys that apply right now.
 | | `v` `V`, `y` | select by character / line, yank (the cursor line when nothing is selected) |
 | | `/` `?`, `n` `N` | search forward / back, repeat |
 | | `esc` | cancel the selection, or back to the run list |
-| either | `[` `]` | previous / next run without leaving the output |
 | servers | `j` `k`, `enter` `o` | pick a server, open it in the browser |
 
 Yanks go to `pbcopy`, `wl-copy` or `xclip`, falling back to the terminal clipboard (OSC 52).
