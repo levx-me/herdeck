@@ -14,7 +14,7 @@ q close the pane. Run logs take herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
 selected), / ? search, n N repeat, esc cancel. In servers, j/k pick a server and
 enter/o opens it.
-Mouse: click a section or run tab to switch, click in a log to place the
+Mouse: click a section tab or the ‹ › of a run to switch, click in a log to place the
 cursor, click a server to open it, wheel to scroll.
 
 Standard library only, so it runs on the python3 that macOS and Linux ship.
@@ -126,8 +126,19 @@ class Run:
     def label(self):
         cmd = re.sub(r"^cd \S+ && ", "", self.cmd)
         cmd = re.sub(r"^([A-Za-z_]\w*=\S* )+", "", cmd)
-        cmd = re.sub(r"^(npx|bunx|pnpm( exec| dlx)?|yarn|uv run|poetry run|python3? -m) ", "", cmd)
-        return cmd if len(cmd) <= 22 else cmd[:21] + "…"
+        return re.sub(r"^(npx|bunx|pnpm( exec| dlx)?|yarn|uv run|poetry run|python3? -m) ", "", cmd)
+
+    def age(self):
+        """'running 4s' while it runs, else how long ago it finished."""
+        end = read(os.path.join(self.path, "end"))
+        if not end:
+            start = int(read(os.path.join(self.path, "start"), "0") or 0)
+            return f"running {int(time.time()) - start}s"
+        s = int(time.time()) - int(end)
+        for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
+            if s >= size:
+                return f"{s // size}{unit} ago"
+        return f"{s}s ago"
 
     def info(self):
         start = int(read(os.path.join(self.path, "start"), "0") or 0)
@@ -343,20 +354,8 @@ class Runs:
     # drawing ---------------------------------------------------------------
 
     def frame(self, cols, rows):
-        self.spans = []
         if not self.runs:
             return f"{bg(STRIP_RGB)}\033[K{RESET}", f"{DIM}no {self.kind} runs yet{RESET}", []
-        cells = []
-        for i, run in enumerate(self.runs):
-            icon, colour = run.status()
-            label = run.label()
-            if len(label) > cols - 9:
-                label = label[:max(1, cols - 10)] + "…"
-            if i == self.tab:
-                text = f"{bg(ACTIVE_RGB)}{fg(ACCENT[self.kind])}▎{fg(colour)}{icon}{fg(BRIGHT_RGB)}{BOLD} {label} \033[22m"
-            else:
-                text = f"{bg(TAB_RGB)} {fg(colour)}{icon}{fg(MUTED_RGB)} {label} "
-            cells.append((len(label) + 4, text))
         run = self.runs[self.tab]
         self.raw = run.lines()
         self.plain = [ANSI.sub("", l) for l in self.raw]
@@ -382,8 +381,23 @@ class Runs:
             mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
-        bar, self.spans = strip(cells, cols, self.tab)
-        return bar, info, body
+        return self.picker(cols), info, body
+
+    def picker(self, cols):
+        """The run on show: ‹ status command … position · age ›."""
+        self.cols = cols
+        run, n = self.runs[self.tab], len(self.runs)
+        icon, colour = run.status()
+        on = lambda yes: fg(BRIGHT_RGB) if yes else fg("70;76;88")  # dim arrow at either end
+        right = f"{self.tab + 1}/{n} · {run.age()}"
+        # " ‹  ✗ label<gap>right  ›" is 9 columns plus label, gap and right.
+        label = run.label()
+        room = cols - 10 - len(right)
+        if len(label) > room:
+            label = label[:max(1, room - 1)] + "…"
+        gap = max(1, cols - 9 - len(label) - len(right))
+        return (f"{bg(STRIP_RGB)} {on(self.tab > 0)}‹  {fg(colour)}{icon} {fg(BRIGHT_RGB)}{BOLD}{label}\033[22m"
+                f"{' ' * gap}{fg(MUTED_RGB)}{right}  {on(self.tab < n - 1)}›\033[K{RESET}")
 
     def marked(self, y):
         """A plain line with the selection shaded and the cursor in reverse."""
@@ -474,10 +488,11 @@ class Runs:
 
     def click(self, row, col):
         """A click on the run strip switches runs; in the log it moves the cursor."""
-        if row == STRIP_ROW:
-            for i, x0, x1 in getattr(self, "spans", []):
-                if x0 <= col <= x1:
-                    self.select(i)
+        if row == STRIP_ROW and self.runs:
+            if col <= 4:  # ‹
+                self.key("[")
+            elif col >= getattr(self, "cols", 0) - 3:  # ›
+                self.key("]")
         elif row >= BODY_ROW and self.plain:
             self.cy, self.cx, self.follow = self.offset + row - BODY_ROW, col - 1, False
             self.clamp()

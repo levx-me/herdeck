@@ -18,7 +18,7 @@ without scrolling back through the conversation.
 ┌ agent ─────────────────────┬ Herdeck ──────────────────────────────────┐
 │                            │  1 SERVERS ●  2 BUILD ✓  3 TEST ✗  4 GIT ✓ │
 │  > run the tests           │                                           │
-│                            │  ✓ bun test  ▎✗ forge test                 │
+│                            │  ‹  ✗ forge test       2/2 · 2m ago  ›    │
 │                            │ $ forge test · ~/app/contracts · 2s · exit 1│
 │  ● Bash(forge test)        │ ──────────────────────────────────────────│
 │    ⎿ 2 passed, 1 failed    │ [PASS] test_add() (gas: 144)              │
@@ -34,11 +34,12 @@ without scrolling back through the conversation.
   starts a dev server, the deck opens (if needed) and switches to that section and run.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
   the colours you would in a shell; the agent still gets plain text and the real exit code.
-- **Run history** — every run is a tab inside its section (the last 20, git the last 50).
+- **Run history** — each section keeps its runs (the last 20, git the last 50); step
+  through them with `[` `]` or the `‹` `›` arrows.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
 - **Dev servers** — ports opened by processes inside the project, clickable, one key
   to open in the browser.
-- **Mouse** — click sections, runs, log lines and servers; scroll with the wheel.
+- **Mouse** — click sections, the `‹` `›` arrows, log lines and servers; scroll with the wheel.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
 ## Quick start
@@ -90,7 +91,7 @@ Focus the deck (click it, or herdr's pane navigation) and:
 | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
 | `v` `V`, `y` | select by character / line, yank (the cursor line when nothing is selected) |
 | `/` `?`, `n` `N`, `esc` | search forward / back, repeat, cancel |
-| `x`, `q` | drop the run, close the deck |
+| `x`, `q` | drop the run on show, close the deck |
 | servers: `j` `k`, `enter` `o` | pick a server, open it in the browser |
 
 Yanks go to `pbcopy`, `wl-copy` or `xclip`, falling back to the terminal clipboard (OSC 52).
