@@ -10,7 +10,8 @@ end. The servers section lists the project's dev servers (bin/servers on
 that section forward; a new run is also followed live.
 
 Keys: tab/shift-tab or 1-4 switch sections, [ ] move up / down the run list, x drop the run,
-q close the pane. Run logs take herdr's copy-mode keys: h j k l, w b e, W B E,
+q close the pane. In a run section j/k pick a run from the list and enter (or l)
+moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
 selected), / ? search, n N repeat, esc cancel. In servers, j/k pick a server and
 enter/o opens it.
@@ -238,6 +239,7 @@ class Runs:
         self.search, self.query, self.back = None, "", False  # None = not typing
         self.msg = ""
         self.raw, self.plain, self.height = [], [], 1
+        self.focus = "list"                # "list": j/k pick runs; "log": copy-mode cursor
 
     def refresh(self):
         """Reload the runs; True when a new one appeared since the last look."""
@@ -375,7 +377,7 @@ class Runs:
         head += ["", info, rule(cols)]  # a blank row between the list and the output
 
         self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head))
-        if self.follow:  # pinned to the end while the run grows
+        if self.follow or self.focus == "list":  # pinned to the end while the run grows
             self.cy = max(0, len(self.plain) - 1)
         self.clamp()
         if self.cy < self.offset:
@@ -384,10 +386,11 @@ class Runs:
             self.offset = self.cy - height + 1
         self.offset = max(0, min(self.offset, max(0, len(self.plain) - height)))
         self.body_row = HEAD_ROW + len(head)
+        cursor = self.focus == "log"
 
         body = []
         for y in range(self.offset, min(len(self.raw), self.offset + height)):
-            if y == self.cy or self.selected(y, 0) or self.selected(y, len(self.plain[y]) - 1):
+            if (cursor and y == self.cy) or self.selected(y, 0) or self.selected(y, len(self.plain[y]) - 1):
                 body.append(self.marked(y))
             else:
                 body.append(self.raw[y])
@@ -412,7 +415,8 @@ class Runs:
                 label = label[:max(1, room - 1)] + "…"
             gap = " " * max(1, cols - fixed - len(label) - len(age))
             if i == self.tab:
-                lines.append(f"{bg(ACTIVE_RGB)}{fg(ACCENT[self.kind])}➜{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
+                arrow = fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)
+                lines.append(f"{bg(ACTIVE_RGB)}{arrow}➜{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
                              f"\033[22m{gap}{fg(MUTED_RGB)}{age} \033[K{RESET}")
             else:
                 lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{age} {RESET}")
@@ -446,6 +450,10 @@ class Runs:
                 self.search = self.search[:-1]
             elif k.isprintable():
                 self.search += k
+            return
+
+        if self.focus == "list":
+            self.list_key(k)
             return
 
         if self.pending == "g":
@@ -495,7 +503,10 @@ class Runs:
             lines = text.count("\n") + (0 if text.endswith("\n") else 1)
             self.msg, self.anchor = f"yanked {lines} line{'s' if lines != 1 else ''}", None
         elif k == "\x1b":
-            self.anchor = None
+            if self.anchor is not None:
+                self.anchor = None
+            else:  # nothing to cancel: back to the run list
+                self.focus, self.follow = "list", True
         elif k in ("/", "?"):
             self.search, self.back = "", k == "?"
         elif k == "]":  # down the list: an older run
@@ -505,17 +516,48 @@ class Runs:
         elif k == "x":
             shutil.rmtree(self.runs[self.tab].path, ignore_errors=True)
 
+    def hints(self):
+        if self.search is not None:
+            return [("enter", "find"), ("esc", "cancel")]
+        if self.focus == "list":
+            return [("j/k", "run"), ("enter", "output"), ("x", "drop"), ("tab", "section"), ("q", "close")]
+        return [("hjkl w b", "move"), ("v/V", "select"), ("y", "yank"), ("/ ?", "search"), ("esc", "list")]
+
+    def list_key(self, k):
+        """Keys while the run list has the focus (newest run on top)."""
+        if self.pending == "g":
+            self.pending = ""
+            if k == "g":
+                self.select(len(self.runs) - 1)
+            return
+        if k == "j":  # down the list: an older run
+            self.select(max(0, self.tab - 1))
+        elif k == "k":  # up the list: a newer run
+            self.select(min(len(self.runs) - 1, self.tab + 1))
+        elif k == "g":
+            self.pending = "g"
+        elif k == "G":
+            self.select(0)
+        elif k in ("\r", "\n", "l"):  # into the output, cursor on its last line
+            self.focus, self.follow, self.cx = "log", False, 0
+        elif k in ("[", "]", "x"):
+            self.focus = "log"  # reuse the shared handling, then come back
+            self.key(k)
+            self.focus = "list"
+
     def click(self, row, col):
         """A click on the run list shows that run; in the log it moves the cursor."""
         listed = getattr(self, "listed", [])
         if self.runs and 0 <= row - HEAD_ROW < len(listed):
             self.select(listed[row - HEAD_ROW])
+            self.focus = "list"
         elif row >= getattr(self, "body_row", 99) and self.plain:
+            self.focus = "log"
             self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
             self.clamp()
 
     def wheel(self, down):
-        self.follow = False
+        self.focus, self.follow = "log", False
         self.cy += 3 if down else -3
         self.clamp()
         if down and self.cy >= len(self.plain) - 1:
@@ -545,6 +587,9 @@ class Servers:
 
     def badge(self):
         return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
+
+    def hints(self):
+        return [("j/k", "pick"), ("enter", "open"), ("tab", "section"), ("q", "close")]
 
     def frame(self, cols, rows):
         n = len(self.servers)
@@ -620,10 +665,13 @@ class Deck:
 
     def draw(self):
         cols, rows = shutil.get_terminal_size()
-        head, body = self.views[self.section].frame(cols, rows)
+        view = self.views[self.section]
+        head, body = view.frame(cols, rows - 1)  # the last row holds the key hints
         out = ["\033[H\033[2J", self.section_bar(cols), "\r\n"]
         for line in head + body:
             out += ["\r\n", fit(line, cols), RESET]
+        hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints())
+        out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
         sys.stdout.write("".join(out))
         sys.stdout.flush()
 
