@@ -853,25 +853,47 @@ class Deck:
         self.section = 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
-        self.focus_at = self.focus_mtime()
-        if read(self.focus_path) in SECTIONS:  # open on the section that asked for the deck
-            self.section = SECTIONS.index(read(self.focus_path))
+        # The section last picked by hand in any deck, shared by all of them.
+        self.shared_path = os.path.join(os.path.dirname(BASE), "section")
+        self.focus_at = self.mtime(self.focus_path)
+        self.shared_at = self.mtime(self.shared_path)
+        # Open on whichever is newer: the section that asked for this deck, or
+        # the one last picked anywhere.
+        latest = self.focus_path if self.focus_at > self.shared_at else self.shared_path
+        if read(latest) in SECTIONS:
+            self.section = SECTIONS.index(read(latest))
 
-    def focus_mtime(self):
+    @staticmethod
+    def mtime(path):
         try:
-            return os.path.getmtime(self.focus_path)
+            return os.path.getmtime(path)
         except OSError:
             return 0
+
+    def choose(self, i):
+        """A section picked by hand: show it here and in every other deck."""
+        self.section = i % len(self.views)
+        try:
+            with open(self.shared_path, "w") as f:
+                f.write(SECTIONS[self.section])
+            self.shared_at = self.mtime(self.shared_path)
+        except OSError:
+            pass
 
     def refresh(self):
         for i, view in enumerate(self.views):
             if view.refresh():  # a new run brings its section forward
                 self.section = i
-        at = self.focus_mtime()
+        at = self.mtime(self.focus_path)
         if at != self.focus_at:  # a section was asked for (e.g. a dev server started)
             self.focus_at = at
             if read(self.focus_path) in SECTIONS:
                 self.section = SECTIONS.index(read(self.focus_path))
+        at = self.mtime(self.shared_path)
+        if at != self.shared_at:  # picked by hand in another deck
+            self.shared_at = at
+            if read(self.shared_path) in SECTIONS:
+                self.section = SECTIONS.index(read(self.shared_path))
 
     def section_bar(self, cols):
         cells = []
@@ -915,7 +937,7 @@ class Deck:
         elif button == 0 and row == 1:
             for i, x0, x1 in self.spans:
                 if x0 <= col <= x1:
-                    self.section = i
+                    self.choose(i)
         elif button == 0:
             self.views[self.section].click(row, col)
 
@@ -925,11 +947,11 @@ class Deck:
             view.key(k)
             return
         if k in ("\t", "]"):
-            self.section = (self.section + 1) % len(self.views)
+            self.choose(self.section + 1)
         elif k in ("\x1b[Z", "["):
-            self.section = (self.section - 1) % len(self.views)
+            self.choose(self.section - 1)
         elif k.isdigit() and 1 <= int(k) <= len(self.views):
-            self.section = int(k) - 1
+            self.choose(int(k) - 1)
         else:
             self.views[self.section].key(k)
 

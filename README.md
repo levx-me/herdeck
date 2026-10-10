@@ -41,6 +41,8 @@ without scrolling back through the conversation.
   the colours you would in a shell; the agent still gets plain text and the real exit code.
 - **Commands, not prose** — each run is listed by its core command: the agent is asked to
   describe calls as `<kind>: <command>`, and anything else is cut down to the command by its shell tokens.
+- **One section everywhere** — pick a section in any deck and every open deck switches to it; runs
+  that start on their own only move their own deck.
 - **Run history** — each section lists its runs, newest on top (the last 20, git the
   last 50); pick one with `j` `k` or a click.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
