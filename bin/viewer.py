@@ -121,11 +121,37 @@ def strip(cells, cols, active):
     return "".join(out), spans
 
 
+def git_summary(cmd):
+    """`cd x && git add -A && git commit -q -m "Fix it\n\nbody" && git push`
+    -> 'git add · git commit "Fix it" · git push': the git steps, flags dropped,
+    commit messages cut to their first line."""
+    steps = []
+    heredoc = re.search(r"""<<-?\s*['"]?\w+['"]?\n\s*([^\n]*)""", cmd)  # first line of a heredoc message
+    for part in re.split(r"&&|\|\||;|\||\n", re.sub(r"<<.*", "", cmd, flags=re.S)):
+        words = part.strip().split()
+        if not words or words[0] != "git":
+            continue
+        sub = next((w for w in words[1:] if not w.startswith("-") and words[words.index(w) - 1] != "-C"), "")
+        step = f"git {sub}".strip()
+        m = re.search(r"""-m\s+(?:"([^"\n]*)|'([^'\n]*))""", part)
+        if sub == "commit" and m:
+            msg = (m.group(1) or m.group(2) or "").strip()
+            if msg.startswith("$(") and heredoc:  # -m "$(cat <<'EOF' ... EOF)"
+                msg = heredoc.group(1).strip()
+            msg = msg or "…"
+            step += f' "{msg[:40]}…"' if len(msg) > 40 else f' "{msg}"'
+        if step not in steps:
+            steps.append(step)
+    return " · ".join(steps)
+
+
 class Run:
     def __init__(self, path):
         self.path = path
         self.full = read(os.path.join(path, "cmd"))
         self.tag = read(os.path.join(path, "label"))  # "forge test", from the agent's description
+        if not self.tag and os.path.basename(os.path.dirname(os.path.dirname(path))) == "git":
+            self.tag = git_summary(self.full)
         # For the run list, one line: a multi-line command (a heredoc, say) gets ⏎ marks.
         self.cmd = " ⏎ ".join(self.full.splitlines())
 

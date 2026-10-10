@@ -279,3 +279,20 @@ describe("open tells the agent how to run things for the deck", () => {
 
   test("says nothing to subagents", () => expect(open({ source: "startup", agent_id: "sub" }).stdout.toString()).toBe(""));
 });
+
+describe("viewer sums up unlabelled git runs", () => {
+  const summary = (cmd: string) => {
+    const code = `import sys, importlib.util as u
+sys.argv = ["v", "/tmp"]
+spec = u.spec_from_file_location("v", sys.argv[0] if False else "${join(root, "bin/viewer.py")}")
+m = u.module_from_spec(spec); spec.loader.exec_module(m)
+print(m.git_summary(sys.stdin.read()), end="")`;
+    return Bun.spawnSync(["python3", "-I", "-c", code], { stdin: Buffer.from(cmd) }).stdout.toString();
+  };
+  test("git steps only, flags dropped, message cut", () =>
+    expect(summary('cd repo && rm -rf x && git add -A && git diff --cached --stat && git commit -q -m "Ship it\n\nbody" && git push -q 2>&1 | tail -1'))
+      .toBe('git add · git diff · git commit "Ship it" · git push'));
+  test("-C path is not the subcommand", () => expect(summary("git -C ~/repo status --short")).toBe("git status"));
+  test("heredoc commit message", () =>
+    expect(summary("git commit -m \"$(cat <<'EOF'\nFix the flicker\n\nbody\nEOF\n)\"")).toBe('git commit "Fix the flicker"'));
+});
