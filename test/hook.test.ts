@@ -200,8 +200,11 @@ describe("record keeps finished runs for the deck", () => {
   test("a deploy: description", () =>
     expect(labelOf("deploy: vercel --prod", "vercel --prod --yes 2>&1 | tail -3")).toEqual({ kind: "deploy", label: "vercel --prod" }));
 
-  test("a free-form description falls back to the command", () =>
-    expect(ok("git push", "", "Push to origin")?.kind).toBe("git"));
+  test("a free-form description falls back to the command for the kind, and still labels the run", () => {
+    expect(ok("git push", "", "Push to origin")?.kind).toBe("git");
+    expect(labelOf("Build giwaswap-status", 'cd x; pnpm build 2>&1 | grep -v "^$" | tail -25; echo "exit=$?"'))
+      .toEqual({ kind: "build", label: "Build giwaswap-status" });
+  });
 
   test("a git: description on a read-only command is still skipped", () =>
     expect(ok("git status", "", "git: git status")).toBeNull());

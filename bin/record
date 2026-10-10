@@ -25,7 +25,9 @@ scan=$(printf '%s' "${cmd%%<<*}" | perl -0pe "s/'[^']*'//g; s/\"[^\"]*\"//g")
 # The session note asks for Bash descriptions like "build: ./build.sh"; when the
 # agent gives one, it names the section and labels the run.
 desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
-label=""
+# Any other description still labels the run: it is the agent's own one-line
+# summary, readable whatever shape the command has.
+label=$desc
 if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]]; then kind=${BASH_REMATCH[1]} label=${BASH_REMATCH[2]}
 elif [[ $scan =~ ${step}${tests}${end} ]]; then kind=test
 elif [[ $scan =~ ${step}${builds}${end} ]]; then kind=build
@@ -33,6 +35,7 @@ elif [[ $scan =~ ${step}${deploys}${end} ]]; then kind=deploy
 elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
 fi
+
 
 # git keeps only commands that change something: a status or a diff is not a run
 # worth showing. Read-only subcommands, and list/show forms, do not count.
