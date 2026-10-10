@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""Say what a shell command line runs, for the deck.
+
+    classify < command        prints JSON: {"kind", "label", "routable", "core", "post"}
+
+kind      test | build | deploy | git | ""   (first match in that order)
+label     the simple command that matched, as it runs: `pnpm test -- --force`
+routable  true when the line is only [cd DIR &&]... RUNNER [2>&1] [| tail/head -n N]
+          for a test or build, so bin/hook may run it live in the deck
+core      that command without the filter, for bin/run; post: the filter
+
+Works on shell tokens, not on the raw string: the line is split into simple
+commands at control operators; redirections, assignments, `cd` and wrapper
+programs (env, time, nice, timeout, sudo, nohup ... with whatever options they
+take) are set aside before a simple command is matched against the runners.
+Heredoc bodies are not commands; quoted text stays one word.
+"""
+import json
+import re
+import shlex
+import sys
+
+CONTROL = {";", "&", "&&", "|", "||", "(", ")", ";;", "|&", "\n"}
+REDIRECT = {">", ">>", "<", "<<", "<<<", ">&", "<&", "&>", "&>>", ">|"}
+WRAPPERS = {"env", "time", "/usr/bin/time", "nice", "timeout", "sudo", "command", "exec", "nohup", "caffeinate", "xcrun"}
+ROUTABLE_WRAPPERS = {"env", "time", "/usr/bin/time", "nice", "timeout"}
+LAUNCH = r"(?:npx |pnpm (?:exec |dlx )?|yarn |bunx |uv run |poetry run |python3? -m |(?:ba)?sh )?"
+SCRIPT = r"(?:\S*/)?"
+RUNNERS = [
+    ("test", r"vitest|jest|pytest|cargo test|cargo nextest run|go test|deno test|forge test"
+             r"|(?:npm|pnpm|yarn|bun) (?:run )?test(?::[\w:.-]+)?|(?:make|just|task) test"
+             rf"|{SCRIPT}(?:test|[\w-]*[-_]test)[\w.-]*\.sh"),
+    ("build", r"forge build|cargo build|cargo check|go build|tsc|next build|vite build"
+              r"|(?:npm|pnpm|yarn|bun) run build(?::[\w:.-]+)?|(?:pnpm|yarn) build|(?:make|just|task) build|swift build"
+              rf"|{SCRIPT}(?:build|[\w-]*[-_]build)[\w.-]*\.sh"),
+    ("deploy", r"vercel|railway"),
+]
+MATCH = {kind: re.compile(rf"^{LAUNCH}(?:{alt})(?:\s|$)") for kind, alt in RUNNERS}
+# First words a runner can start with, so a wrapper's options can be skipped.
+STARTS = {"vitest", "jest", "pytest", "cargo", "go", "deno", "forge", "npm", "pnpm", "yarn", "bun", "npx", "bunx",
+          "make", "just", "task", "tsc", "next", "vite", "swift", "vercel", "railway", "git", "uv", "poetry",
+          "python", "python3", "bash", "sh"}
+GIT_WRITES = {"add", "commit", "push", "pull", "merge", "rebase", "reset", "revert", "cherry-pick", "checkout",
+              "switch", "restore", "rm", "mv", "am", "apply", "clone", "init", "clean", "worktree", "submodule"}
+FILTER = re.compile(r"^(?:tail|head)(?: -n)? -?\d+$")
+
+
+def tokens(line):
+    lexer = shlex.shlex(line, posix=False, punctuation_chars=";&|()<>")
+    lexer.whitespace = " \t\r"  # newlines end a command
+    lexer.wordchars += "~-./=:+@%,*?[]{}$!^#'\""
+    try:
+        return list(lexer)
+    except ValueError:  # unbalanced quotes: fall back to plain words
+        return line.split()
+
+
+def simple_commands(line):
+    """[(words, operator_after)] with redirections dropped."""
+    out, words = [], []
+    toks = tokens(re.sub(r"<<-?\s*['\"]?(\w+)['\"]?.*?\n\s*\1\b", "", line, flags=re.S))  # heredoc bodies
+    i = 0
+    while i < len(toks):
+        t = toks[i]
+        if t in CONTROL:
+            out.append((words, t))
+            words = []
+        elif t in REDIRECT:
+            i += 1  # and its target
+        elif t.isdigit() and i + 1 < len(toks) and toks[i + 1] in REDIRECT:
+            pass  # the fd number of `2>&1`
+        else:
+            words.append(t)
+        i += 1
+    out.append((words, ""))
+    return [(w, op) for w, op in out if w or op]
+
+
+def unwrap(words):
+    """Drop assignments and wrapper programs (with their options) in front."""
+    words = list(words)
+    while words and re.match(r"^[A-Za-z_]\w*=", words[0]):
+        words.pop(0)
+    if words and words[0] in WRAPPERS:
+        rest = next((i for i, w in enumerate(words[1:], 1) if w in STARTS or w.endswith(".sh")), None)
+        if rest is None:
+            return words
+        words = words[rest:]
+    return words
+
+
+def git_write(words):
+    if not words or words[0] != "git":
+        return False
+    args = words[1:]
+    while args and args[0] in ("-C", "-c"):
+        args = args[2:]
+    sub, rest = (args[0], args[1:]) if args else ("", [])
+    rest_s = " ".join(rest)
+    return (sub in GIT_WRITES
+            or (sub == "stash" and not re.match(r"(list|show)\b", rest_s))
+            or (sub == "tag" and rest and not re.match(r"(-l|--list)\b", rest_s))
+            or (sub == "branch" and re.search(r"(^|\s)-(d|D|m|M|c|C)\b", rest_s) is not None)
+            or (sub == "remote" and re.match(r"(add|remove|rm|rename|set-url)\b", rest_s) is not None)
+            or (sub == "config" and not re.search(r"--(get|list)|(^|\s)-l\b", rest_s)))
+
+
+def classify(line):
+    cmds = simple_commands(line)
+    found = {}
+    for idx, (words, _) in enumerate(cmds):
+        w = unwrap(words)
+        if not w or w[0] == "cd":
+            continue
+        text = " ".join(w)
+        for kind, pattern in MATCH.items():
+            if kind not in found and pattern.match(text):
+                found[kind] = (idx, text)
+        if "git" not in found and git_write(w):
+            found["git"] = (idx, text)
+    kind = next((k for k in ("test", "build", "deploy", "git") if k in found), "")
+    result = {"kind": kind, "label": found[kind][1] if kind and kind != "git" else "",
+              "routable": False, "core": "", "post": ""}
+
+    # Routable: cd steps joined by &&, then the runner, then at most one tail/head
+    # filter. Live runs are approved without asking, so nothing else may ride
+    # along: no other command, no file redirect, no substitution, and only
+    # harmless wrappers (time, nice, timeout, env) in front.
+    if kind in ("test", "build"):
+        idx = found[kind][0]
+        before, after = cmds[:idx], cmds[idx + 1:]
+        runner_words, op = cmds[idx]
+        wrappers = [w for w in runner_words[:len(runner_words) - len(unwrap(runner_words))] if w in WRAPPERS]
+        safe = (all(w and w[0] == "cd" and o == "&&" for w, o in before)
+                and set(wrappers) <= ROUTABLE_WRAPPERS
+                and not re.search(r"(^|\s)\d?>{1,2}(?!&)", line.split("|")[0])
+                and "$(" not in line and "`" not in line and "<<" not in line)
+        core = " ".join(sum((w + ["&&"] for w, _ in before), []) + runner_words)
+        if safe and op == "" and not after:
+            result.update(routable=True, core=core)
+        elif safe and op == "|" and len(after) == 1 and after[0][1] == "" and FILTER.match(" ".join(after[0][0])):
+            result.update(routable=True, core=core, post=" ".join(after[0][0]))
+    return result
+
+
+if __name__ == "__main__":
+    print(json.dumps(classify(sys.stdin.read())))

@@ -3,12 +3,11 @@
 # herdr, rewrite the call so it runs through bin/run, which streams it into a
 # read-only deck pane beside the agent and hands the output back.
 #
-# Only a plain invocation is rewritten:
-#   [cd DIR &&] [VAR=val ...] [time|nice|timeout N|env ...] [npx|pnpm|... ] RUNNER [args]
-#   (RUNNER per bin/runners.sh: tool runners, make/just targets, ./build.sh, ./test.sh ...)
-#   optionally followed by `2>&1` and one `| tail/head -n N` filter.
-# Anything with other pipes, chains, substitutions or redirects is left alone,
-# so "allow" below never approves more than a test or build.
+# bin/classify decides, on shell tokens: only a line that is just
+#   [cd DIR &&]... [time|nice|timeout|env ...] RUNNER [args] [2>&1] [| tail/head -n N]
+# is rewritten. Anything with other commands, file redirects or substitutions
+# is left alone (bin/record files it after it ran), so "allow" below never
+# approves more than a test or build.
 set -u
 
 input=$(cat)
@@ -24,31 +23,21 @@ if [[ $cmd =~ $devs ]]; then
   exit 0
 fi
 
-safe='[^;&|`$<>()]'
-. "$(dirname "$0")/runners.sh"
-prefix="^(cd ${safe}+ && )?([A-Za-z_][A-Za-z0-9_]*=${safe}* )*${wrappers}${launchers}"
-filter=' \| (tail|head)( -n)? -?[0-9]+$'
+what=$(printf '%s' "$cmd" | python3 -I "$(dirname "$0")/classify")
+[ "$(printf '%s' "$what" | jq -r .routable)" = true ] || exit 0
+kind=$(printf '%s' "$what" | jq -r .kind)
+core=$(printf '%s' "$what" | jq -r .core)
+post=$(printf '%s' "$what" | jq -r .post)
 
-core=$cmd post=""
-if [[ $core =~ $filter ]]; then
-  post=${BASH_REMATCH[0]# | }
-  core=${core%"${BASH_REMATCH[0]}"}
-fi
-core=${core% 2>&1}
-
-if [[ $core =~ ${prefix}${tests}( ${safe}*)?$ ]]; then kind=test
-elif [[ $core =~ ${prefix}${builds}( ${safe}*)?$ ]]; then kind=build
-else exit 0
+# The label: the agent's "<kind>: <command>" description when it gave one, else
+# the command classify found.
+desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
+if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]]; then label=${BASH_REMATCH[2]}
+else label=$(printf '%s' "$what" | jq -r .label)
 fi
 
 # Empty values travel as "-": an empty word would vanish and shift the rest.
 b64() { if [ -n "$1" ]; then printf '%s' "$1" | base64 | tr -d '\n'; else printf -- -; fi; }
-# The agent's Bash description, "test: forge test --match-path 'test/*'" by the
-# session note, labels the run in the deck.
-desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
-if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]]; then label=${BASH_REMATCH[2]}
-else label=$(printf '%s' "$core" | python3 -I "$(dirname "$0")/core" 0)  # the command itself, minus cd/redirects
-fi
 wrapped="\"$CLAUDE_PLUGIN_ROOT/bin/run\" $kind $(b64 "$core") $(b64 "$post") $(b64 "$label")"
 
 printf '%s' "$input" | jq --arg c "$wrapped" --arg k "$kind" '{

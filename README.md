@@ -126,8 +126,8 @@ flowchart LR
   V -- bin/servers --> L[lsof]
 ```
 
-- `bin/runners.sh` defines what counts as a test run or a build, for both hooks.
-- `bin/core` cuts the core command out of a shell line by its tokens (`cd x; pnpm build | tail` → `pnpm build`), for runs the agent did not label.
+- `bin/classify` reads a command line by its shell tokens: what it runs (test, build, deploy, git write), the
+  core command to show (`cd x; env -u A pnpm test | tail` → `pnpm test`), and whether it may run live. Both hooks use it.
 - `bin/hook` decides what a Bash call is. Tests and builds are rewritten to `bin/run`
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to

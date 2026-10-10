@@ -132,7 +132,8 @@ def git_summary(cmd):
     commit messages cut to their first line."""
     steps = []
     heredoc = re.search(r"""<<-?\s*['"]?\w+['"]?\n\s*([^\n]*)""", cmd)  # first line of a heredoc message
-    for part in re.split(r"&&|\|\||;|\||\n", re.sub(r"<<.*", "", cmd, flags=re.S)):
+    body_free = re.sub(r"<<-?\s*['\"]?(\w+)['\"]?.*?\n\s*\1\b", "", cmd, flags=re.S)  # heredoc bodies only
+    for part in re.split(r"&&|\|\||;|\||\n", body_free):
         words = part.strip().split()
         if not words or words[0] != "git":
             continue

@@ -343,27 +343,29 @@ print(m.${fn}(sys.stdin.read()), end="")`;
     expect(summary('cd repo && rm -rf x && git add -A && git diff --cached --stat && git commit -q -m "Ship it\n\nbody" && git push -q 2>&1 | tail -1'))
       .toBe('git add · git commit "Ship it" · git push'));
   test("-C path is not the subcommand", () => expect(summary("git -C ~/repo status --short")).toBe("git status"));
+  test("git after a heredoc is still found", () =>
+    expect(summary("cd repo && python3 - <<'PY'\nprint('x')\nPY\nbash -n bin/x && git rm -q bin/a bin/b")).toBe("git rm"));
   test("reads dropped when there are writes", () =>
     expect(summary("git status -sb | head -1; git add -A && git diff --cached --stat && git commit -m 'x'")).toBe('git add · git commit "x"'));
   test("heredoc commit message", () =>
     expect(summary("git commit -m \"$(cat <<'EOF'\nFix the flicker\n\nbody\nEOF\n)\"")).toBe('git commit "Fix the flicker"'));
 });
 
-describe("core cuts the simple command out of a shell line", () => {
-  const core = (cmd: string, at = 0) =>
-    Bun.spawnSync(["python3", "-I", join(root, "bin/core"), String(at)], { stdin: Buffer.from(cmd) }).stdout.toString();
-  const cases: [string, string][] = [
-    ['cd /x/y; pnpm build 2>&1 | grep -vE "^\\s*$" | tail -25; echo "exit=$?"', "pnpm build"],
-    ["forge test --match-path 'test/*' 2>&1 | grep -E \"Suite|FAIL\"", "forge test --match-path 'test/*'"],
-    ["/usr/bin/time -p ./build.sh > /tmp/b.log 2>&1; git status --short", "./build.sh"],
-    ["timeout 600 forge build --sizes 2>&1 | tail -3", "forge build --sizes"],
-    ["env FOO=1 pnpm test >> out.txt", "pnpm test"],
-    ["cd contracts && forge test -vvv", "forge test -vvv"],
-    ["npx vercel --prod --yes 2>&1 | tail -3", "npx vercel --prod --yes"],
+describe("classify reads a command line by its shell tokens", () => {
+  const classify = (cmd: string) => JSON.parse(Bun.spawnSync(["python3", "-I", join(root, "bin/classify")], { stdin: Buffer.from(cmd) }).stdout.toString());
+  const cases: [string, string, string][] = [
+    ['cd /x; L=/tmp/s; env -u DATABASE_URL -u GIWA_RPC_URL pnpm test -- --force > $L/t.log 2>&1; echo "exit=$?"', "test", "pnpm test -- --force"],
+    ["pnpm test:outage-watch:integration > /tmp/x 2>&1", "test", "pnpm test:outage-watch:integration"],
+    ['cd /x/y; pnpm build 2>&1 | grep -vE "^\\s*$" | tail -25; echo "exit=$?"', "build", "pnpm build"],
+    ["git status -sb | head -1; forge test --match-path 'test/*' 2>&1 | grep FAIL", "test", "forge test --match-path 'test/*'"],
+    ["/usr/bin/time -p ./build.sh > /tmp/b.log 2>&1; git status --short", "build", "./build.sh"],
+    ["sudo -E nice -n 5 cargo test", "test", "cargo test"],
+    ["npx vercel --prod --yes 2>&1 | tail -3", "deploy", "npx vercel --prod --yes"],
+    ["git add -A && git commit -m 'x' && git push", "git", ""],
+    ["echo forge test", "", ""],
+    ["git status --short", "", ""],
   ];
-  for (const [cmd, want] of cases) test(cmd, () => expect(core(cmd)).toBe(want));
-  test("from a byte offset past non-ASCII text", () => {
-    const cmd = "echo '한글' ; pnpm build | tail";
-    expect(core(cmd, Buffer.byteLength("echo '한글' "))).toBe("pnpm build");
-  });
+  for (const [cmd, kind, label] of cases) test(cmd, () => expect(classify(cmd)).toMatchObject({ kind, label }));
+  test("sudo in front is never run live", () => expect(classify("sudo cargo test").routable).toBe(false));
+  test("time in front may run live", () => expect(classify("time forge test").routable).toBe(true));
 });
