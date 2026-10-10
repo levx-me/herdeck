@@ -34,6 +34,22 @@ elif [[ $scan =~ ${step}git[[:space:]] ]]; then kind=git
 else exit 0
 fi
 
+# git keeps only commands that change something: a status or a diff is not a run
+# worth showing. Read-only subcommands, and list/show forms, do not count.
+if [ "$kind" = git ]; then
+  writes=$(printf '%s' "$scan" | perl -ne '
+    while (/(?:^|[;&|(\n]|&&|\|\|)\s*(?:\w+=\S*\s+)*git((?:\s+-[Cc]\s+\S+)*)\s+([a-z-]+)([^;&|\n]*)/g) {
+      my ($sub, $rest) = ($2, $3);
+      print "$sub\n" if $sub =~ /^(add|commit|push|pull|merge|rebase|reset|revert|cherry-pick|checkout|switch|restore|rm|mv|am|apply|clone|init|clean|worktree|submodule)$/
+        || ($sub eq "stash"  && $rest !~ /^\s*(list|show)\b/)
+        || ($sub eq "tag"    && $rest =~ /\S/ && $rest !~ /^\s*(-l|--list)\b/)
+        || ($sub eq "branch" && $rest =~ /\s-(d|D|m|M|c|C)\b/)
+        || ($sub eq "remote" && $rest =~ /^\s*(add|remove|rm|rename|set-url)\b/)
+        || ($sub eq "config" && $rest !~ /--(get|list)|\s-l\b/);
+    }')
+  [ -n "$writes" ] || exit 0
+fi
+
 root=$(cd "$(dirname "$0")/.." && pwd)
 dir="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/$kind"
 mkdir -p "$dir/runs"

@@ -201,10 +201,29 @@ describe("record keeps finished runs for the deck", () => {
     expect(labelOf("deploy: vercel --prod", "vercel --prod --yes 2>&1 | tail -3")).toEqual({ kind: "deploy", label: "vercel --prod" }));
 
   test("a free-form description falls back to the command", () =>
-    expect(ok("git status --short", "", "Show working tree status")?.kind).toBe("git"));
+    expect(ok("git push", "", "Push to origin")?.kind).toBe("git"));
+
+  test("a git: description on a read-only command is still skipped", () =>
+    expect(ok("git status", "", "git: git status")).toBeNull());
 
   test("a successful git command", () => {
-    expect(ok("git status --short", " M bin/run")).toEqual({ kind: "git", cmd: "git status --short", log: "M bin/run", rc: "0", cwd: "/tmp" });
+    expect(ok("git add -A", "")).toEqual({ kind: "git", cmd: "git add -A", log: "", rc: "0", cwd: "/tmp" });
+  });
+
+  test("read-only git is not recorded", () => {
+    for (const c of ["git status --short", "git -C ~/repo log --oneline -5", "git diff --stat; git show HEAD", "git stash list",
+                     "git branch -a", "git tag -l", "git remote -v", "git config --get user.name", "git fetch origin"]) {
+      expect(ok(c, "x")).toBeNull();
+    }
+  });
+
+  test("a chain with one write is recorded", () =>
+    expect(ok("git status -sb; git add -A && git commit -m 'x'")?.kind).toBe("git"));
+
+  test("write forms of branch, stash, tag, remote, config", () => {
+    for (const c of ["git branch -D old", "git stash", "git stash pop", "git tag v1.0", "git remote add up x", "git config user.name x"]) {
+      expect(ok(c)?.kind).toBe("git");
+    }
   });
 
   test("a failed git command keeps its exit code and output", () => {
@@ -310,8 +329,10 @@ print(m.${fn}(sys.stdin.read()), end="")`;
   test("no message outside a commit", () => expect(py("commit_message", "git status")).toBe(""));
   test("git steps only, flags dropped, message cut", () =>
     expect(summary('cd repo && rm -rf x && git add -A && git diff --cached --stat && git commit -q -m "Ship it\n\nbody" && git push -q 2>&1 | tail -1'))
-      .toBe('git add · git diff · git commit "Ship it" · git push'));
+      .toBe('git add · git commit "Ship it" · git push'));
   test("-C path is not the subcommand", () => expect(summary("git -C ~/repo status --short")).toBe("git status"));
+  test("reads dropped when there are writes", () =>
+    expect(summary("git status -sb | head -1; git add -A && git diff --cached --stat && git commit -m 'x'")).toBe('git add · git commit "x"'));
   test("heredoc commit message", () =>
     expect(summary("git commit -m \"$(cat <<'EOF'\nFix the flicker\n\nbody\nEOF\n)\"")).toBe('git commit "Fix the flicker"'));
 });

@@ -121,6 +121,11 @@ def strip(cells, cols, active):
     return "".join(out), spans
 
 
+GIT_READS = {"status", "diff", "log", "show", "blame", "fetch", "rev-parse", "ls-files", "ls-tree", "grep",
+             "describe", "shortlog", "reflog", "cat-file", "show-ref", "for-each-ref", "rev-list", "name-rev",
+             "merge-base", "check-ignore", "count-objects", "help", "version"}
+
+
 def git_summary(cmd):
     """`cd x && git add -A && git commit -q -m "Fix it\n\nbody" && git push`
     -> 'git add · git commit "Fix it" · git push': the git steps, flags dropped,
@@ -142,7 +147,9 @@ def git_summary(cmd):
             step += f' "{msg[:40]}…"' if len(msg) > 40 else f' "{msg}"'
         if step not in steps:
             steps.append(step)
-    return " · ".join(steps)
+    # Only the steps that change something, when there are any.
+    writes = [st for st in steps if st.split()[1:2] and st.split()[1] not in GIT_READS]
+    return " · ".join(writes or steps)
 
 
 def commit_message(cmd):
