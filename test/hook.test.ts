@@ -150,7 +150,7 @@ describe("record keeps finished runs for the deck", () => {
 
   // Feed bin/record one hook event; returns the kind and run it wrote, or null.
   function record(event: object, env: Record<string, string> = {}) {
-    const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
     const r = Bun.spawnSync([join(root, "bin/record")], {
       stdin: Buffer.from(JSON.stringify({ tool_name: "Bash", cwd: "/tmp", ...event })),
       // A dead socket keeps the test from opening a real herdr pane.
@@ -158,7 +158,7 @@ describe("record keeps finished runs for the deck", () => {
     });
     expect(r.exitCode).toBe(0);
     for (const kind of ["test", "build", "git", "deploy"]) {
-      const runs = join(tmp, "herdeck/w9_p9", kind, "runs");
+      const runs = join(tmp, "steading/w9_p9", kind, "runs");
       if (!existsSync(runs)) continue;
       const [n] = readdirSync(runs);
       const f = (name: string) => readFileSync(join(runs, n, name), "utf8").trim();
@@ -169,14 +169,14 @@ describe("record keeps finished runs for the deck", () => {
   const ok = (command: string, stdout = "", description?: string) =>
     record({ hook_event_name: "PostToolUse", tool_input: { command, description }, tool_response: { stdout, stderr: "" } });
   const labelOf = (description: string, command: string) => {
-    const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
     Bun.spawnSync([join(root, "bin/record")], {
       stdin: Buffer.from(JSON.stringify({ hook_event_name: "PostToolUse", tool_name: "Bash", cwd: "/tmp",
         tool_input: { command, description }, tool_response: { stdout: "x" } })),
       env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent" },
     });
     for (const kind of ["test", "build", "git", "deploy"]) {
-      const f = join(tmp, "herdeck/w9_p9", kind, "runs/1/label");
+      const f = join(tmp, "steading/w9_p9", kind, "runs/1/label");
       if (existsSync(f)) return { kind, label: readFileSync(f, "utf8").trim() };
     }
     return null;
@@ -269,7 +269,7 @@ describe("record keeps finished runs for the deck", () => {
 
   test("a run sent to the background points at Claude's task output", () => {
     const { mkdirSync, writeFileSync } = require("node:fs");
-    const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
     const uid = Bun.spawnSync(["id", "-u"]).stdout.toString().trim();
     const tasks = join(tmp, `claude-${uid}`, "project", "session", "tasks");
     mkdirSync(tasks, { recursive: true });
@@ -283,7 +283,7 @@ describe("record keeps finished runs for the deck", () => {
       env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent" },
     });
     expect(r.exitCode).toBe(0);
-    const run = join(tmp, "herdeck/w9_p9/test/runs/1");
+    const run = join(tmp, "steading/w9_p9/test/runs/1");
     expect(readFileSync(join(run, "source"), "utf8").trim()).toBe(join(tasks, "bgtest123.output"));
     expect(existsSync(join(run, "rc"))).toBe(false); // still running: no exit code yet
     expect(existsSync(join(run, "end"))).toBe(false);

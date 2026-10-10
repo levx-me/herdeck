@@ -5,26 +5,26 @@
 #
 # The marketplace is the GitHub repo, not this checkout: herdr may build in one
 # place and move the plugin afterwards, which would strand a local path.
-# Override with HERDECK_SOURCE (a path or owner/repo) for local work.
+# Override with STEADING_SOURCE (a path or owner/repo) for local work.
 
-source="${HERDECK_SOURCE:-levx-me/herdeck}"
+source="${STEADING_SOURCE:-levx-me/steading}"
 
 if ! command -v claude >/dev/null 2>&1; then
-  echo "herdeck: Claude Code not found, skipping its hook (rerun the install-claude action after installing it)"
+  echo "steading: Claude Code not found, skipping its hook (rerun the install-claude action after installing it)"
   exit 0
 fi
 
-if claude plugin list 2>/dev/null | grep -q 'herdeck@herdeck'; then
-  claude plugin marketplace update herdeck >/dev/null 2>&1
-  claude plugin update herdeck@herdeck >/dev/null 2>&1
-  echo "herdeck: Claude Code hook already installed, updated"
+if claude plugin list 2>/dev/null | grep -q 'steading@steading'; then
+  claude plugin marketplace update steading >/dev/null 2>&1
+  claude plugin update steading@steading >/dev/null 2>&1
+  echo "steading: Claude Code hook already installed, updated"
   exit 0
 fi
 
 if claude plugin marketplace add "$source" >/dev/null 2>&1 &&
-   claude plugin install herdeck@herdeck >/dev/null 2>&1; then
-  echo "herdeck: Claude Code hook installed — run /reload-plugins in open Claude sessions"
+   claude plugin install steading@steading >/dev/null 2>&1; then
+  echo "steading: Claude Code hook installed — run /reload-plugins in open Claude sessions"
 else
-  echo "herdeck: could not install the Claude Code hook; run: claude plugin marketplace add $source && claude plugin install herdeck@herdeck"
+  echo "steading: could not install the Claude Code hook; run: claude plugin marketplace add $source && claude plugin install steading@steading"
 fi
 exit 0

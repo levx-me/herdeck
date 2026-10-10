@@ -1,12 +1,12 @@
-# Herdeck: an agentic development environment on top of herdr.
+# Steading: an agentic development environment on top of herdr.
 #
 # First module, the deck: the agent's builds, tests and dev servers in read-only
 # viewer panes beside it (servers and build on top, tests taking the rest).
 # The Claude Code hook (hooks/hooks.json) routes those runs into the panes;
 # installing this herdr plugin also installs that hook when Claude Code is present.
 
-id = "herdeck"
-name = "Herdeck"
+id = "steading"
+name = "Steading"
 version = "0.1.0"
 min_herdr_version = "0.9.0"
 description = "Agentic development environment for herdr: builds, tests and dev servers in panes beside the agent"
@@ -17,6 +17,6 @@ command = ["sh", "bin/install-claude"]
 
 [[actions]]
 id = "install-claude"
-title = "Herdeck: install the Claude Code hook"
+title = "Steading: install the Claude Code hook"
 contexts = ["global"]
 command = ["sh", "bin/install-claude"]

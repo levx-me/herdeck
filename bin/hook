@@ -44,7 +44,7 @@ printf '%s' "$input" | jq --arg c "$wrapped" --arg k "$kind" '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     permissionDecision: "allow",
-    permissionDecisionReason: ("\($k) run shown in the Herdeck deck"),
+    permissionDecisionReason: ("\($k) run shown in the Steading deck"),
     updatedInput: (.tool_input + {command: $c})
   }
 }'

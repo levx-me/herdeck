@@ -4,7 +4,7 @@
 #
 #   run <test|build> <base64 command> [<base64 output filter>] [<base64 label>]
 #
-# Each run lives in $TMPDIR/herdeck/<agent pane>/<kind>/runs/<n>/ (cmd, cwd,
+# Each run lives in $TMPDIR/steading/<agent pane>/<kind>/runs/<n>/ (cmd, cwd,
 # log, start, pid, then rc and end). The deck (bin/pane, bin/viewer.py) shows
 # it in the kind's section beside the agent and switches to it.
 set -u
@@ -26,7 +26,7 @@ if [ "${HERDR_ENV:-}" != 1 ] || [ -z "${HERDR_PANE_ID:-}" ] || ! command -v herd
   exit "${PIPESTATUS[0]}"
 fi
 
-dir="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/$kind"
+dir="${TMPDIR:-/tmp}/steading/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/$kind"
 mkdir -p "$dir/runs"
 "$root/bin/pane" "$kind" >/dev/null
 

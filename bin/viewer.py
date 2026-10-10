@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Herdeck deck: one read-only pane beside the agent with five sections.
+"""Steading deck: one read-only pane beside the agent with five sections.
 
     viewer.py <base>
 

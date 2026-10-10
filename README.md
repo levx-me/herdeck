@@ -1,8 +1,10 @@
 <div align="center">
 
-# Herdeck
+# Steading
 
 **An agentic development environment on top of [herdr](https://herdr.dev).**
+
+<sub>*steading* (Scots): a farmstead, the house and its working buildings together.</sub>
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-555?style=flat-square)](LICENSE)
 [![herdr 0.9+](https://img.shields.io/badge/herdr-0.9%2B-555?style=flat-square)](https://herdr.dev)
@@ -11,11 +13,11 @@
 </div>
 
 Your coding agent runs builds, tests and git, and starts dev servers, all the time.
-Herdeck puts all of that in **one deck pane beside the agent**, so you can follow it
+Steading puts all of that in **one deck pane beside the agent**, so you can follow it
 without scrolling back through the conversation.
 
 ```
-┌ agent ─────────────────────┬ Herdeck ────────────────────────────────────┐
+┌ agent ─────────────────────┬ Steading ────────────────────────────────────┐
 │                            │ SERVERS ●  BUILD ✓  TEST ✗  GIT ✓  DEPLOY ·│
 │ > run the tests            │╭─ runs · 2 ───────────────────────────────╮│
 │                            ││➜ ✗ npm test                       1m ago ││
@@ -59,7 +61,7 @@ without scrolling back through the conversation.
 Requirements: herdr 0.9+, Claude Code, `jq`, `python3` (macOS and Linux ship one).
 
 ```sh
-herdr plugin install levx-me/herdeck --yes
+herdr plugin install levx-me/steading --yes
 ```
 
 Installing the herdr plugin also installs the Claude Code side when `claude` is on
@@ -72,8 +74,8 @@ your `PATH`. Then, in every open Claude Code session:
 New sessions pick it up on their own. Without herdr's installer:
 
 ```sh
-claude plugin marketplace add levx-me/herdeck
-claude plugin install herdeck@herdeck
+claude plugin marketplace add levx-me/steading
+claude plugin install steading@steading
 ```
 
 ## Usage
@@ -122,7 +124,7 @@ flowchart LR
   H -- test / build:<br/>rewrite to --> R[bin/run]
   H -- dev server --> P[bin/pane]
   A -- PostToolUse(Failure) --> C[bin/record]
-  C -- git runs --> S[(TMPDIR/herdeck/&lt;agent&gt;/)]
+  C -- git runs --> S[(TMPDIR/steading/&lt;agent&gt;/)]
   R -- bin/ptyrun --> S
   R --> P
   C --> P
@@ -136,7 +138,7 @@ flowchart LR
 - `bin/hook` decides what a Bash call is. Tests and builds are rewritten to `bin/run`
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to
-  `$TMPDIR/herdeck/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
+  `$TMPDIR/steading/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
 - `bin/open` opens the deck when a session starts and adds the run-it-plainly note to the session.
 - `bin/record` keeps git commands, and tests and builds that were not routed, after Claude ran them.
 - `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show.
@@ -146,8 +148,8 @@ flowchart LR
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `HERDECK_SOURCE` | `levx-me/herdeck` | Where `bin/install-claude` adds the Claude Code marketplace from (a path or `owner/repo`) |
-| `TMPDIR` | `/tmp` | Parent of the run history (`$TMPDIR/herdeck`) |
+| `STEADING_SOURCE` | `levx-me/steading` | Where `bin/install-claude` adds the Claude Code marketplace from (a path or `owner/repo`) |
+| `TMPDIR` | `/tmp` | Parent of the run history (`$TMPDIR/steading`) |
 
 Commands run in the deck get `CI=1` (no watch modes) and `FORCE_COLOR=1`,
 `CLICOLOR_FORCE=1`, `PY_COLORS=1`, `CARGO_TERM_COLOR=always`.
@@ -158,14 +160,14 @@ Commands run in the deck get `CI=1` (no watch modes) and `FORCE_COLOR=1`,
   so they do not ask for permission. Your deny and ask rules still apply. `npm test` and
   `npm run build` run whatever `package.json` says: if you do not want those auto-approved,
   remove them from the patterns in `bin/hook`.
-- Git commands are never rewritten or approved by Herdeck.
+- Git commands are never rewritten or approved by Steading.
 - Run logs stay in `$TMPDIR`; nothing leaves the machine.
 
 ## Development
 
 ```sh
-git clone git@github.com:levx-me/herdeck.git && cd herdeck
-claude plugin marketplace add "$PWD" && claude plugin install herdeck@herdeck
+git clone git@github.com:levx-me/steading.git && cd steading
+claude plugin marketplace add "$PWD" && claude plugin install steading@steading
 herdr plugin link "$PWD"
 bun test
 ```

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Make sure the agent has its Herdeck deck: one viewer pane split off to the
+# Make sure the agent has its Steading deck: one viewer pane split off to the
 # right, with servers, build, test, git and deploy sections. Prints the pane id.
 #
 #   pane [SECTION] [CWD]    SECTION (servers|build|test|git|deploy) is brought forward;
@@ -10,7 +10,7 @@ cwd=${2:-$PWD}
 agent=${HERDR_PANE_ID:?not inside a herdr pane}
 root=$(cd "$(dirname "$0")/.." && pwd)
 
-base="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$agent" | tr ':/' '__')"
+base="${TMPDIR:-/tmp}/steading/$(printf '%s' "$agent" | tr ':/' '__')"
 mkdir -p "$base"
 # Project root, for the servers section.
 git -C "$cwd" rev-parse --show-toplevel 2>/dev/null > "$base/root" || printf '%s\n' "$cwd" > "$base/root"
@@ -26,7 +26,7 @@ pane=$(herdr pane split --pane "$agent" --direction right --ratio 0.55 --cwd "$c
   jq -r '.result.pane.pane_id // empty')
 [ -n "$pane" ] || exit 1
 printf '%s' "$pane" > "$base/pane"
-herdr pane rename "$pane" "Herdeck" >/dev/null 2>&1
+herdr pane rename "$pane" "Steading" >/dev/null 2>&1
 sleep 0.4 # let the new shell reach its prompt
 # exec: the deck replaces the shell, so quitting it closes the pane.
 herdr pane run "$pane" "exec python3 $(printf '%q' "$root/bin/viewer.py") $(printf '%q' "$base")" >/dev/null
