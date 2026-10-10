@@ -366,6 +366,9 @@ describe("classify reads a command line by its shell tokens", () => {
     ["git status --short", "", ""],
   ];
   for (const [cmd, kind, label] of cases) test(cmd, () => expect(classify(cmd)).toMatchObject({ kind, label }));
+  test("a commit message mentioning a runner stays a commit", () =>
+    expect(classify('git add -A && git commit -q -m "Fix it\n\nCatches e.g. env -u A pnpm test -- --force and\npnpm test:a:b." && git push -q'))
+      .toMatchObject({ kind: "git", label: "" }));
   test("sudo in front is never run live", () => expect(classify("sudo cargo test").routable).toBe(false));
   test("time in front may run live", () => expect(classify("time forge test").routable).toBe(true));
 });

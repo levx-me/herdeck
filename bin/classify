@@ -48,7 +48,7 @@ FILTER = re.compile(r"^(?:tail|head)(?: -n)? -?\d+$")
 def tokens(line):
     lexer = shlex.shlex(line, posix=False, punctuation_chars=";&|()<>")
     lexer.whitespace = " \t\r"  # newlines end a command
-    lexer.wordchars += "~-./=:+@%,*?[]{}$!^#'\""
+    lexer.wordchars += "~-./=:+@%,*?[]{}$!^#"  # quotes stay quote chars: "a b" is one word
     try:
         return list(lexer)
     except ValueError:  # unbalanced quotes: fall back to plain words
