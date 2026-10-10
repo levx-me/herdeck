@@ -128,8 +128,13 @@ GIT_READS = {"status", "diff", "log", "show", "blame", "fetch", "rev-parse", "ls
 
 def git_summary(cmd):
     """`cd x && git add -A && git commit -q -m "Fix it\n\nbody" && git push`
-    -> 'git add · git commit "Fix it" · git push': the git steps, flags dropped,
-    commit messages cut to their first line."""
+    -> 'git add · git commit "Fix it" · git push', for the run list."""
+    return " · ".join(git_steps(cmd))
+
+
+def git_steps(cmd, messages=True):
+    """The git steps of cmd, flags dropped, read-only ones left out when there
+    are writes; with messages, a commit carries its first line."""
     steps = []
     heredoc = re.search(r"""<<-?\s*['"]?\w+['"]?\n\s*([^\n]*)""", cmd)  # first line of a heredoc message
     body_free = re.sub(r"<<-?\s*['\"]?(\w+)['\"]?.*?\n\s*\1\b", "", cmd, flags=re.S)  # heredoc bodies only
@@ -140,7 +145,7 @@ def git_summary(cmd):
         sub = next((w for w in words[1:] if not w.startswith("-") and words[words.index(w) - 1] != "-C"), "")
         step = f"git {sub}".strip()
         m = re.search(r"""-m\s+(?:"([^"\n]*)|'([^'\n]*))""", part)
-        if sub == "commit" and m:
+        if sub == "commit" and m and messages:
             msg = (m.group(1) or m.group(2) or "").strip()
             if msg.startswith("$(") and heredoc:  # -m "$(cat <<'EOF' ... EOF)"
                 msg = heredoc.group(1).strip()
@@ -150,7 +155,7 @@ def git_summary(cmd):
             steps.append(step)
     # Only the steps that change something, when there are any.
     writes = [st for st in steps if st.split()[1:2] and st.split()[1] not in GIT_READS]
-    return " · ".join(writes or steps)
+    return writes or steps
 
 
 def commit_message(cmd):
@@ -251,15 +256,19 @@ class Run:
         """The run's label, or else its whole command, wrapped to the pane.
         A git commit also shows its whole message."""
         is_git = os.path.basename(os.path.dirname(os.path.dirname(self.path))) == "git"
-        message = commit_message(self.full) if is_git else ""
-        if message:
-            rows = [f"{BOLD}$ {self.tag or 'git commit'}{RESET}"]
-            lines = []
-            for line in message.splitlines():
-                lines += textwrap.wrap(line, max(10, cols - 4)) or [""]
-            if len(lines) > self.MSG_LINES:
-                lines = lines[:self.MSG_LINES - 1] + [f"… {len(lines) - self.MSG_LINES + 1} more lines"]
-            rows += [f"{fg(ACCENT['git'])}  │ {RESET}{l}" for l in lines]
+        steps = git_steps(self.full, messages=False) if is_git else []
+        if steps:  # one line per git step, the commit's whole message under it
+            message = commit_message(self.full)
+            rows = []
+            for step in steps:
+                rows.append(f"{BOLD}$ {step}{RESET}")
+                if step == "git commit" and message:
+                    lines = []
+                    for line in message.splitlines():
+                        lines += textwrap.wrap(line, max(10, cols - 4)) or [""]
+                    if len(lines) > self.MSG_LINES:
+                        lines = lines[:self.MSG_LINES - 1] + [f"… {len(lines) - self.MSG_LINES + 1} more lines"]
+                    rows += [f"{fg(ACCENT['git'])}  │ {RESET}{l}" for l in lines]
             return rows
         if self.tag:
             rows = [f"{BOLD}{r}{RESET}" for r in textwrap.wrap(self.tag, max(10, cols), initial_indent="$ ",
