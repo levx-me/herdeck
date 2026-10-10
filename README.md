@@ -15,17 +15,20 @@ Herdeck puts all of that in **one deck pane beside the agent**, so you can follo
 without scrolling back through the conversation.
 
 ```
-┌ agent ─────────────────────┬ Herdeck ──────────────────────────────────┐
-│                            │  SERVERS ●  BUILD ✓  TEST ✗  GIT ✓  DEPLOY │
-│  > run the tests           │                                           │
-│                            │ ➜ ✗ forge test                     2m ago │
-│  ● Bash(forge test)        │   ✓ bun test                       5m ago │
-│    ⎿ 2 passed, 1 failed    │                                           │
-│                            │ $ forge test · ~/app/contracts · exit 1   │
-│                            │ ──────────────────────────────────────────│
-│                            │ [PASS] test_add() (gas: 144)              │
-│                            │ [FAIL: 2 + 2 should be 5] test_broken()   │
-└────────────────────────────┴───────────────────────────────────────────┘
+┌ agent ─────────────────────┬ Herdeck ────────────────────────────────────┐
+│                            │ SERVERS ●  BUILD ✓  TEST ✗  GIT ✓  DEPLOY ·│
+│ > run the tests            │╭─ runs · 2 ───────────────────────────────╮│
+│                            ││➜ ✗ npm test                       1m ago ││
+│ ● Bash(npm test)           ││  ✓ npm test                       9m ago ││
+│   ⎿ 1 failed, 23 passed    │╰──────────────────────────────────────────╯│
+│                            │$ npm test                                  │
+│                            │  ~/app · 3s · exit 1                       │
+│                            │────────────────────────────────────────────│
+│                            │ ✓ src/utils.test.ts (12 tests)             │
+│                            │ ❯ src/auth.test.ts (12 tests | 1 failed)   │
+│                            │   × rejects an expired token               │
+│                            │ Tests  1 failed | 23 passed (24)           │
+└────────────────────────────┴────────────────────────────────────────────┘
 ```
 
 ## Features
@@ -79,9 +82,9 @@ Nothing to start: the deck opens on the right when a session starts, and follows
 
 | The agent runs | Section | How |
 |---|---|---|
-| `vitest`, `jest`, `pytest`, `cargo test`, `go test`, `bun test`, `deno test`, `forge test`, `npm/pnpm/yarn test[:x]`, `make`/`just test`, `./test.sh`-style scripts | **test** | runs inside the deck, output handed back |
-| `forge build`, `cargo build`/`check`, `go build`, `tsc`, `next build`, `vite build`, `npm run build[:x]`, `make`/`just build`, `./build.sh`-style scripts | **build** | runs inside the deck, output handed back |
-| tests and builds inside chains or pipes (`git status; forge test 2>&1 \| grep FAIL`) | **test** / **build** | recorded after they ran |
+| `npm/pnpm/yarn test[:x]`, `vitest`, `jest`, `pytest`, `go test`, `cargo test`, `bun test`, `deno test`, `forge test`, `make`/`just test`, `./test.sh`-style scripts | **test** | runs inside the deck, output handed back |
+| `npm/pnpm/yarn run build[:x]`, `tsc`, `next build`, `vite build`, `go build`, `cargo build`/`check`, `forge build`, `make`/`just build`, `./build.sh`-style scripts | **build** | runs inside the deck, output handed back |
+| tests and builds inside chains or pipes (`git status; npm test 2>&1 \| grep FAIL`) | **test** / **build** | recorded after they ran |
 | any command with `git …` | **git** | recorded after it ran (Claude's permission checks unchanged); a commit shows its whole message |
 | `vercel …`, `railway …` | **deploy** | recorded after it ran (permission checks unchanged) |
 | `npm run dev`, `next dev`, `vite`, `anvil`, `uvicorn`, `flask run`, … | **servers** | command untouched, section brought forward |
