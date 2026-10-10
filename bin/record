@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Claude Code PostToolUse / PostToolUseFailure hook (Bash): after the agent ran
+# a git command, record it as a run of the "git" kind and show it in the deck.
+#
+# Git commands are not rewritten like tests and builds: they keep Claude's own
+# permission checks (push, reset ...) and are recorded once they have finished.
+set -u
+
+input=$(cat)
+[ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
+cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
+
+# git at the start of the command or of any step in a chain.
+[[ $cmd =~ (^|(&&|\|\||;)[[:space:]]*)git[[:space:]] ]] || exit 0
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+dir="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/git"
+mkdir -p "$dir/runs"
+
+n=$(ls "$dir/runs" | sort -n | tail -1); n=$(( ${n:-0} + 1 ))
+ls "$dir/runs" | sort -rn | tail -n +50 | while read -r old; do rm -rf "${dir:?}/runs/$old"; done
+r="$dir/runs/$n"
+mkdir -p "$r"
+
+printf '%s\n' "$cmd" > "$r/cmd"
+printf '%s' "$input" | jq -r '.cwd // empty' > "$r/cwd"
+end=$(date +%s)
+ms=$(printf '%s' "$input" | jq -r '.duration_ms // 0 | floor')
+printf '%s\n' "$(( end - ms / 1000 ))" > "$r/start"
+
+if [ "$(printf '%s' "$input" | jq -r .hook_event_name)" = PostToolUseFailure ]; then
+  # "Exit code N" on the first line, then the combined output.
+  err=$(printf '%s' "$input" | jq -r '.error // ""')
+  rc=$(printf '%s\n' "$err" | sed -n '1s/^Exit code \([0-9][0-9]*\).*/\1/p')
+  printf '%s\n' "$err" | sed '1{/^Exit code [0-9]*$/d;}' > "$r/log"
+  printf '%s\n' "${rc:-1}" > "$r/rc"
+else
+  printf '%s' "$input" | jq -r '[.tool_response.stdout // "", .tool_response.stderr // ""] | map(select(. != "")) | join("\n")' > "$r/log"
+  printf '0\n' > "$r/rc"
+fi
+printf '%s\n' "$end" > "$r/end"
+
+# Open (or reuse) the deck on its git section without holding up the agent.
+cwd=$(cat "$r/cwd")
+(cd "${cwd:-$PWD}" 2>/dev/null && "$root/bin/pane" git >/dev/null 2>&1 &)
+exit 0

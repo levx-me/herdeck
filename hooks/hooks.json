@@ -1,5 +1,5 @@
 {
-  "description": "Route the agent's builds and tests into Herdeck viewer panes",
+  "description": "Route the agent's builds and tests into Herdeck viewer panes, and record its git commands in the git pane",
   "hooks": {
     "PreToolUse": [
       {
@@ -8,6 +8,30 @@
           {
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/bin/hook",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/record",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/bin/record",
             "timeout": 5
           }
         ]

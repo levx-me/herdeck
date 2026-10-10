@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Claude Code PreToolUse hook (Bash): when the agent runs a test or build inside
 # herdr, rewrite the call so it runs through bin/run, which streams it into a
-# read-only viewer pane beside the agent and hands the output back.
+# read-only deck pane beside the agent and hands the output back.
 #
 # Only a plain invocation is rewritten:
 #   [cd DIR &&] [VAR=val ...] [npx|pnpm|yarn|bunx|uv run|poetry run|python -m] RUNNER [args]
@@ -15,7 +15,7 @@ input=$(cat)
 cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
 [ -n "$cmd" ] || exit 0
 
-# Starting a dev server: leave the command alone, just open the servers pane.
+# Starting a dev server: leave the command alone, just bring up the servers section.
 devs='(^|[;&|(] *)(npx |pnpm (exec |dlx )?|yarn |bunx )?((npm|pnpm|yarn|bun) (run )?(dev|start|serve|preview)|next (dev|start)|vite( |$)|astro dev|nuxt dev|remix dev|wrangler dev|python3? -m http\.server|uvicorn |flask run|rails (s|server)|anvil( |$)|php artisan serve)'
 if [[ $cmd =~ $devs ]]; then
   cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
@@ -48,7 +48,7 @@ printf '%s' "$input" | jq --arg c "$wrapped" --arg k "$kind" '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     permissionDecision: "allow",
-    permissionDecisionReason: ("\($k) run shown in the herdr \($k) pane"),
+    permissionDecisionReason: ("\($k) run shown in the Herdeck deck"),
     updatedInput: (.tool_input + {command: $c})
   }
 }'

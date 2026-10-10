@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Run a test or build for the agent, record it for the viewer pane, and hand the
+# Run a test or build for the agent, record it for the deck, and hand the
 # output and exit code back to the caller (Claude's Bash tool).
 #
 #   run <test|build> <base64 command> [<base64 output filter>]
 #
-# Each run lives in $state/<agent pane>/<kind>/runs/<n>/ (cmd, cwd, log, start,
-# pid, then rc and end). bin/viewer.py shows those dirs as tabs, read-only, in a
-# pane beside the agent: tests split off to the right, builds below the tests.
+# Each run lives in $TMPDIR/herdeck/<agent pane>/<kind>/runs/<n>/ (cmd, cwd,
+# log, start, pid, then rc and end). The deck (bin/pane, bin/viewer.py) shows
+# it in the kind's section beside the agent and switches to it.
 set -u
 
 kind=$1
@@ -25,7 +25,8 @@ if [ "${HERDR_ENV:-}" != 1 ] || [ -z "${HERDR_PANE_ID:-}" ] || ! command -v herd
 fi
 
 dir="${TMPDIR:-/tmp}/herdeck/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/$kind"
-pane=$("$root/bin/pane" "$kind")
+mkdir -p "$dir/runs"
+"$root/bin/pane" "$kind" >/dev/null
 
 # Next run number; keep the newest 20 runs.
 n=$(ls "$dir/runs" | sort -n | tail -1); n=$(( ${n:-0} + 1 ))
@@ -36,31 +37,19 @@ printf '%s\n' "$cmd" > "$r/cmd"
 printf '%s\n' "$PWD" > "$r/cwd"
 date +%s > "$r/start"
 printf '%s\n' "$$" > "$r/pid"
-[ -n "$pane" ] && herdr pane rename "$pane" "$kind ⋯" >/dev/null 2>&1
 
-# No tty here, so ask the usual runners for colour; CI=1 stops watch modes.
+# On a pseudo-terminal (bin/ptyrun) runners colour their output as in a shell;
+# the colour variables cover the ones that still look at CI. CI=1 stops watch modes.
 CI=1 FORCE_COLOR=1 CLICOLOR_FORCE=1 PY_COLORS=1 CARGO_TERM_COLOR=always \
-  bash -c "$cmd" > "$r/log" 2>&1
+  python3 "$root/bin/ptyrun" "$r/log" bash -c "$cmd"
 rc=$?
 printf '%s\n' "$rc" > "$r/rc"
 date +%s > "$r/end"
 
 # Plain text for the agent: drop colour codes, OSC sequences and carriage returns.
-out=$(perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g; s/\e\][^\a\e]*(\a|\e\\)//g; s/\r//g' "$r/log")
+# A carriage return redraws its line (spinners, progress): keep what was drawn last.
+out=$(perl -pe 's/\e\[[0-9;?]*[ -\/]*[@-~]//g; s/\e\][^\a\e]*(\a|\e\\)//g; s/\r+$//; s/^.*\r//' "$r/log")
 
-# Pane title: tests get best-effort counts, builds their duration.
-if [ -n "$pane" ]; then
-  if [ "$kind" = test ]; then
-    passed=$(printf '%s\n' "$out" | grep -oE '[0-9]+ (tests )?pass(ed)?' | tail -1 | grep -oE '^[0-9]+')
-    failed=$(printf '%s\n' "$out" | grep -oE '[0-9]+ (tests )?fail(ed)?' | tail -1 | grep -oE '^[0-9]+')
-    if [ "$rc" -eq 0 ]; then title="test ✓${passed:+ $passed}"
-    else title="test ✗${failed:+ $failed/$(( ${passed:-0} + ${failed:-0} ))}"; fi
-  else
-    secs=$(( $(cat "$r/end") - $(cat "$r/start") ))
-    if [ "$rc" -eq 0 ]; then title="build ✓ ${secs}s"; else title="build ✗ ${secs}s"; fi
-  fi
-  herdr pane rename "$pane" "$title" >/dev/null 2>&1
-fi
 
 printf '%s\n' "$out" | finish
 exit "$rc"

@@ -109,3 +109,59 @@ describe("bin/run outside herdr runs the command directly", () => {
     expect(r.exitCode).toBe(1);
   });
 });
+
+describe("record keeps the agent's git commands for the git pane", () => {
+  const { mkdtempSync, readFileSync, readdirSync, existsSync } = require("node:fs");
+  const { tmpdir } = require("node:os");
+
+  // Feed bin/record one hook event; returns the run dir it wrote, or null.
+  function record(event: object, env: Record<string, string> = {}) {
+    const tmp = mkdtempSync(join(tmpdir(), "herdeck-"));
+    const r = Bun.spawnSync([join(root, "bin/record")], {
+      stdin: Buffer.from(JSON.stringify({ tool_name: "Bash", cwd: "/tmp", ...event })),
+      // A dead socket keeps the test from opening a real herdr pane.
+      env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent", ...env },
+    });
+    expect(r.exitCode).toBe(0);
+    const runs = join(tmp, "herdeck/w9_p9/git/runs");
+    if (!existsSync(runs)) return null;
+    const [n] = readdirSync(runs);
+    const f = (name: string) => readFileSync(join(runs, n, name), "utf8").trim();
+    return { cmd: f("cmd"), log: f("log"), rc: f("rc"), cwd: f("cwd") };
+  }
+
+  test("a successful git command", () => {
+    const run = record({
+      hook_event_name: "PostToolUse",
+      tool_input: { command: "git status --short" },
+      tool_response: { stdout: " M bin/run", stderr: "" },
+    });
+    expect(run).toEqual({ cmd: "git status --short", log: "M bin/run", rc: "0", cwd: "/tmp" });
+  });
+
+  test("a failed git command keeps its exit code and output", () => {
+    const run = record({
+      hook_event_name: "PostToolUseFailure",
+      tool_input: { command: "cd repo && git push" },
+      error: "Exit code 128\nfatal: no upstream",
+    });
+    expect(run).toEqual({ cmd: "cd repo && git push", log: "fatal: no upstream", rc: "128", cwd: "/tmp" });
+  });
+
+  test("git later in a chain", () => {
+    const run = record({
+      hook_event_name: "PostToolUse",
+      tool_input: { command: "npm run lint && git add -A" },
+      tool_response: { stdout: "", stderr: "" },
+    });
+    expect(run?.cmd).toBe("npm run lint && git add -A");
+  });
+
+  for (const command of ["ls", "echo git status", "gitk", "npx digit run"]) {
+    test(`ignores: ${command}`, () =>
+      expect(record({ hook_event_name: "PostToolUse", tool_input: { command }, tool_response: { stdout: "x" } })).toBeNull());
+  }
+
+  test("ignores everything outside herdr", () =>
+    expect(record({ hook_event_name: "PostToolUse", tool_input: { command: "git log" }, tool_response: { stdout: "x" } }, { HERDR_ENV: "" })).toBeNull());
+});
