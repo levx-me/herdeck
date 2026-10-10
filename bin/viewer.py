@@ -165,6 +165,22 @@ def commit_message(cmd):
     return msg.replace('\\"', '"').strip()
 
 
+HASHES = [  # where git prints the commit a command leaves behind
+    re.compile(r"^\[[^\]\s]+(?: \([^)]*\))? ([0-9a-f]{7,40})\]", re.M),    # commit: [main 1a2b3c4] msg
+    re.compile(r"\b[0-9a-f]{7,40}\.\.\.?([0-9a-f]{7,40})\b"),            # push/pull/fetch: a..b
+    re.compile(r"HEAD is now at ([0-9a-f]{7,40})\b"),                     # reset, checkout
+    re.compile(r"^([0-9a-f]{7,40}) \S", re.M),                            # log --oneline after a quiet commit
+]
+
+
+def git_hash(text):
+    """Short hash of the last commit the output mentions, or ""."""
+    found = []
+    for pattern in HASHES:
+        found += [(m.start(), m.group(1)) for m in pattern.finditer(text)]
+    return max(found)[1][:7] if found else ""
+
+
 class Run:
     def __init__(self, path):
         self.path = path
@@ -270,6 +286,32 @@ class Run:
             except OSError:
                 pass
         return end
+
+    def hash(self):
+        """For git runs, the commit it left behind (from its output)."""
+        if os.path.basename(os.path.dirname(os.path.dirname(self.path))) != "git":
+            return ""
+        return git_hash("\n".join(ANSI.sub("", l) for l in self.lines()))
+
+    def full_hash(self):
+        """The whole hash behind the short one, looked up once in the run's repo."""
+        if not hasattr(self, "_full"):
+            self._full = ""
+            short = self.hash()
+            dirs = [read(os.path.join(self.path, "cwd"))]
+            m = re.match(r"cd\s+(\S+)\s*&&", self.full)
+            if m:
+                dirs.insert(0, os.path.join(dirs[0], os.path.expanduser(m.group(1))))
+            for d in dirs if short else []:
+                try:
+                    out = subprocess.run(["git", "-C", d, "rev-parse", "--verify", "--quiet", short + "^{commit}"],
+                                         capture_output=True, text=True, timeout=2).stdout.strip()
+                except (OSError, subprocess.SubprocessError):
+                    out = ""
+                if re.fullmatch(r"[0-9a-f]{40}", out):
+                    self._full = out
+                    break
+        return self._full
 
     def info(self):
         """Where, how long, and how it ended."""
@@ -504,7 +546,10 @@ class Runs:
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
         # The run list box, then the run's command.
-        head += [*run.command(cols), info, rule(cols)]
+        head += [*run.command(cols), info]
+        if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
+            head.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
+        head.append(rule(cols))
 
         running = run.status()[1] == AMBER_RGB
         # While it runs, the last row shows a spinner under the output.
@@ -554,19 +599,24 @@ class Runs:
             run = self.runs[i]
             icon, colour = run.status()
             age = run.age()
+            # git rows keep a fixed 7-column hash at the far right (blank when
+            # there is none), so the variable-width age lines up before it.
+            sha = run.hash()
+            right = f"{age}  {sha:7}" if self.kind == "git" else age
+            shown = f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age
             label = run.label()
-            # "➜ ✓ label<gap>age " and "  ✓ label<gap>age " both fill the line.
+            # "➜ ✓ label<gap>right " and "  ✓ label<gap>right " both fill the line.
             fixed = 5
-            room = cols - fixed - 1 - len(age)
+            room = cols - fixed - 1 - len(right)
             if len(label) > room:
                 label = label[:max(1, room - 1)] + "…"
-            gap = " " * max(1, cols - fixed - len(label) - len(age))
+            gap = " " * max(1, cols - fixed - len(label) - len(right))
             if i == self.tab:
                 arrow = fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)
                 lines.append(f"{bg(ACTIVE_RGB)}{arrow}➜{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
-                             f"\033[22m{gap}{fg(MUTED_RGB)}{age} {RESET}")
+                             f"\033[22m{gap}{fg(MUTED_RGB)}{shown} {RESET}")
             else:
-                lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{age} {RESET}")
+                lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{shown} {RESET}")
         return lines
 
     def marked(self, y):

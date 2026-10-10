@@ -327,6 +327,13 @@ print(m.${fn}(sys.stdin.read()), end="")`;
   test("a heredoc commit message, whole", () =>
     expect(py("commit_message", "git commit -m \"$(cat <<'EOF'\nFix it\n\nWhy.\nEOF\n)\"")).toBe("Fix it\n\nWhy."));
   test("no message outside a commit", () => expect(py("commit_message", "git status")).toBe(""));
+  test("commit hash from commit, push range, reset and a quiet commit's log line", () => {
+    expect(py("git_hash", "[main (root-commit) a3d7fe2] first")).toBe("a3d7fe2");
+    expect(py("git_hash", "[main 1111111] x\n   1111111..2222222  main -> main")).toBe("2222222");
+    expect(py("git_hash", "HEAD is now at deadbee msg")).toBe("deadbee");
+    expect(py("git_hash", "78c8eb3 Deck: no blank row")).toBe("78c8eb3");
+    expect(py("git_hash", "Everything up-to-date")).toBe("");
+  });
   test("git steps only, flags dropped, message cut", () =>
     expect(summary('cd repo && rm -rf x && git add -A && git diff --cached --stat && git commit -q -m "Ship it\n\nbody" && git push -q 2>&1 | tail -1'))
       .toBe('git add · git commit "Ship it" · git push'));
