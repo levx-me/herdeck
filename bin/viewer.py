@@ -520,8 +520,8 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "run"), ("enter", "output"), ("x", "drop"), ("tab", "section"), ("q", "close")]
-        return [("hjkl w b", "move"), ("v/V", "select"), ("y", "yank"), ("/ ?", "search"), ("esc", "list")]
+            return [("j/k", "select"), ("enter", "open"), ("x", "delete"), ("tab", "section"), ("q", "close")]
+        return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
 
     def list_key(self, k):
         """Keys while the run list has the focus (newest run on top)."""
@@ -589,7 +589,7 @@ class Servers:
         return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
 
     def hints(self):
-        return [("j/k", "pick"), ("enter", "open"), ("tab", "section"), ("q", "close")]
+        return [("j/k", "select"), ("enter", "browser"), ("tab", "section"), ("q", "close")]
 
     def frame(self, cols, rows):
         n = len(self.servers)
