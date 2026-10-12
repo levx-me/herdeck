@@ -19,20 +19,26 @@ Steading은 이 모든 것을 **에이전트 옆 deck 패널 하나**에 모아 
 대화를 거슬러 올라가며 찾지 않아도 됩니다.
 
 ```
-┌ agent ─────────────────────┬ Steading ──────────────────────────────────┐
-│                            │ SERVERS  BUILD ✓  TEST ✗  GIT ✓  DEPLOY    │
-│ > run the tests            │╭─ runs 2 ─────────────────────────────────╮│
-│                            ││> ✗ npm test                       1m ago ││
-│ Bash(npm test)             ││  ✓ npm test                       9m ago ││
-│ └ 1 failed, 23 passed      │╰──────────────────────────────────────────╯│
-│                            │$ npm test                                  │
-│                            │  ~/app  3s  exit 1                         │
-│                            │────────────────────────────────────────────│
-│                            │ ✓ src/utils.test.ts (12 tests)             │
-│                            │ > src/auth.test.ts (12 tests | 1 failed)   │
-│                            │   x rejects an expired token               │
-│                            │ Tests  1 failed | 23 passed (24)           │
-└────────────────────────────┴────────────────────────────────────────────┘
+┌ Claude Code ────────────────────────────────────────────┬ Steading ────────────────────────────┐
+│                                                         │ SERVERS BUILD ✓ TEST ✗ GIT ✓ DEPLOY  │
+│ > run the tests                                         │╭─ runs 2 ───────────────────────────╮│
+│                                                         ││> ✗ npm test                 1m ago ││
+│ ● I'll run the test suite.                              ││  ✓ npm test                 9m ago ││
+│                                                         │╰────────────────────────────────────╯│
+│ ● Bash(npm test)                                        │$ npm test                            │
+│   └ Tests  1 failed | 23 passed (24)                    │  ~/app  3s  exit 1                   │
+│     +18 lines (ctrl+o to expand)                        │──────────────────────────────────────│
+│                                                         │ ✓ src/utils.test.ts (12 tests)       │
+│ ● One test fails: src/auth.test.ts rejects an expired   │ > src/auth.test.ts (12 | 1 failed)   │
+│   token. The expiry check uses < where it needs <=.     │   x rejects an expired token         │
+│   Want me to fix it?                                    │ Tests  1 failed | 23 passed (24)     │
+│                                                         │                                      │
+│                                                         │                                      │
+│─────────────────────────────────────────────────────────│                                      │
+│ >                                                       │                                      │
+│─────────────────────────────────────────────────────────│ »                                    │
+│   ? for shortcuts                                       │ j/k select  enter open  q close      │
+└─────────────────────────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
 ## 기능
