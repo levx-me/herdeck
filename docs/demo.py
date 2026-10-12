@@ -185,8 +185,7 @@ line(d0, row + 2.5, end, row + 2.5, ACTIVE)
 for i, runs_ in enumerate(output):
     text(d0, row + 3 + i, runs_, end)
 
-# Fold mark and key hints at the bottom.
-text(d0, ROWS - 2, [(" »", MUTED)], end)
+# Key hints at the bottom.
 rect(d0, ROWS - 1, D, STRIP)
 text(d0, ROWS - 1, [r for k, what in hints for r in ((f" {k}", BRIGHT), (f" {what} ", MUTED))], end)
 

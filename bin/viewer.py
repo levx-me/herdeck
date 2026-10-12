@@ -16,19 +16,16 @@ moves into its output; esc comes back. The output takes herdr's copy-mode keys: 
 selected), / ? search, n N repeat, esc cancel. In servers, j/k pick a server and
 enter/o opens it.
 Mouse: click a section tab or a run in the list to switch, click in a log to place the
-cursor, click a server to open it, wheel to scroll. » above the key hints folds the deck
-to a column of status marks (servers, build, test, deploy); « or a mark unfolds it (z either way).
+cursor, click a server to open it, wheel to scroll.
 
 Standard library only, so it runs on the python3 that macOS and Linux ship.
 Editing this file restarts every open deck with the new code.
 """
 import functools
-import json
 import os
 import re
 import select
 import shutil
-import socket
 import subprocess
 import sys
 import termios
@@ -44,9 +41,6 @@ SECTIONS = ["servers", "build", "test", "git", "deploy"]
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
 LIST_ROWS = 10  # run list height (rows) before it scrolls
-# herdr keeps split ratios within 0.1-0.9, so a folded deck is 10% wide at the least.
-FOLDED_RATIO = 0.9
-FOLDED = [s for s in SECTIONS if s != "git"]  # sections whose marks show when folded
 
 RESET, DIM, BOLD = "\033[0m", "\033[2m", "\033[1m"
 STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
@@ -909,36 +903,10 @@ class Servers:
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def herdr(method, params):
-    """One call on herdr's socket API."""
-    with socket.socket(socket.AF_UNIX) as s:
-        s.connect(os.environ["HERDR_SOCKET_PATH"])
-        s.sendall((json.dumps({"id": "steading", "method": method, "params": params}) + "\n").encode())
-        buf = b""
-        while not buf.endswith(b"\n"):
-            chunk = s.recv(65536)
-            if not chunk:
-                break
-            buf += chunk
-    return json.loads(buf).get("result", {})
-
-
-def deck_split(pane):
-    """(path, ratio) of the split whose right side is this pane, or None."""
-    def find(node, path):
-        if node.get("type") != "split":
-            return None
-        if node["second"].get("pane_id") == pane:
-            return path, node["ratio"]
-        return find(node["first"], path + [False]) or find(node["second"], path + [True])
-    return find(herdr("layout.export", {"pane_id": pane})["layout"]["root"], [])
-
-
 class Deck:
     def __init__(self):
         self.views = [Servers()] + [Runs(k) for k in SECTIONS[1:]]
         self.section = 0
-        self.folded, self.unfold_ratio, self.rows = False, 0.6, 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
         # The section last picked by hand in any deck, shared by all of them.
@@ -997,33 +965,19 @@ class Deck:
         bar, self.spans = strip(cells, cols, self.section)
         return bar
 
-    def fold(self, folded):
-        """Shrink the deck to a column of status marks, or give it back its width."""
-        self.folded = folded
-        pane = os.environ.get("HERDR_PANE_ID")
-        try:
-            path, ratio = deck_split(pane)
-            if folded:
-                self.unfold_ratio, ratio = ratio, FOLDED_RATIO
-            else:
-                ratio = self.unfold_ratio
-            herdr("layout.set_split_ratio", {"pane_id": pane, "path": path, "ratio": ratio})
-        except (KeyError, TypeError, OSError, ValueError):
-            pass  # not in herdr: the deck folds in place
-
     def draw(self):
         cols, rows = shutil.get_terminal_size()
         cols -= 1  # herdr's pane scrollbar covers the last column
-        self.rows = rows
-        if self.folded:
-            # One status mark per row, and « at the bottom to unfold.
-            out = []
-            for kind in FOLDED:
-                icon, colour = self.views[SECTIONS.index(kind)].badge()
-                out += [" ", fg(colour), icon, RESET, "\033[K\r\n"]
-            out += ["\033[J", f"\033[{rows};1H ", fg(MUTED_RGB), "«", RESET, "\033[K"]
-        else:
-            out = self.expanded(cols, rows)
+        view = self.views[self.section]
+        head, body = view.frame(cols, rows - 1)  # the last row holds the key hints
+        # Overwrite in place (each line clears its own tail, \033[J the rest)
+        # instead of clearing the screen, so nothing flashes between frames.
+        out = [self.section_bar(cols), "\033[K"]
+        for line in head + body:
+            out += ["\r\n", fit(line, cols), RESET, "\033[K"]
+        out.append("\033[J")
+        hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints())
+        out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
         frame = "".join(out)
         if frame == self.last_frame:  # nothing changed: leave the screen alone
             return
@@ -1032,30 +986,9 @@ class Deck:
         sys.stdout.write("\033[?2026h\033[H" + frame + "\033[?2026l")
         sys.stdout.flush()
 
-    def expanded(self, cols, rows):
-        view = self.views[self.section]
-        head, body = view.frame(cols, rows - 2)  # then » to fold, and the key hints
-        # Overwrite in place (each line clears its own tail, \033[J the rest)
-        # instead of clearing the screen, so nothing flashes between frames.
-        out = [self.section_bar(cols), "\033[K"]
-        for line in head + body:
-            out += ["\r\n", fit(line, cols), RESET, "\033[K"]
-        out.append("\033[J")
-        out += [f"\033[{rows - 1};1H ", fg(MUTED_RGB), "»", RESET, "\033[K"]
-        hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints() + [("z", "fold")])
-        out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
-        return out
-
     def mouse(self, button, col, row):
         """SGR mouse report: 0 = left press, 64/65 = wheel up/down."""
-        if self.folded:
-            if button == 0 and (row == self.rows or row <= len(FOLDED)):
-                if row <= len(FOLDED):  # a mark opens its section
-                    self.choose(SECTIONS.index(FOLDED[row - 1]))
-                self.fold(False)
-        elif button == 0 and row == self.rows - 1 and col <= 3:
-            self.fold(True)
-        elif button in (64, 65):
+        if button in (64, 65):
             self.views[self.section].wheel(button == 65)
         elif button == 0 and row == 1:
             for i, x0, x1 in self.spans:
@@ -1069,9 +1002,7 @@ class Deck:
         if getattr(view, "search", None) is not None:  # typing a search: every key is text
             view.key(k)
             return
-        if k == "z":
-            self.fold(not self.folded)
-        elif k in ("\t", "]"):
+        if k in ("\t", "]"):
             self.choose(self.section + 1)
         elif k in ("\x1b[Z", "["):
             self.choose(self.section - 1)

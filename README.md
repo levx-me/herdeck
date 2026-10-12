@@ -43,8 +43,6 @@ without scrolling back through the conversation.
 - **Dev servers** — ports opened by processes inside the project, clickable, one key
   to open in the browser.
 - **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel.
-  `»` above the key hints folds the deck down to a column of status marks; `«` or a mark opens
-  it again.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
 ## Quick start
@@ -109,7 +107,6 @@ the keys that apply right now.
 | Where | Keys | Action |
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`5` | previous / next section, jump to one |
-| | `z` | fold the deck to a column of status marks, or unfold it |
 | | `q` | close the deck |
 | run list (build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |

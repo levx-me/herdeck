@@ -151,7 +151,6 @@
 <text x="770.0" y="483.7" textLength="319.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">rotates the refresh token on every use</text>
 <text x="753.2" y="502.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="770.0" y="502.7" textLength="285.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">accepts a token in its last second</text>
-<text x="736.4" y="768.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">»</text>
 <rect x="728.0" y="774.0" width="470.4" height="19.0" rx="0" fill="#21252b"/>
 <text x="736.4" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
 <text x="770.0" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
