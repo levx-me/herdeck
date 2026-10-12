@@ -20,3 +20,21 @@ id = "install-claude"
 title = "Steading: install the Claude Code hook"
 contexts = ["global"]
 command = ["sh", "bin/install-claude"]
+
+[[actions]]
+id = "toggle"
+title = "Steading: open or close the deck"
+contexts = ["global", "workspace", "pane"]
+command = ["bin/deck", "toggle"]
+
+# Any agent herdr recognises gets a deck as it starts (claude, codex, opencode ...).
+[[events]]
+on = "pane.agent_detected"
+command = ["bin/deck", "auto"]
+
+# The deck itself: herdr starts it straight in a split, with no shell first.
+[[panes]]
+id = "deck"
+title = "Steading"
+placement = "split"
+command = ["python3", "bin/viewer.py"]

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Open and close the deck from herdr itself, for any agent or plain shell.
+#
+#   deck toggle   herdr action (prefix+d): open the deck beside the focused pane,
+#                 or close it; on the deck itself, close that deck
+#   deck auto     herdr event pane.agent_detected: open a deck beside the pane
+#                 an agent (claude, codex, opencode, ...) just showed up in.
+#                 Off when $HERDR_PLUGIN_CONFIG_DIR/no-auto-open exists.
+set -u
+root=$(cd "$(dirname "$0")/.." && pwd)
+state="${TMPDIR:-/tmp}/steading"
+
+alive() { [ -n "$1" ] && herdr pane get "$1" >/dev/null 2>&1; }
+deck_of() { cat "$state/$(printf '%s' "$1" | tr ':/' '__')/pane" 2>/dev/null; }
+is_deck() { grep -qxF "$1" "$state"/*/pane 2>/dev/null; }
+open_beside() { HERDR_PANE_ID=$1 "$root/bin/pane" "" "${2:-$PWD}" >/dev/null; }
+
+case ${1:-} in
+  toggle)
+    ctx=${HERDR_PLUGIN_CONTEXT_JSON:-'{}'}
+    pane=$(printf '%s' "$ctx" | jq -r '.focused_pane_id // empty')
+    cwd=$(printf '%s' "$ctx" | jq -r '.focused_pane_cwd // empty')
+    [ -n "$pane" ] || exit 0
+    if is_deck "$pane"; then
+      herdr pane close "$pane" >/dev/null
+    elif alive "$(deck_of "$pane")"; then
+      herdr pane close "$(deck_of "$pane")" >/dev/null
+    else
+      open_beside "$pane" "$cwd"
+    fi
+    ;;
+  auto)
+    [ -e "${HERDR_PLUGIN_CONFIG_DIR:-/nonexistent}/no-auto-open" ] && exit 0
+    pane=$(printf '%s' "${HERDR_PLUGIN_EVENT_JSON:-'{}'}" | jq -r '.data.pane_id // empty')
+    [ -n "$pane" ] && ! is_deck "$pane" || exit 0
+    cwd=$(herdr pane get "$pane" | jq -r '.result.pane.cwd // empty')
+    open_beside "$pane" "$cwd"
+    ;;
+  *)
+    echo "usage: deck toggle|auto" >&2
+    exit 2
+    ;;
+esac

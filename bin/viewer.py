@@ -32,7 +32,7 @@ import textwrap
 import time
 import tty
 
-BASE = sys.argv[1]
+BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["servers", "build", "test", "git", "deploy"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's

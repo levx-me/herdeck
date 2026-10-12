@@ -1,20 +1,13 @@
 #!/usr/bin/env bash
 # Claude Code SessionStart hook, inside herdr only:
-#  - tells the agent how to run tests and builds so the deck can stream them
-#    (every start, resume, /clear and compaction, so the note never drops out);
-#  - opens the deck beside the agent when a session starts or resumes.
+#  tells the agent how to run tests and builds so the deck can stream them
+#  (every start, resume, /clear and compaction, so the note never drops out).
+#  Opening the deck is herdr's job: the pane.agent_detected event (bin/deck auto)
+#  does it for any agent.
 set -u
 input=$(cat)
 [ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
 [ -n "$(printf '%s' "$input" | jq -r '.agent_id // empty')" ] && exit 0 # not for subagents
-
-case $(printf '%s' "$input" | jq -r '.source // empty') in
-  startup | resume | "")
-    cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
-    # In the background: the session should not wait for the pane to come up.
-    (cd "${cwd:-$PWD}" 2>/dev/null && "$(dirname "$0")/pane" >/dev/null 2>&1 &)
-    ;;
-esac
 
 note="Steading shows this session's tests, builds and git commands live in a herdr pane beside you. \
 Run tests and builds as plain commands (\`forge test\`, \`npm test\`, \`./build.sh\`), not piped through \

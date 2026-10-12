@@ -37,9 +37,10 @@ without scrolling back through the conversation.
 
 - **One deck, five sections** — `servers`, `build`, `test`, `git`, `deploy`, each tab
   showing the latest status (`✓` `✗`, a spinner while running, `●` for live servers).
-- **Always there** — the deck opens beside the agent when a Claude Code session starts
-  inside herdr, and the agent is told to run tests and builds as plain commands so the
-  deck can stream them (added to the session's context; no file is edited).
+- **Always there** — the deck opens beside any agent herdr recognises (Claude Code, Codex,
+  OpenCode, ...) as it starts, and `prefix+d` opens or closes it beside any pane. It starts
+  straight in its pane, no shell first. Claude Code is also told to run tests and builds as
+  plain commands so the deck can stream them (added to the session's context; no file is edited).
 - **Follows the agent** — when the agent runs a test, a build or a git command, or
   starts a dev server, the deck switches to that section and run.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
@@ -96,6 +97,20 @@ Only plain invocations run inside the deck (live, coloured):
 `| tail/head -n N`. Anything chained, piped elsewhere, redirected or using substitutions
 runs exactly as the agent wrote it, and shows up in the deck once it has finished.
 
+### Open and close
+
+Add a key in herdr's `config.toml` (the deck opens on its own when an agent starts):
+
+```toml
+[[keys.command]]
+key = "prefix+d"
+type = "plugin_action"
+command = "steading.toggle"
+```
+
+`prefix+d` opens the deck beside the focused pane, or closes it; on the deck itself it closes that
+deck. To stop decks opening by themselves: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
+
 ### Keys
 
 Focus the deck (click it, or herdr's pane navigation). The bottom row always shows
@@ -139,7 +154,8 @@ flowchart LR
   (approved, see below); dev servers only open the deck.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to
   `$TMPDIR/steading/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
-- `bin/open` opens the deck when a session starts and adds the run-it-plainly note to the session.
+- `bin/deck` is the herdr side: `toggle` for the key, `auto` for herdr's `pane.agent_detected` event.
+- `bin/open` adds the run-it-plainly note to a Claude Code session.
 - `bin/record` keeps git commands, and tests and builds that were not routed, after Claude ran them.
 - `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show.
 - `bin/viewer.py` draws the deck from those run directories and reloads itself when edited.
