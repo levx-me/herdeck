@@ -18,35 +18,7 @@ Your coding agent runs builds, tests and git, and starts dev servers, all the ti
 Steading puts all of that in **one deck pane beside the agent**, so you can follow it
 without scrolling back through the conversation.
 
-```
-┌ Claude Code ───────────────────────────────────────────┬ Steading ───────────────────────────┐
-│                                                        │  SERVERS ·   BUILD ✓   TEST ◐  ›    │
-│ > add refresh tokens to the auth middleware            │╭─ runs 3 ──────────────────────────╮│
-│                                                        ││> ◐ npm test                   now ││
-│ ● Update(src/middleware/auth.ts)                       ││  ✗ npm test                1m ago ││
-│   └ Updated with 18 additions and 4 removals           ││  ✓ npm test               12m ago ││
-│                                                        │╰───────────────────────────────────╯│
-│ ● Bash(npm test)                                       │$ npm test                           │
-│   └ Tests  1 failed | 23 passed (24)                   │  ~/app  2s                          │
-│     +18 lines (ctrl+o to expand)                       │─────────────────────────────────────│
-│                                                        │ ✓ src/utils.test.ts (12 tests)      │
-│ ● The expiry check now rejects a token in its last     │ ✓ src/session.test.ts (5 tests)     │
-│   second. Switching < to <= and running them again.    │ > src/middleware/auth.test.ts 4/7   │
-│                                                        │   ✓ issues a token pair             │
-│ ● Update(src/middleware/auth.ts)                       │   ✓ refreshes before expiry         │
-│   └ Updated with 1 addition and 1 removal              │   ✓ rejects a reused refresh token  │
-│                                                        │   ✓ accepts its last second         │
-│ ● Bash(npm test)                                       │                                     │
-│   └ Running...                                         │                                     │
-│                                                        │                                     │
-│ ✻ Testing... (esc to interrupt)                        │                                     │
-│                                                        │                                     │
-│────────────────────────────────────────────────────────│                                     │
-│ >                                                      │                                     │
-│────────────────────────────────────────────────────────│ »                                   │
-│   ? for shortcuts                                      │ j/k select  enter open  q close     │
-└────────────────────────────────────────────────────────┴─────────────────────────────────────┘
-```
+![Claude Code building a feature in herdr, with the Steading deck beside it streaming the test run](docs/demo.svg)
 
 ## Features
 

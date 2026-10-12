@@ -18,35 +18,7 @@
 Steading은 이 모든 것을 **에이전트 옆 deck 패널 하나**에 모아 보여 줍니다.
 대화를 거슬러 올라가며 찾지 않아도 됩니다.
 
-```
-┌ Claude Code ───────────────────────────────────────────┬ Steading ───────────────────────────┐
-│                                                        │  SERVERS ·   BUILD ✓   TEST ◐  ›    │
-│ > add refresh tokens to the auth middleware            │╭─ runs 3 ──────────────────────────╮│
-│                                                        ││> ◐ npm test                   now ││
-│ ● Update(src/middleware/auth.ts)                       ││  ✗ npm test                1m ago ││
-│   └ Updated with 18 additions and 4 removals           ││  ✓ npm test               12m ago ││
-│                                                        │╰───────────────────────────────────╯│
-│ ● Bash(npm test)                                       │$ npm test                           │
-│   └ Tests  1 failed | 23 passed (24)                   │  ~/app  2s                          │
-│     +18 lines (ctrl+o to expand)                       │─────────────────────────────────────│
-│                                                        │ ✓ src/utils.test.ts (12 tests)      │
-│ ● The expiry check now rejects a token in its last     │ ✓ src/session.test.ts (5 tests)     │
-│   second. Switching < to <= and running them again.    │ > src/middleware/auth.test.ts 4/7   │
-│                                                        │   ✓ issues a token pair             │
-│ ● Update(src/middleware/auth.ts)                       │   ✓ refreshes before expiry         │
-│   └ Updated with 1 addition and 1 removal              │   ✓ rejects a reused refresh token  │
-│                                                        │   ✓ accepts its last second         │
-│ ● Bash(npm test)                                       │                                     │
-│   └ Running...                                         │                                     │
-│                                                        │                                     │
-│ ✻ Testing... (esc to interrupt)                        │                                     │
-│                                                        │                                     │
-│────────────────────────────────────────────────────────│                                     │
-│ >                                                      │                                     │
-│────────────────────────────────────────────────────────│ »                                   │
-│   ? for shortcuts                                      │ j/k select  enter open  q close     │
-└────────────────────────────────────────────────────────┴─────────────────────────────────────┘
-```
+![herdr에서 기능을 개발하는 Claude Code와, 그 옆에서 테스트 실행을 실시간으로 보여 주는 Steading deck](docs/demo.svg)
 
 ## 기능
 
