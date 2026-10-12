@@ -325,24 +325,27 @@ class Run:
         return self._log[3]
 
     def full_hash(self):
-        """The whole hash behind the short one, looked up once in the run's repo."""
-        if not hasattr(self, "_full"):
+        """The whole hash behind the short one, looked up once (in a thread) in
+        the run's repo; "" until found."""
+        short = self.hash()
+        if short and not hasattr(self, "_full"):
             self._full = ""
-            short = self.hash()
-            dirs = [read(os.path.join(self.path, "cwd"))]
-            m = re.match(r"cd\s+(\S+)\s*&&", self.full)
-            if m:
-                dirs.insert(0, os.path.join(dirs[0], os.path.expanduser(m.group(1))))
-            for d in dirs if short else []:
-                try:
-                    out = subprocess.run(["git", "-C", d, "rev-parse", "--verify", "--quiet", short + "^{commit}"],
-                                         capture_output=True, text=True, timeout=2).stdout.strip()
-                except (OSError, subprocess.SubprocessError):
-                    out = ""
-                if re.fullmatch(r"[0-9a-f]{40}", out):
-                    self._full = out
-                    break
-        return self._full
+            threading.Thread(target=self._find_full, args=(short,), daemon=True).start()
+        return getattr(self, "_full", "")
+
+    def _find_full(self, short):
+        cwd = read(os.path.join(self.path, "cwd"))
+        # Every directory the command cd's into (newest last wins), then its cwd.
+        cds = [os.path.join(cwd, os.path.expanduser(d.strip("'\""))) for d in re.findall(r"(?:^|[;&|(\n]\s*)cd\s+(\S+)", self.full)]
+        for d in [*reversed(cds), cwd]:
+            try:
+                out = subprocess.run(["git", "-C", d, "rev-parse", "--verify", "--quiet", short + "^{commit}"],
+                                     capture_output=True, text=True, timeout=2).stdout.strip()
+            except (OSError, subprocess.SubprocessError):
+                out = ""
+            if re.fullmatch(r"[0-9a-f]{40}", out):
+                self._full = out
+                break
 
     def info(self):
         """Where, how long, and how it ended."""
@@ -840,19 +843,25 @@ class Servers:
 
     def __init__(self):
         self.servers, self.at, self.pick = [], 0.0, 0
+        self.scanning = False
 
     def refresh(self):
-        if time.time() - self.at >= 2:
-            root, out = read(os.path.join(BASE, "root")), ""
-            if root:
-                try:
-                    out = subprocess.run([SERVERS, root], capture_output=True, text=True, timeout=5).stdout
-                except (OSError, subprocess.SubprocessError):
-                    pass
-            self.servers = [l.split("\t", 2) for l in out.splitlines() if l.count("\t") == 2]
-            self.pick = max(0, min(self.pick, len(self.servers) - 1))
-            self.at = time.time()
+        # lsof takes ~0.2s: scan in a thread so the deck never waits on it.
+        if time.time() - self.at >= 2 and not self.scanning:
+            self.scanning = True
+            threading.Thread(target=self.scan, daemon=True).start()
+        self.pick = max(0, min(self.pick, len(self.servers) - 1))
         return False
+
+    def scan(self):
+        root, out = read(os.path.join(BASE, "root")), ""
+        if root:
+            try:
+                out = subprocess.run([SERVERS, root], capture_output=True, text=True, timeout=5).stdout
+            except (OSError, subprocess.SubprocessError):
+                pass
+        self.servers = [l.split("\t", 2) for l in out.splitlines() if l.count("\t") == 2]
+        self.at, self.scanning = time.time(), False
 
     def badge(self):
         return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
