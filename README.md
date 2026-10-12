@@ -19,33 +19,34 @@ Steading puts all of that in **one deck pane beside the agent**, so you can foll
 without scrolling back through the conversation.
 
 ```
-┌ Claude Code ────────────────────────────────────────────┬ Steading ────────────────────────────┐
-│                                                         │ SERVERS BUILD ✓ TEST ◐ GIT ✓ DEPLOY  │
-│ > add refresh-token support to the auth middleware      │╭─ runs 3 ───────────────────────────╮│
-│                                                         ││> ◐ npm test                    now ││
-│ ● Update(src/middleware/auth.ts)                        ││  ✗ npm test                 1m ago ││
-│   └ Updated with 18 additions and 4 removals            ││  ✓ npm test                12m ago ││
-│                                                         │╰────────────────────────────────────╯│
-│ ● Bash(npm test)                                        │$ npm test                            │
-│   └ Tests  1 failed | 23 passed (24)                    │  ~/app  2s                           │
-│     +18 lines (ctrl+o to expand)                        │──────────────────────────────────────│
-│                                                         │ ✓ src/utils.test.ts (12 tests)       │
-│ ● The expiry check now rejects a token in its last      │ ✓ src/session.test.ts (5 tests)      │
-│   second. Switching < to <= and running them again.     │ > src/middleware/auth.test.ts 4/7    │
-│                                                         │   ✓ issues a token pair              │
-│ ● Update(src/middleware/auth.ts)                        │   ✓ refreshes before expiry          │
-│   └ Updated with 1 addition and 1 removal               │   ✓ rejects a reused refresh token   │
-│                                                         │   ✓ accepts its last second          │
-│ ● Bash(npm test)                                        │                                      │
-│   └ Running...                                          │                                      │
-│                                                         │                                      │
-│ ✻ Testing... (esc to interrupt)                         │                                      │
-│                                                         │                                      │
-│─────────────────────────────────────────────────────────│                                      │
-│ >                                                       │                                      │
-│─────────────────────────────────────────────────────────│ »                                    │
-│   ? for shortcuts                                       │ j/k select  enter open  q close      │
-└─────────────────────────────────────────────────────────┴──────────────────────────────────────┘
+┌ Claude Code ─────────────────────────────────┬ Steading ─────────────────────┐
+│                                              │‹ BUILD ✓  TEST ◐  GIT ✓ ›     │
+│ > add refresh tokens to the auth middleware  │╭─ runs 3 ────────────────────╮│
+│                                              ││> ◐ npm test             now ││
+│ ● Update(src/middleware/auth.ts)             ││  ✗ npm test          1m ago ││
+│   └ Updated with 18 additions and 4 removals ││  ✓ npm test         12m ago ││
+│                                              │╰─────────────────────────────╯│
+│ ● Bash(npm test)                             │$ npm test                     │
+│   └ Tests  1 failed | 23 passed (24)         │  ~/app  2s                    │
+│     +18 lines (ctrl+o to expand)             │───────────────────────────────│
+│                                              │ ✓ test/user.test.ts (12 tests)│
+│ ● The expiry check rejects a token in its    │ ✓ test/token.test.ts (5 tests)│
+│   last second. Switching < to <= and running │ > test/auth.test.ts 4/7       │
+│   them again.                                │   ✓ issues a token pair       │
+│                                              │   ✓ refreshes before expiry   │
+│ ● Update(src/middleware/auth.ts)             │   ✓ rejects a reused token    │
+│   └ Updated with 1 addition and 1 removal    │   ✓ accepts its last second   │
+│                                              │                               │
+│ ● Bash(npm test)                             │                               │
+│   └ Running...                               │                               │
+│                                              │                               │
+│ ✻ Testing... (esc to interrupt)              │                               │
+│                                              │                               │
+│──────────────────────────────────────────────│                               │
+│ >                                            │                               │
+│──────────────────────────────────────────────│ »                             │
+│   ? for shortcuts                            │ j/k select  enter open        │
+└──────────────────────────────────────────────┴───────────────────────────────┘
 ```
 
 ## Features
