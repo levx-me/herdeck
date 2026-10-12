@@ -17,18 +17,18 @@ Steading puts all of that in **one deck pane beside the agent**, so you can foll
 without scrolling back through the conversation.
 
 ```
-┌ agent ─────────────────────┬ Steading ────────────────────────────────────┐
-│                            │ SERVERS ●  BUILD ✓  TEST ✗  GIT ✓  DEPLOY ·│
-│ > run the tests            │╭─ runs · 2 ───────────────────────────────╮│
-│                            ││➜ ✗ npm test                       1m ago ││
-│ ● Bash(npm test)           ││  ✓ npm test                       9m ago ││
-│   ⎿ 1 failed, 23 passed    │╰──────────────────────────────────────────╯│
+┌ agent ─────────────────────┬ Steading ──────────────────────────────────┐
+│                            │ SERVERS  BUILD ✓  TEST ✗  GIT ✓  DEPLOY    │
+│ > run the tests            │╭─ runs 2 ─────────────────────────────────╮│
+│                            ││> ✗ npm test                       1m ago ││
+│ Bash(npm test)             ││  ✓ npm test                       9m ago ││
+│ └ 1 failed, 23 passed      │╰──────────────────────────────────────────╯│
 │                            │$ npm test                                  │
-│                            │  ~/app · 3s · exit 1                       │
+│                            │  ~/app  3s  exit 1                         │
 │                            │────────────────────────────────────────────│
 │                            │ ✓ src/utils.test.ts (12 tests)             │
-│                            │ ❯ src/auth.test.ts (12 tests | 1 failed)   │
-│                            │   × rejects an expired token               │
+│                            │ > src/auth.test.ts (12 tests | 1 failed)   │
+│                            │   x rejects an expired token               │
 │                            │ Tests  1 failed | 23 passed (24)           │
 └────────────────────────────┴────────────────────────────────────────────┘
 ```
