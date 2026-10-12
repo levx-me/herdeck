@@ -158,6 +158,8 @@ flowchart LR
   `$TMPDIR/steading/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
 - `bin/deck` is the herdr side: `toggle` for the key, `auto` for herdr's `pane.agent_detected` event.
 - `bin/open` adds the run-it-plainly note to a Claude Code session.
+  When the session is resumed in a new pane (or `/tmp` was cleared) and its deck is empty,
+  `bin/restore` refills the deck from the session transcript, through `bin/record`.
 - `bin/record` keeps git commands, and tests and builds that were not routed, after Claude ran them.
 - `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show.
 - `bin/viewer.py` draws the deck from those run directories and reloads itself when edited.

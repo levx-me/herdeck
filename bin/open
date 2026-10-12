@@ -9,6 +9,14 @@ input=$(cat)
 [ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
 [ -n "$(printf '%s' "$input" | jq -r '.agent_id // empty')" ] && exit 0 # not for subagents
 
+# Runs are kept per herdr pane: a session resumed in a new pane (or after /tmp
+# was cleared) refills its empty deck from the transcript, in the background.
+base="${TMPDIR:-/tmp}/steading/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')"
+transcript=$(printf '%s' "$input" | jq -r '.transcript_path // empty')
+if [ -s "$transcript" ] && ! compgen -G "$base/*/runs/*" >/dev/null; then
+  (python3 -I "$(dirname "$0")/restore" "$transcript" >/dev/null 2>&1 &)
+fi
+
 note="Steading shows this session's tests, builds and git commands live in a herdr pane beside you. \
 Run tests and builds as plain commands (\`forge test\`, \`npm test\`, \`./build.sh\`), not piped through \
 grep/head/sed, redirected to a file, or chained with other commands: Steading then streams them with colour \

@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""restore TRANSCRIPT: refill an empty deck from a Claude Code session transcript.
+
+Decks keep their runs per herdr pane, so a session resumed in a new pane (or
+after /tmp was cleared) starts with an empty deck. This replays the
+transcript's Bash calls through bin/record, which files the tests, builds, git
+commands and deploys among them exactly as it does live.
+"""
+import json
+import os
+import re
+import subprocess
+import sys
+from datetime import datetime
+from importlib.machinery import SourceFileLoader
+
+BIN = os.path.dirname(os.path.abspath(__file__))
+classify = SourceFileLoader("classify", os.path.join(BIN, "classify")).load_module().classify
+DESC = re.compile(r"^(test|build|git|deploy):\s*\S")
+
+
+def epoch(ts):
+    return datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
+
+
+def text(content):
+    if isinstance(content, list):
+        return "\n".join(c.get("text", "") for c in content if isinstance(c, dict))
+    return content or ""
+
+
+def calls(path):
+    """(tool_use, its line, tool_result, its line) for each main-thread Bash call."""
+    uses = {}
+    with open(path) as f:
+        for raw in f:
+            try:
+                line = json.loads(raw)
+            except ValueError:
+                continue
+            content = (line.get("message") or {}).get("content")
+            if line.get("isSidechain") or not isinstance(content, list):
+                continue
+            for c in content:
+                if c.get("type") == "tool_use" and c.get("name") == "Bash":
+                    uses[c["id"]] = (c, line)
+                elif c.get("type") == "tool_result" and c.get("tool_use_id") in uses:
+                    use, at = uses.pop(c["tool_use_id"])
+                    yield use, at, c, line
+
+
+def main(path):
+    for use, at, result, line in calls(path):
+        cmd = use["input"].get("command", "")
+        desc = use["input"].get("description", "")
+        if not (classify(cmd).get("kind") or DESC.match(desc)):
+            continue  # bin/record would skip it too; spare the process
+        start, end = epoch(at["timestamp"]), epoch(line["timestamp"])
+        event = {
+            "hook_event_name": "PostToolUse",
+            "cwd": at.get("cwd", ""),
+            "tool_input": {"command": cmd, "description": desc},
+            "duration_ms": int((end - start) * 1000),
+        }
+        if result.get("is_error"):
+            event["hook_event_name"] = "PostToolUseFailure"
+            event["error"] = re.sub(r"^Error: ", "", text(result.get("content")))
+        else:
+            response = line.get("toolUseResult")
+            event["tool_response"] = response if isinstance(response, dict) else \
+                {"stdout": text(result.get("content"))}
+        subprocess.run([os.path.join(BIN, "record")], input=json.dumps(event), text=True,
+                       env={**os.environ, "STEADING_RESTORE_END": str(int(end))})
+
+
+if __name__ == "__main__":
+    main(sys.argv[1])

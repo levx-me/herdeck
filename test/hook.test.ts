@@ -314,6 +314,41 @@ describe("open tells the agent how to run things for the deck", () => {
   test("says nothing to subagents", () => expect(open({ source: "startup", agent_id: "sub" }).stdout.toString()).toBe(""));
 });
 
+describe("restore refills an empty deck from the transcript", () => {
+  const { mkdtempSync, readFileSync, readdirSync, writeFileSync } = require("node:fs");
+  const { tmpdir } = require("node:os");
+
+  test("tests, builds and git writes come back with output and exit code", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
+    const use = (id: string, command: string, description: string, at: string) => ({
+      type: "assistant", timestamp: at, cwd: "/tmp",
+      message: { content: [{ type: "tool_use", id, name: "Bash", input: { command, description } }] },
+    });
+    const result = (id: string, content: string, at: string, is_error = false, toolUseResult?: object) => ({
+      type: "user", timestamp: at, toolUseResult,
+      message: { content: [{ type: "tool_result", tool_use_id: id, content, is_error }] },
+    });
+    const transcript = join(tmp, "session.jsonl");
+    writeFileSync(transcript, [
+      use("a", "npm test", "test: npm test", "2026-01-01T00:00:00Z"),
+      result("a", "Exit code 1\n1 failed", "2026-01-01T00:00:05Z", true),
+      use("b", "git status", "Show status", "2026-01-01T00:01:00Z"), // read-only: left out
+      result("b", "clean", "2026-01-01T00:01:01Z", false, { stdout: "clean", stderr: "" }),
+      use("c", 'git commit -m "Fix"', 'git: git commit -m "Fix"', "2026-01-01T00:02:00Z"),
+      result("c", "[main abc1234] Fix", "2026-01-01T00:02:01Z", false, { stdout: "[main abc1234] Fix", stderr: "" }),
+    ].map((l) => JSON.stringify(l)).join("\n"));
+    const r = Bun.spawnSync(["python3", "-I", join(root, "bin/restore"), transcript], {
+      env: { PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent" },
+    });
+    expect(r.exitCode).toBe(0);
+    const base = join(tmp, "steading/w9_p9");
+    const f = (kind: string, name: string) => readFileSync(join(base, kind, "runs/1", name), "utf8").trim();
+    expect(readdirSync(base).sort()).toEqual(["git", "test"]);
+    expect([f("test", "rc"), f("test", "log"), f("test", "end")]).toEqual(["1", "1 failed", "1767225605"]);
+    expect([f("git", "rc"), f("git", "log"), f("git", "label")]).toEqual(["0", "[main abc1234] Fix", 'git commit -m "Fix"']);
+  });
+});
+
 describe("viewer sums up unlabelled git runs", () => {
   // Call a function of bin/viewer.py on stdin.
   const py = (fn: string, cmd: string) => {

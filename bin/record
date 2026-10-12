@@ -41,7 +41,7 @@ mkdir -p "$r"
 printf '%s\n' "$cmd" > "$r/cmd"
 [ -n "$label" ] && printf '%s\n' "$label" > "$r/label"
 printf '%s' "$input" | jq -r '.cwd // empty' > "$r/cwd"
-end=$(date +%s)
+end=${STEADING_RESTORE_END:-$(date +%s)} # bin/restore passes the end from the transcript
 ms=$(printf '%s' "$input" | jq -r '.duration_ms // 0 | floor')
 printf '%s\n' "$(( end - ms / 1000 ))" > "$r/start"
 
@@ -67,6 +67,7 @@ fi
 [ -n "$bg" ] || printf '%s\n' "$end" > "$r/end"
 
 # Open (or reuse) the deck on that section without holding up the agent.
+[ -n "${STEADING_RESTORE_END:-}" ] && exit 0
 cwd=$(cat "$r/cwd")
 (cd "${cwd:-$PWD}" 2>/dev/null && "$root/bin/pane" "$kind" >/dev/null 2>&1 &)
 exit 0
