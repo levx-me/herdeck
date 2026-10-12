@@ -197,6 +197,13 @@ describe("record keeps finished runs for the deck", () => {
     expect(ok("echo vercel")).toBeNull();
   });
 
+  test("vercel and railway that ship nothing stay out of deploy", () => {
+    for (const cmd of ["vercel --version", "vercel ls --format json", "npx vercel logs x", "vercel env pull", "railway logs", "railway status"])
+      expect(ok(cmd)).toBeNull();
+    expect(ok("vercel ls", "", "deploy: vercel ls")).toBeNull(); // the description cannot make it one
+    expect(ok("npm run build && vercel --prod", "", "deploy: vercel --prod")?.kind).toBe("deploy");
+  });
+
   test("a deploy: description", () =>
     expect(labelOf("deploy: vercel --prod", "vercel --prod --yes 2>&1 | tail -3")).toEqual({ kind: "deploy", label: "vercel --prod" }));
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Say what a shell command line runs, for the deck.
 
-    classify < command        prints JSON: {"kind", "label", "routable", "core", "post"}
+    classify < command        prints JSON: {"kind", "kinds", "label", "routable", "core", "post"}
 
 kind      test | build | deploy | git | ""   (first match in that order)
+kinds     every kind the line holds, so a description may pick one of them
 label     the simple command that matched, as it runs: `pnpm test -- --force`
 routable  true when the line is only [cd DIR &&]... RUNNER [2>&1] [| tail/head -n N]
           for a test or build, so bin/hook may run it live in the deck
@@ -33,7 +34,6 @@ RUNNERS = [
     ("build", r"forge build|cargo build|cargo check|go build|tsc|next build|vite build"
               r"|(?:npm|pnpm|yarn|bun) run build(?::[\w:.-]+)?|(?:pnpm|yarn) build|(?:make|just|task) build|swift build"
               rf"|{SCRIPT}(?:build|[\w-]*[-_]build)[\w.-]*\.sh"),
-    ("deploy", r"vercel|railway"),
 ]
 MATCH = {kind: re.compile(rf"^{LAUNCH}(?:{alt})(?:\s|$)") for kind, alt in RUNNERS}
 # First words a runner can start with, so a wrapper's options can be skipped.
@@ -42,6 +42,8 @@ STARTS = {"vitest", "jest", "pytest", "cargo", "go", "deno", "forge", "npm", "pn
           "python", "python3", "bash", "sh"}
 GIT_WRITES = {"add", "commit", "push", "pull", "merge", "rebase", "reset", "revert", "cherry-pick", "checkout",
               "switch", "restore", "rm", "mv", "am", "apply", "clone", "init", "clean", "worktree", "submodule"}
+# vercel and railway subcommands that ship something ("" = bare `vercel`, which deploys).
+DEPLOYS = {"vercel": {"", "deploy", "redeploy", "promote", "rollback"}, "railway": {"up", "deploy", "redeploy"}}
 FILTER = re.compile(r"^(?:tail|head)(?: -n)? -?\d+$")
 
 
@@ -105,6 +107,21 @@ def git_write(words):
             or (sub == "config" and not re.search(r"--(get|list)|(^|\s)-l\b", rest_s)))
 
 
+def deploys(words):
+    """vercel or railway run to ship something, not `vercel ls` or `--version`."""
+    w = list(words)
+    if w[:2] in (["pnpm", "exec"], ["pnpm", "dlx"]):
+        w = w[2:]
+    elif w[:1] in (["npx"], ["bunx"], ["yarn"], ["pnpm"]):
+        w = w[1:]
+    while w and w[0].startswith("-"):  # npx -y vercel
+        w = w[1:]
+    if not w or w[0] not in DEPLOYS or {"-v", "--version", "-h", "--help"} & set(w[1:]):
+        return False
+    sub = next((a for a in w[1:] if not a.startswith("-")), "")
+    return sub in DEPLOYS[w[0]]
+
+
 def classify(line):
     cmds = simple_commands(line)
     found = {}
@@ -116,10 +133,12 @@ def classify(line):
         for kind, pattern in MATCH.items():
             if kind not in found and pattern.match(text):
                 found[kind] = (idx, text)
+        if "deploy" not in found and deploys(w):
+            found["deploy"] = (idx, text)
         if "git" not in found and git_write(w):
             found["git"] = (idx, text)
     kind = next((k for k in ("test", "build", "deploy", "git") if k in found), "")
-    result = {"kind": kind, "label": found[kind][1] if kind and kind != "git" else "",
+    result = {"kind": kind, "kinds": sorted(found), "label": found[kind][1] if kind and kind != "git" else "",
               "routable": False, "core": "", "post": ""}
 
     # Routable: cd steps joined by &&, then the runner, then at most one tail/head

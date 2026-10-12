@@ -23,7 +23,10 @@ label=$(printf '%s' "$what" | jq -r .label)
 # The session note asks for "<kind>: <command>" descriptions; one names the
 # section and labels the run (read-only git stays out all the same).
 desc=$(printf '%s' "$input" | jq -r '.tool_input.description // empty')
-if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]] && { [ "${BASH_REMATCH[1]}" != git ] || [ "$kind" = git ]; }; then
+# git and deploy only when the command really writes or ships (`vercel ls` is no deploy).
+kinds=" $(printf '%s' "$what" | jq -r '.kinds | join(" ")') "
+if [[ $desc =~ ^(test|build|git|deploy):[[:space:]]*(.+)$ ]] &&
+  case ${BASH_REMATCH[1]} in git | deploy) [[ $kinds == *" ${BASH_REMATCH[1]} "* ]] ;; esac; then
   kind=${BASH_REMATCH[1]} label=${BASH_REMATCH[2]}
 fi
 [ -n "$kind" ] || exit 0
