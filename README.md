@@ -10,6 +10,8 @@
 [![herdr 0.9+](https://img.shields.io/badge/herdr-0.9%2B-555?style=flat-square)](https://herdr.dev)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-555?style=flat-square)](https://code.claude.com)
 
+**English** · [한국어](README.ko.md)
+
 </div>
 
 Your coding agent runs builds, tests and git, and starts dev servers, all the time.
@@ -50,7 +52,8 @@ without scrolling back through the conversation.
 - **One section everywhere** — pick a section in any deck and every open deck switches to it; runs
   that start on their own only move their own deck.
 - **Run history** — each section lists its runs, newest on top (the last 20, git the
-  last 50); pick one with `j` `k` or a click.
+  last 50); pick one with `j` `k` or a click. A session resumed in a new pane gets its list
+  back from the transcript.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
 - **Dev servers** — ports opened by processes inside the project, clickable, one key
   to open in the browser.
