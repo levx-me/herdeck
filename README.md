@@ -55,6 +55,8 @@ without scrolling back through the conversation.
 - **Dev servers** — ports opened by processes inside the project, clickable, one key
   to open in the browser.
 - **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel.
+  `»` above the key hints folds the deck down to a column of status marks; `«` or a mark opens
+  it again.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
 ## Quick start
