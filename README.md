@@ -109,6 +109,7 @@ the keys that apply right now.
 | Where | Keys | Action |
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`5` | previous / next section, jump to one |
+| | `z` | fold the deck to a column of status marks, or unfold it |
 | | `q` | close the deck |
 | run list (build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |

@@ -17,7 +17,7 @@ selected), / ? search, n N repeat, esc cancel. In servers, j/k pick a server and
 enter/o opens it.
 Mouse: click a section tab or a run in the list to switch, click in a log to place the
 cursor, click a server to open it, wheel to scroll. » above the key hints folds the deck
-to a column of status marks (servers, build, test, deploy); « or a mark unfolds it.
+to a column of status marks (servers, build, test, deploy); « or a mark unfolds it (z either way).
 
 Standard library only, so it runs on the python3 that macOS and Linux ship.
 Editing this file restarts every open deck with the new code.
@@ -1042,7 +1042,7 @@ class Deck:
             out += ["\r\n", fit(line, cols), RESET, "\033[K"]
         out.append("\033[J")
         out += [f"\033[{rows - 1};1H ", fg(MUTED_RGB), "»", RESET, "\033[K"]
-        hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints())
+        hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints() + [("z", "fold")])
         out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
         return out
 
@@ -1069,7 +1069,9 @@ class Deck:
         if getattr(view, "search", None) is not None:  # typing a search: every key is text
             view.key(k)
             return
-        if k in ("\t", "]"):
+        if k == "z":
+            self.fold(not self.folded)
+        elif k in ("\t", "]"):
             self.choose(self.section + 1)
         elif k in ("\x1b[Z", "["):
             self.choose(self.section - 1)
