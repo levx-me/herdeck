@@ -21,6 +21,7 @@ cursor, click a server to open it, wheel to scroll.
 Standard library only, so it runs on the python3 that macOS and Linux ship.
 Editing this file restarts every open deck with the new code.
 """
+import functools
 import os
 import re
 import select
@@ -29,6 +30,7 @@ import subprocess
 import sys
 import termios
 import textwrap
+import threading
 import time
 import tty
 
@@ -141,6 +143,7 @@ def _classify():
     return _CLASSIFY
 
 
+@functools.lru_cache(maxsize=1024)  # pure: same command, same steps
 def git_steps(cmd, messages=True):
     """The git steps of cmd, read as shell tokens (quotes kept whole), flags
     dropped, read-only ones left out when there are writes; with messages, a
@@ -170,6 +173,7 @@ def git_steps(cmd, messages=True):
     return writes or steps
 
 
+@functools.lru_cache(maxsize=1024)
 def commit_message(cmd):
     """The full message of a `git commit` in cmd: from -m "..." (any number of
     lines) or from a heredoc fed to it; "" when there is none."""
@@ -208,6 +212,10 @@ class Run:
             self.tag = git_summary(self.full)
         # For the run list, one line: a multi-line command (a heredoc, say) gets ⏎ marks.
         self.cmd = " ⏎ ".join(self.full.splitlines())
+        self.is_git = os.path.basename(os.path.dirname(os.path.dirname(path))) == "git"
+        # The log, read in a background thread and kept until the file changes.
+        self._log = (None, None, None, "")  # (file key, display lines, plain lines, hash)
+        self._loading = None
 
     def source(self):
         """Claude's task output file, for a run sent to the background."""
@@ -310,10 +318,11 @@ class Run:
         return end
 
     def hash(self):
-        """For git runs, the commit it left behind (from its output)."""
-        if os.path.basename(os.path.dirname(os.path.dirname(self.path))) != "git":
+        """For git runs, the commit it left behind (from its output); "" until read."""
+        if not self.is_git:
             return ""
-        return git_hash("\n".join(ANSI.sub("", l) for l in self.lines()))
+        self.lines()
+        return self._log[3]
 
     def full_hash(self):
         """The whole hash behind the short one, looked up once in the run's repo."""
@@ -346,14 +355,47 @@ class Run:
         parts.append(f"exit {rc}" if rc else "running in the background" if self.source() else "running")
         return f"{DIM}  {' · '.join(p for p in parts if p)}{RESET}"
 
+    MAX_BYTES = 2_000_000  # a bigger log shows its last 2 MB
+
     def lines(self):
+        """Display lines of the log, or None while it is first being read.
+        Reading happens in a thread and only when the file changed (mtime and
+        size), so switching tabs never waits on a big log."""
+        path = self.source() or os.path.join(self.path, "log")
         try:
-            with open(self.source() or os.path.join(self.path, "log"), "rb") as f:
-                text = f.read().decode("utf-8", "replace")
+            st = os.stat(path)
+            key = (st.st_mtime_ns, st.st_size)
         except OSError:
             return []
+        if key != self._log[0] and self._loading != key:
+            self._loading = key
+            threading.Thread(target=self._load, args=(path, key), daemon=True).start()
+        return self._log[1]
+
+    def plain(self):
+        self.lines()
+        return self._log[2]
+
+    def _load(self, path, key):
+        try:
+            with open(path, "rb") as f:
+                size = os.fstat(f.fileno()).st_size
+                cut = size > self.MAX_BYTES
+                if cut:
+                    f.seek(size - self.MAX_BYTES)
+                data = f.read()
+        except OSError:
+            data, cut = b"", False
+        text = data.decode("utf-8", "replace")
+        if cut:  # drop the partial first line and say so
+            text = f"{DIM}… earlier output cut ({size // 1_000_000} MB log){RESET}\n" + text.split("\n", 1)[-1]
         text = re.sub(r"\n*\[exited with code \d+\]\s*$", "", text)
-        return clean(text, git=os.path.basename(os.path.dirname(os.path.dirname(self.path))) == "git")
+        shown = clean(text, git=self.is_git)
+        plain = [ANSI.sub("", l) for l in shown]
+        sha = git_hash("\n".join(plain)) if self.is_git else ""
+        self._log = (key, shown, plain, sha)  # one assignment: readers see old or new, never half
+        if self._loading == key:
+            self._loading = None
 
 
 CSI = re.compile(r"\x1b\[([0-9;?]*)[ -/]*([@-~])")
@@ -444,7 +486,11 @@ class Runs:
         if self.known is None or new:  # start on, and jump to, the newest run
             self.select(len(ns) - 1)
         self.known = set(ns)
-        self.runs = [Run(os.path.join(self.dir, str(n))) for n in ns]
+        # Keep Run objects (and their loaded logs) across refreshes.
+        cache = {r.n: r for r in self.runs if hasattr(r, "n")}
+        self.runs = [cache.get(n) or Run(os.path.join(self.dir, str(n))) for n in ns]
+        for n, r in zip(ns, self.runs):
+            r.n = n
         self.tab = max(0, min(self.tab, len(self.runs) - 1))
         return new
 
@@ -558,8 +604,9 @@ class Runs:
         if not self.runs:
             return [f"{DIM} no {self.kind} runs yet{RESET}", rule(cols)], []
         run = self.runs[self.tab]
-        self.raw = run.lines()
-        self.plain = [ANSI.sub("", l) for l in self.raw]
+        loaded = run.lines()
+        self.raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
+        self.plain = run.plain() if loaded is not None else [""]
         head = self.run_list(cols)
         if self.search is not None:
             info = f"{fg(ACCENT[self.kind])}{'?' if self.back else '/'}{RESET}{self.search}▏"
