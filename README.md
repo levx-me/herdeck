@@ -20,19 +20,26 @@ without scrolling back through the conversation.
 
 ```
 ┌ Claude Code ────────────────────────────────────────────┬ Steading ────────────────────────────┐
-│                                                         │ SERVERS BUILD ✓ TEST ✗ GIT ✓ DEPLOY  │
-│ > run the tests                                         │╭─ runs 2 ───────────────────────────╮│
-│                                                         ││> ✗ npm test                 1m ago ││
-│ ● I'll run the test suite.                              ││  ✓ npm test                 9m ago ││
+│                                                         │ SERVERS BUILD ✓ TEST ◐ GIT ✓ DEPLOY  │
+│ > add refresh-token support to the auth middleware      │╭─ runs 3 ───────────────────────────╮│
+│                                                         ││> ◐ npm test                    now ││
+│ ● Update(src/middleware/auth.ts)                        ││  ✗ npm test                 1m ago ││
+│   └ Updated with 18 additions and 4 removals            ││  ✓ npm test                12m ago ││
 │                                                         │╰────────────────────────────────────╯│
 │ ● Bash(npm test)                                        │$ npm test                            │
-│   └ Tests  1 failed | 23 passed (24)                    │  ~/app  3s  exit 1                   │
+│   └ Tests  1 failed | 23 passed (24)                    │  ~/app  2s                           │
 │     +18 lines (ctrl+o to expand)                        │──────────────────────────────────────│
 │                                                         │ ✓ src/utils.test.ts (12 tests)       │
-│ ● One test fails: src/auth.test.ts rejects an expired   │ > src/auth.test.ts (12 | 1 failed)   │
-│   token. The expiry check uses < where it needs <=.     │   x rejects an expired token         │
-│   Want me to fix it?                                    │ Tests  1 failed | 23 passed (24)     │
+│ ● The expiry check now rejects a token in its last      │ ✓ src/session.test.ts (5 tests)      │
+│   second. Switching < to <= and running them again.     │ > src/middleware/auth.test.ts 4/7    │
+│                                                         │   ✓ issues a token pair              │
+│ ● Update(src/middleware/auth.ts)                        │   ✓ refreshes before expiry          │
+│   └ Updated with 1 addition and 1 removal               │   ✓ rejects a reused refresh token   │
+│                                                         │   ✓ accepts its last second          │
+│ ● Bash(npm test)                                        │                                      │
+│   └ Running...                                          │                                      │
 │                                                         │                                      │
+│ ✻ Testing... (esc to interrupt)                         │                                      │
 │                                                         │                                      │
 │─────────────────────────────────────────────────────────│                                      │
 │ >                                                       │                                      │
