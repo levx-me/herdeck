@@ -204,6 +204,19 @@ describe("record keeps finished runs for the deck", () => {
     expect(ok("npm run build && vercel --prod", "", "deploy: vercel --prod")?.kind).toBe("deploy");
   });
 
+  test("other deploy CLIs, by the subcommand that ships", () => {
+    for (const cmd of ["netlify deploy --prod", "fly deploy", "npx wrangler deploy", "wrangler pages deploy dist",
+      "firebase deploy --only hosting", "gcloud run deploy api --source .", "aws cloudformation deploy --template-file t.yml",
+      "terraform apply -auto-approve", "kubectl apply -f k8s/", "helm upgrade --install api ./chart",
+      "forge script script/Deploy.s.sol --rpc-url x --broadcast", "forge create src/A.sol:A",
+      "npx hardhat ignition deploy ./m.ts", "git push heroku main", "pnpm dlx sst deploy", "gh-pages -d dist", "time kamal deploy"])
+      expect(ok(cmd)?.kind).toBe("deploy");
+    for (const cmd of ["netlify status", "wrangler dev", "gcloud run services list", "terraform plan", "kubectl get pods",
+      "helm list", "forge script script/Deploy.s.sol", "supabase start", "sam --version"])
+      expect(ok(cmd)).toBeNull();
+    expect(ok("git push origin main")?.kind).toBe("git");
+  });
+
   test("a deploy: description", () =>
     expect(labelOf("deploy: vercel --prod", "vercel --prod --yes 2>&1 | tail -3")).toEqual({ kind: "deploy", label: "vercel --prod" }));
 

@@ -38,12 +38,47 @@ RUNNERS = [
 MATCH = {kind: re.compile(rf"^{LAUNCH}(?:{alt})(?:\s|$)") for kind, alt in RUNNERS}
 # First words a runner can start with, so a wrapper's options can be skipped.
 STARTS = {"vitest", "jest", "pytest", "cargo", "go", "deno", "forge", "npm", "pnpm", "yarn", "bun", "npx", "bunx",
-          "make", "just", "task", "tsc", "next", "vite", "swift", "vercel", "railway", "git", "uv", "poetry",
+          "make", "just", "task", "tsc", "next", "vite", "swift", "git", "uv", "poetry",
           "python", "python3", "bash", "sh"}
 GIT_WRITES = {"add", "commit", "push", "pull", "merge", "rebase", "reset", "revert", "cherry-pick", "checkout",
               "switch", "restore", "rm", "mv", "am", "apply", "clone", "init", "clean", "worktree", "submodule"}
-# vercel and railway subcommands that ship something ("" = bare `vercel`, which deploys).
-DEPLOYS = {"vercel": {"", "deploy", "redeploy", "promote", "rollback"}, "railway": {"up", "deploy", "redeploy"}}
+# Deploy CLIs and the subcommands that ship something, as leading positional
+# words: `gcloud run deploy` is ("run", "deploy"); () = the bare command, which
+# deploys for vercel. Status, logs, list and the like stay out.
+DEPLOYS = {
+    "vercel": [(), ("deploy",), ("redeploy",), ("promote",), ("rollback",)],
+    "railway": [("up",), ("deploy",), ("redeploy",)],
+    "netlify": [("deploy",)], "ntl": [("deploy",)],
+    "fly": [("deploy",)], "flyctl": [("deploy",)],
+    "wrangler": [("deploy",), ("publish",), ("pages", "deploy"), ("pages", "publish"), ("versions", "deploy")],
+    "firebase": [("deploy",), ("hosting:channel:deploy",)],
+    "render": [("deploys", "create")],
+    "heroku": [("container:release",), ("releases:rollback",)],
+    "amplify": [("publish",), ("push",)],
+    "eas": [("update",), ("submit",)],
+    "expo": [("publish",)],
+    "supabase": [("functions", "deploy"), ("db", "push")],
+    "gcloud": [("run", "deploy"), ("app", "deploy"), ("functions", "deploy")],
+    "aws": [("cloudformation", "deploy"), ("ecs", "update-service"), ("lambda", "update-function-code"),
+            ("deploy", "create-deployment")],
+    "az": [("webapp", "up"), ("webapp", "deploy"), ("functionapp", "deploy"), ("deployment",)],
+    "doctl": [("apps", "create-deployment")],
+    "cf": [("push",)],
+    "sam": [("deploy",)], "cdk": [("deploy",)], "sst": [("deploy",)],
+    "serverless": [("deploy",)], "sls": [("deploy",)],
+    "terraform": [("apply",)], "tofu": [("apply",)], "pulumi": [("up",)],
+    "kubectl": [("apply",), ("rollout", "restart"), ("set", "image")],
+    "helm": [("install",), ("upgrade",), ("rollback",)],
+    "skaffold": [("run",), ("deploy",)],
+    "argocd": [("app", "sync")],
+    "kamal": [("deploy",), ("redeploy",), ("rollback",)],
+    "shopify": [("app", "deploy"), ("theme", "push")],
+    "gh-pages": [None],  # any use publishes
+    "forge": [("create",), ("script",)],  # script only with --broadcast (below)
+    "hardhat": [("deploy",), ("ignition", "deploy")],
+    "git": [("push", "heroku"), ("push", "dokku")],
+}
+STARTS |= set(DEPLOYS)
 FILTER = re.compile(r"^(?:tail|head)(?: -n)? -?\d+$")
 
 
@@ -118,8 +153,13 @@ def deploys(words):
         w = w[1:]
     if not w or w[0] not in DEPLOYS or {"-v", "--version", "-h", "--help"} & set(w[1:]):
         return False
-    sub = next((a for a in w[1:] if not a.startswith("-")), "")
-    return sub in DEPLOYS[w[0]]
+    # ponytail: a flag's value (`--project p`) reads as a positional word, so
+    # `gcloud --project p run deploy` is missed; a "deploy:" description can't
+    # rescue it either. Parse per-tool flags if that bites.
+    args = [a for a in w[1:] if not a.startswith("-")]
+    if w[:2] == ["forge", "script"] and "--broadcast" not in w:
+        return False  # a dry run
+    return any(sub is None or (tuple(args[:len(sub)]) == sub if sub else not args) for sub in DEPLOYS[w[0]])
 
 
 def classify(line):

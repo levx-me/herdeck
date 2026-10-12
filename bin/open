@@ -22,7 +22,7 @@ Run tests and builds as plain commands (\`forge test\`, \`npm test\`, \`./build.
 grep/head/sed, redirected to a file, or chained with other commands: Steading then streams them with colour \
 and still returns the full output and exit code to you. Append \`| tail -n N\` if you only need the end. \
 Keep them in the foreground unless a run takes many minutes. \
-You MUST give every test, build, git or deploy (vercel, railway) Bash call a description of exactly \
+You MUST give every test, build, git or deploy (vercel, fly, wrangler, terraform apply, forge script --broadcast, ...) Bash call a description of exactly \
 \`<kind>: <core command>\`, where kind is test, build, git or deploy and the core command is the command line \
 that does the work, copied as it runs, without cd, pipes, filters or redirects, never a sentence: \
 \`test: forge test --match-path 'test/*'\`, \`build: pnpm build\`, \`git: git commit -m \"Fix X\" && git push\`, \

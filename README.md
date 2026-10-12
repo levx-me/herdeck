@@ -91,7 +91,7 @@ Nothing to start: the deck opens on the right when a session starts, and follows
 | `npm/pnpm/yarn run build[:x]`, `tsc`, `next build`, `vite build`, `go build`, `cargo build`/`check`, `forge build`, `make`/`just build`, `./build.sh`-style scripts | **build** | runs inside the deck, output handed back |
 | tests and builds inside chains or pipes (`git status; npm test 2>&1 \| grep FAIL`) | **test** / **build** | recorded after they ran |
 | any command with `git …` | **git** | recorded after it ran (Claude's permission checks unchanged); a commit shows its whole message |
-| `vercel …`, `railway …` | **deploy** | recorded after it ran (permission checks unchanged) |
+| `vercel`, `railway up`, `netlify deploy`, `fly deploy`, `wrangler deploy`, `firebase deploy`, `gcloud run deploy`, `terraform apply`, `kubectl apply`, `helm upgrade`, `forge script --broadcast`, ... ([full list](bin/classify)) | **deploy** | recorded after it ran (permission checks unchanged); status, logs and list commands stay out |
 | `npm run dev`, `next dev`, `vite`, `anvil`, `uvicorn`, `flask run`, … | **servers** | command untouched, section brought forward |
 
 Only plain invocations run inside the deck (live, coloured):
