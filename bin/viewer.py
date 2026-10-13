@@ -403,11 +403,11 @@ class Run:
 
 
 _panes = (0.0, [])
-def herdr_panes():
+def herdr_panes(fresh=False):
     """Every herdr pane as (pane id, workspace id, shell pid, tty), looked up
-    at most every 10s. Call it from a thread: it asks herdr once per pane."""
+    at most every 10s unless fresh. Call it from a thread: it asks herdr once per pane."""
     global _panes
-    if time.time() - _panes[0] < 10:
+    if not fresh and time.time() - _panes[0] < 10:
         return _panes[1]
     herdr = os.environ.get("HERDR_BIN_PATH", "herdr")
 
@@ -437,6 +437,7 @@ class ServerRun(Run):
         self.path, self.tag, self.is_git = "", "", False
         self.full = self.cmd = re.sub(r"^\S*/", "", cmd.strip())  # /long/path/Python -m x -> Python -m x
         self._log, self._loading, self._read_at = (None, None, None, ""), None, 0.0
+        self.hold = False  # set while the user reads the log: a pane log is not re-read under them
         self.where = None  # ("file", path) | ("pane", pane id) | ("none", why); None while looking
         threading.Thread(target=self._find, daemon=True).start()
 
@@ -448,7 +449,9 @@ class ServerRun(Run):
             out = subprocess.run(["lsof", "-a", "-p", pid, "-d", "1", "-Fn"], capture_output=True, text=True).stdout
             name = next((l[1:] for l in out.splitlines() if l.startswith("n")), "")
             if name.startswith("/dev/tty"):
-                pane = next((p for p, _, _, tty in herdr_panes() if tty and name == "/dev/" + tty), None)
+                def on_tty(panes):
+                    return next((p for p, _, _, tty in panes if tty and name == "/dev/" + tty), None)
+                pane = on_tty(herdr_panes()) or on_tty(herdr_panes(fresh=True))  # a pane opened since the last look
                 self.where = ("pane", pane) if pane else ("none", f"it prints to {name}, outside herdr")
                 return
             if os.path.isfile(name):
@@ -487,7 +490,7 @@ class ServerRun(Run):
             return super().lines()
         if kind == "none":
             self._log = (None, [f"{DIM}no log: {what}{RESET}"], [f"no log: {what}"], "")
-        elif time.time() - self._read_at >= 1 and not self._loading:  # a pane: read its terminal every second
+        elif time.time() - self._read_at >= 1 and not self._loading and not self.hold:  # a pane: read it every second
             self._read_at, self._loading = time.time(), True
             threading.Thread(target=self._read_pane, args=(what,), daemon=True).start()
         return self._log[1]
@@ -990,6 +993,13 @@ class Servers(Runs):
 
     def badge(self):
         return ("●", GREEN_RGB) if self.runs else ("·", MUTED_RGB)
+
+    def frame(self, cols, rows):
+        # Reading the log (not following its end): a pane log stays as it was until
+        # esc, since each re-read of the pane's last lines would slide it under the cursor.
+        for i, run in enumerate(self.runs):
+            run.hold = i == self.tab and self.focus == "log" and not self.follow
+        return super().frame(cols, rows)
 
     def hints(self):
         if self.focus == "list" and self.search is None:
