@@ -22,12 +22,16 @@ without scrolling back through the conversation.
 
 ## Features
 
-- **One deck, six sections** — `agents`, `servers`, `build`, `test`, `git`, `deploy`, each tab
+- **One deck, seven sections** — `agents`, `jobs`, `servers`, `build`, `test`, `git`, `deploy`, each tab
   showing the latest status (`✓` `✗`, a spinner while running, `●` for live servers).
 - **Agents** — the agent itself, always on top (its session title and whether it is working,
   waiting on you or idle), and under it each Claude Code subagent at work, background and
   workflow agents too, read from the session's transcripts as
   [zoetrope](https://github.com/furkankly/zoetrope) does.
+- **Jobs** — any other command of the agent that takes 10s or more (a wait loop, an install, a
+  script with a long timeout) shows up with what it is for (the call's description), how long it
+  has run against its timeout, and its output as it comes, read from Claude Code's own output
+  file for the call. Nothing about the call changes.
 - **Always there** — the deck opens beside any agent herdr recognises (Claude Code, Codex,
   OpenCode, ...) as it starts, and `prefix+d` opens or closes it beside any pane. It starts
   straight in its pane, no shell first. Claude Code is also told to run tests and builds as
@@ -115,9 +119,9 @@ the keys that apply right now.
 
 | Where | Keys | Action |
 |---|---|---|
-| anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`6` | previous / next section, jump to one |
+| anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`7` | previous / next section, jump to one |
 | | `q` | close the deck |
-| run list (agents, servers, build, test, git) | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
+| run list (agents, jobs, servers, build, test, git) | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |
 | | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
@@ -149,7 +153,8 @@ flowchart LR
 - `bin/classify` reads a command line by its shell tokens: what it runs (test, build, deploy, git write), the
   core command to show (`cd x; env -u A pnpm test | tail` → `pnpm test`), and whether it may run live. Both hooks use it.
 - `bin/hook` decides what a Bash call is. Tests and builds are rewritten to `bin/run`
-  (approved, see below); dev servers only open the deck.
+  (approved, see below); dev servers only bring an open deck to `servers`; anything else is
+  filed as a job, and `bin/job` finds Claude Code's output file for it once it starts.
 - `bin/run` runs the command on a pseudo-terminal (`bin/ptyrun`), writes the run to
   `$TMPDIR/steading/<agent pane>/<kind>/runs/<n>/`, and returns the plain output and exit code.
 - `bin/deck` is the herdr side: `toggle` for the key, `auto` for herdr's `pane.agent_detected` event.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Steading deck: one read-only pane beside the agent with six sections.
+"""Steading deck: one read-only pane beside the agent with seven sections.
 
     viewer.py <base>
 
@@ -7,9 +7,11 @@
 bin/run and bin/record): cmd, cwd, log, start, pid, and once finished rc and
 end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, brings
-that section forward; a new run is also followed live.
+that section forward; a new run is also followed live. The jobs section lists
+the agent's other commands that ran 10s or more (bin/hook, bin/job), live from
+Claude Code's own output file while they run.
 
-Keys: [ ] (or tab/shift-tab) and 1-6 switch sections,
+Keys: [ ] (or tab/shift-tab) and 1-7 switch sections,
 q close the pane. In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
@@ -39,7 +41,7 @@ import unicodedata
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
-SECTIONS = ["agents", "servers", "build", "test", "git", "deploy"]
+SECTIONS = ["agents", "jobs", "servers", "build", "test", "git", "deploy"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
@@ -50,7 +52,7 @@ STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
 MUTED_RGB, BRIGHT_RGB = "120;127;140", "220;223;228"
 DIMMED_RGB = "88;94;105"  # the side without the cursor: list labels or the log's plain text
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
-ACCENT = {"agents": "143;168;210", "servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
+ACCENT = {"agents": "143;168;210", "jobs": CYAN_RGB, "servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
 KEYS = re.compile(r"\x1b\[[0-9;]*[A-Za-z~]|\x1bO.|\x1b|.", re.S)
 # Arrow keys move as h j k l do, in the list and in the log (normal and application cursor mode).
@@ -649,6 +651,7 @@ class Runs:
     copy-mode cursor, with the same keys as herdr's copy mode."""
 
     noun = "runs"
+    run_class = Run
 
     def __init__(self, kind):
         self.kind, self.dir = kind, os.path.join(BASE, kind, "runs")
@@ -669,13 +672,14 @@ class Runs:
             ns = sorted(int(n) for n in os.listdir(self.dir) if n.isdigit())
         except OSError:
             ns = []
+        ns = [n for n in ns if self.shows(os.path.join(self.dir, str(n)))]
         new = self.known is not None and any(n not in self.known for n in ns)
         if self.known is None or new:  # start on, and jump to, the newest run
             self.select(len(ns) - 1)
         self.known = set(ns)
         # Keep Run objects (and their loaded logs) across refreshes.
         cache = {r.n: r for r in self.runs if hasattr(r, "n")}
-        self.runs = [cache.get(n) or Run(os.path.join(self.dir, str(n))) for n in ns]
+        self.runs = [cache.get(n) or self.run_class(os.path.join(self.dir, str(n))) for n in ns]
         for n, r in zip(ns, self.runs):
             r.n = n
         if new:
@@ -689,6 +693,10 @@ class Runs:
     def title_right(self):
         """Text for the right end of the run list's top border."""
         return ""
+
+    def shows(self, path):
+        """Whether the run in path is listed."""
+        return True
 
     def badge(self):
         return self.runs[-1].status() if self.runs else ("·", MUTED_RGB)
@@ -1089,6 +1097,64 @@ class Runs:
         self.clamp()
         if down and self.cy >= len(self.plain) - 1:
             self.follow = True
+
+
+class JobRun(Run):
+    """A command the agent ran outside the deck, followed live from Claude
+    Code's output file (source) until bin/record files its log and exit code."""
+
+    def limit(self):
+        """The call's timeout in seconds (Claude Code's default is 2 minutes)."""
+        return int(read(os.path.join(self.path, "timeout"), "120000") or 120000) // 1000
+
+    def stopped(self):
+        """Gone without bin/record hearing how it ended (interrupted, say)."""
+        if self.rc():
+            return False
+        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+        return not os.path.exists(self.source()) or time.time() > start + self.limit() + 15
+
+    def status(self):
+        if self.rc():
+            return super().status()
+        return ("⊘", MUTED_RGB) if self.stopped() else (spinner(), AMBER_RGB)
+
+    def age(self):
+        return "stopped" if self.stopped() else super().age()
+
+    def info(self):
+        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+        end, rc = self.end(), self.rc()
+        limit = self.limit()
+        took = f"{(int(end) if end else int(time.time())) - start}s"
+        parts = [read(os.path.join(self.path, "cwd")).replace(os.path.expanduser("~"), "~", 1)]
+        if rc:
+            parts += [took, f"exit {rc}"]
+        elif self.stopped():
+            parts += ["stopped"]
+        else:
+            parts += [f"{took} of {limit // 60}m" if limit % 60 == 0 else f"{took} of {limit}s", "running"]
+        return f"{DIM}  {' · '.join(p for p in parts if p)}{RESET}"
+
+
+class Jobs(Runs):
+    """The agent's other commands (not tests or builds, which run in the deck)
+    that have taken 10s or more, running or done."""
+
+    noun = "jobs"
+    run_class = JobRun
+    LONG = 10
+
+    def __init__(self):
+        super().__init__("jobs")
+        self.empty = "no command has taken 10s or more yet"
+
+    def shows(self, path):
+        start = read(os.path.join(path, "start"))
+        if not start:
+            return False  # not started yet (or waiting on a permission prompt)
+        end = read(os.path.join(path, "end"))
+        return (int(end) if end else time.time()) - int(start) >= self.LONG
 
 
 class Git(Runs):
@@ -1803,7 +1869,7 @@ class Agents(Runs):
 
 class Deck:
     def __init__(self):
-        self.views = [Agents(), Servers()] + [Git() if k == "git" else Runs(k) for k in SECTIONS[2:]]
+        self.views = [Agents(), Jobs(), Servers()] + [Git() if k == "git" else Runs(k) for k in SECTIONS[3:]]
         self.section = 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
@@ -1854,7 +1920,7 @@ class Deck:
         for i, view in enumerate(self.views):
             icon, colour = view.badge()
             name = view.kind.upper()
-            # No number on the tab (1-6 still jump there): more fit a narrow pane.
+            # No number on the tab (1-7 still jump there): more fit a narrow pane.
             if i == self.section:
                 text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {name} {icon} \033[22m"
             else:

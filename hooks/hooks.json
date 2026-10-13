@@ -1,5 +1,5 @@
 {
-  "description": "Steading: open the deck when a session starts, route plain builds and tests into it, and record chained runs and git commands after they ran",
+  "description": "Steading: open the deck when a session starts, route plain builds and tests into it, follow long commands as jobs, and record chained runs and git commands after they ran",
   "hooks": {
     "SessionStart": [
       {

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Make sure the agent has its Steading deck: one viewer pane split off to the
-# right, with agents, servers, build, test, git and deploy sections. Prints the pane id.
+# right, with agents, jobs, servers, build, test, git and deploy sections. Prints the pane id.
 #
 #   pane [--follow] [SECTION] [CWD]
-#                           SECTION (agents|servers|build|test|git|deploy) is brought forward;
+#                           SECTION (agents|jobs|servers|build|test|git|deploy) is brought forward;
 #                           CWD (default $PWD) picks the project for servers.
 #                           --follow: only switch an open deck, never open one (runs use it;
 #                           the deck opens from prefix+d or when an agent starts).

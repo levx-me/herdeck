@@ -23,8 +23,34 @@ if [[ $cmd =~ $devs ]]; then
   exit 0
 fi
 
+# Anything else is followed as a job: the deck's jobs section shows the ones
+# that run 10s or more, live from Claude Code's own output file for the call
+# (<claude tmp>/<project>/<session>/tasks/<id>.output, which exists only while
+# it runs), and bin/record files how it ended. Nothing about the call changes.
+job() {
+  [ "$(printf '%s' "$input" | jq -r '.tool_input.run_in_background // false')" = true ] && return
+  local id sid r n dir
+  id=$(printf '%s' "$input" | jq -r '.tool_use_id // empty')
+  sid=$(printf '%s' "$input" | jq -r '.session_id // empty')
+  [ -n "$id" ] && [ -n "$sid" ] || return
+  dir="${TMPDIR:-/tmp}/steading/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/jobs/runs"
+  mkdir -p "$dir"
+  n=$(ls "$dir" | sort -n | tail -1); n=$(( ${n:-0} + 1 ))
+  ls "$dir" | sort -rn | tail -n +20 | while read -r old; do rm -rf "${dir:?}/$old"; done
+  r="$dir/$n"
+  mkdir -p "$r"
+  printf '%s\n' "$cmd" > "$r/cmd"
+  printf '%s' "$input" | jq -r '.tool_input.description // empty' > "$r/label"
+  printf '%s' "$input" | jq -r '.cwd // empty' > "$r/cwd"
+  printf '%s' "$input" | jq -r '.tool_input.timeout // 120000' > "$r/timeout"
+  printf '%s\n' "$id" > "$r/id"
+  # The output files there now, before the command starts: its own is the one that appears.
+  ls /tmp/claude-"$(id -u)"/*/"$sid"/tasks "${TMPDIR:-/tmp}"/claude-"$(id -u)"/*/"$sid"/tasks 2>/dev/null > "$r/before"
+  (python3 -I "$(dirname "$0")/job" "$r" "$sid" >/dev/null 2>&1 &)
+}
+
 what=$(printf '%s' "$cmd" | python3 -I "$(dirname "$0")/classify")
-[ "$(printf '%s' "$what" | jq -r .routable)" = true ] || exit 0
+[ "$(printf '%s' "$what" | jq -r .routable)" = true ] || { job; exit 0; }
 kind=$(printf '%s' "$what" | jq -r .kind)
 core=$(printf '%s' "$what" | jq -r .core)
 post=$(printf '%s' "$what" | jq -r .post)

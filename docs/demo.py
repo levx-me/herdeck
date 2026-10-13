@@ -22,14 +22,14 @@ TIMER_FROM = 12                   # the "Testing..." timer's first second
 BRAILLE = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"            # the deck's spinner (bin/viewer.py), 8 frames a second
 SPIN = "<spin>"                   # a run's text: the deck's spinner, turning
 AGENTS_SECS = 5                   # the agents section stays longer: it moves the most
-SCENE_TIMES = [AGENTS_SECS] + [SCENE_SECS] * 5  # in tab order
+SCENE_TIMES = [AGENTS_SECS] + [SCENE_SECS] * 6  # in tab order
 FADE_SECS = 2.5                   # a new run's row fades in from the section's colour (bin/viewer.py)
 CYCLE = sum(SCENE_TIMES)          # one loop of the deck, in seconds: what ticks, ticks over it
 
 BG, STRIP, TAB, ACTIVE = "#1b1e23", "#21252b", "#2c313a", "#3e4451"
 MUTED, BRIGHT, TEXT, DIMMED = "#787f8c", "#dcdfe4", "#abb2bf", "#585e69"
 GREEN, RED, AMBER, CYAN, BLUE = "#98b17d", "#d0868d", "#d8b46a", "#7fb4b4", "#7aa2c8"
-ACCENT = {"AGENTS": "#8fa8d2", "SERVERS": GREEN, "BUILD": AMBER, "TEST": BLUE, "GIT": "#b48ead", "DEPLOY": "#d19a66"}
+ACCENT = {"AGENTS": "#8fa8d2", "JOBS": CYAN, "SERVERS": GREEN, "BUILD": AMBER, "TEST": BLUE, "GIT": "#b48ead", "DEPLOY": "#d19a66"}
 CLAUDE = "#d77757"                # Claude Code's accent
 RULE = "rule"
 
@@ -92,7 +92,7 @@ agent = [
 ]
 ROWS = len(agent)
 
-SECTIONS = [("AGENTS", SPIN, AMBER), ("SERVERS", "●", GREEN), ("BUILD", SPIN, AMBER), ("TEST", SPIN, AMBER),
+SECTIONS = [("AGENTS", SPIN, AMBER), ("JOBS", SPIN, AMBER), ("SERVERS", "●", GREEN), ("BUILD", SPIN, AMBER), ("TEST", SPIN, AMBER),
             ("GIT", "✓", GREEN), ("DEPLOY", "·", MUTED)]
 
 out = []
@@ -360,9 +360,30 @@ def scene_agents():
 RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")]
 
 
+def scene_jobs():
+    browse(1, [(SPIN, AMBER, "Wait for the API to answer", lambda t: f"running {t + 9}s"),
+               ("✓", GREEN, "Install Playwright's Chromium", "4m ago"),
+               ("✓", GREEN, "Seed the dev database", "26m ago")], ACCENT["JOBS"], "jobs", [
+        [[("$ ", MUTED), ("until curl -sf localhost:3000/health; do sleep 2; done", BRIGHT, True)],
+         [(lambda t: f"  ~/app · {t + 9}s of 2m · running", MUTED)], RULE,
+         [("curl: (7) Failed to connect to localhost port 3000", MUTED)],
+         [("curl: (7) Failed to connect to localhost port 3000", MUTED)],
+         [("curl: (7) Failed to connect to localhost port 3000", MUTED)]],
+        [[("$ ", MUTED), ("npx playwright install chromium", BRIGHT, True)],
+         [("  ~/app · 72s · exit 0", MUTED)], RULE,
+         [("Downloading Chromium 131.0.6778.33", TEXT)],
+         [("|████████████████████| 100% of 162.8 MiB", GREEN)],
+         [("Chromium downloaded to ~/Library/Caches/ms-playwright", TEXT)]],
+        [[("$ ", MUTED), ("npm run db:reset && npm run db:seed", BRIGHT, True)],
+         [("  ~/app · 48s · exit 0", MUTED)], RULE,
+         [("Applied 14 migrations", TEXT)],
+         [("Seeded 2,400 users, 18,250 sessions", GREEN)]],
+    ], RUN_KEYS)
+
+
 def scene_servers():
     log = lambda *lines: [*lines]
-    browse(1, [("●", GREEN, "next dev --turbopack", ":3000"), ("●", GREEN, "anvil --block-time 2", ":8545"),
+    browse(2, [("●", GREEN, "next dev --turbopack", ":3000"), ("●", GREEN, "anvil --block-time 2", ":8545"),
                ("●", GREEN, "wrangler dev", ":8787")], ACCENT["SERVERS"], "servers", [
         log([("$ ", MUTED), ("next dev --turbopack", BRIGHT, True)],
             [("  ", MUTED), ("http://localhost:3000", CYAN), (" · pid 41233 · log file", MUTED)], RULE,
@@ -391,7 +412,7 @@ def scene_servers():
 
 
 def scene_build():
-    browse(2, [(SPIN, AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
+    browse(3, [(SPIN, AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
                ("✗", RED, "npm run build", "21m ago")], ACCENT["BUILD"], "runs", [
         [[("$ ", MUTED), ("npm run build", BRIGHT, True)],
          [("  ~/app · ", MUTED), (lambda t: f"{9 + t}s", MUTED), (" · running", MUTED)], RULE,
@@ -423,7 +444,7 @@ def scene_build():
 
 
 def scene_test():
-    browse(3, [(SPIN, AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
+    browse(4, [(SPIN, AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
                ("✓", GREEN, "npm test -- auth", "9m ago"), ("✓", GREEN, "npm test", "24m ago"),
                ("✓", GREEN, "npm test", "1h ago")], ACCENT["TEST"], "runs", [
         [[("$ ", MUTED), ("npm test", BRIGHT, True)],
@@ -457,7 +478,7 @@ def scene_test():
 
 def scene_git():
     bar_ = ("  │ ", ACCENT["GIT"])
-    browse(4, [("✓", GREEN, "git add", "feat/refresh  1m ago  a41c9e2"),
+    browse(5, [("✓", GREEN, "git add", "feat/refresh  1m ago  a41c9e2"),
                ("", MUTED, 'git commit "Refresh-token rotation"', ""),
                ("✓", GREEN, "git push", "feat/refresh  9m ago  7d03b18"),
                ("✓", GREEN, "git switch -c feat/refresh", "feat/refresh  14m ago"),
@@ -484,7 +505,7 @@ def scene_git():
 
 
 def scene_deploy():
-    browse(5, [("✓", GREEN, "vercel --prod", "2m ago"), ("✓", GREEN, "vercel", "18m ago"),
+    browse(6, [("✓", GREEN, "vercel --prod", "2m ago"), ("✓", GREEN, "vercel", "18m ago"),
                ("✗", RED, "vercel --prod", "1h ago")], ACCENT["DEPLOY"], "runs", [
         [[("$ ", MUTED), ("vercel --prod", BRIGHT, True)],
          [("  ~/app · 41s · exit 0", MUTED)], RULE,
@@ -508,7 +529,7 @@ def scene_deploy():
 
 
 # In the order of the tabs.
-scenes = [scene_agents, scene_servers, scene_build, scene_test, scene_git, scene_deploy]
+scenes = [scene_agents, scene_jobs, scene_servers, scene_build, scene_test, scene_git, scene_deploy]
 for i, draw in enumerate(scenes):
     layer("s", i, draw)
 layers("s", len(scenes), CYCLE, SCENE_TIMES)

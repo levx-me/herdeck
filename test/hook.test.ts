@@ -535,3 +535,45 @@ for r in s.every:
     ]);
   });
 });
+
+describe("jobs: other commands followed while they run", () => {
+  const { mkdtempSync, readFileSync, existsSync, writeFileSync, rmSync } = require("node:fs");
+  const { tmpdir } = require("node:os");
+  const env = (tmp: string) => ({ PATH: process.env.PATH!, TMPDIR: tmp, HERDR_ENV: "1", HERDR_PANE_ID: "w9:p9", HERDR_SOCKET_PATH: "/nonexistent", CLAUDE_PLUGIN_ROOT: root });
+  const call = { tool_name: "Bash", tool_use_id: "toolu_J", session_id: "S1", cwd: "/tmp" };
+  const start = (tmp: string, command: string, extra: object = {}) =>
+    Bun.spawnSync([hook], { stdin: Buffer.from(JSON.stringify({ ...call, tool_input: { command, description: "Wait for it", timeout: 60000, ...extra } })), env: env(tmp) });
+  const finish = (tmp: string, command: string) =>
+    Bun.spawnSync([join(root, "bin/record")], {
+      stdin: Buffer.from(JSON.stringify({ ...call, hook_event_name: "PostToolUse", tool_input: { command }, tool_response: { stdout: "up", stderr: "" } })), env: env(tmp),
+    });
+  const job = (tmp: string) => join(tmp, "steading/w9_p9/jobs/runs/1");
+
+  test("a command that is not routed is filed as a job, unchanged", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
+    const r = start(tmp, "sleep 30; curl -s localhost:3000");
+    expect(r.stdout.toString()).toBe("");
+    expect(readFileSync(join(job(tmp), "label"), "utf8").trim()).toBe("Wait for it");
+    expect(readFileSync(join(job(tmp), "timeout"), "utf8").trim()).toBe("60000");
+    rmSync(tmp, { recursive: true }); // bin/job stops once its run is gone
+  });
+  test("background calls and routed tests are not jobs", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
+    start(tmp, "sleep 30", { run_in_background: true });
+    start(tmp, "npm test");
+    expect(existsSync(job(tmp))).toBe(false);
+  });
+  test("record keeps a job of 10s or more with its output and drops a short one", () => {
+    const tmp = mkdtempSync(join(tmpdir(), "steading-"));
+    start(tmp, "sleep 30");
+    writeFileSync(join(job(tmp), "start"), `${Math.floor(Date.now() / 1000) - 20}\n`);
+    finish(tmp, "sleep 30");
+    expect(readFileSync(join(job(tmp), "rc"), "utf8").trim()).toBe("0");
+    expect(readFileSync(join(job(tmp), "log"), "utf8").trim()).toBe("up");
+    const short = mkdtempSync(join(tmpdir(), "steading-"));
+    start(short, "sleep 1");
+    writeFileSync(join(job(short), "start"), `${Math.floor(Date.now() / 1000) - 1}\n`);
+    finish(short, "sleep 1");
+    expect(existsSync(job(short))).toBe(false);
+  });
+});

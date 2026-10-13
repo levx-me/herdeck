@@ -12,6 +12,37 @@ input=$(cat)
 [ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
 cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
 [ -n "$cmd" ] || exit 0
+
+# Its output and exit code into DIR (log, rc), from this event.
+outcome() {
+  if [ "$(printf '%s' "$input" | jq -r .hook_event_name)" = PostToolUseFailure ]; then
+    # "Exit code N" on the first line, then the combined output.
+    local err rc
+    err=$(printf '%s' "$input" | jq -r '.error // ""')
+    rc=$(printf '%s\n' "$err" | sed -n '1s/^Exit code \([0-9][0-9]*\).*/\1/p')
+    printf '%s\n' "$err" | sed '1{/^Exit code [0-9]*$/d;}' > "$1/log"
+    printf '%s\n' "${rc:-1}" > "$1/rc"
+  else
+    printf '%s' "$input" | jq -r '[.tool_response.stdout // "", .tool_response.stderr // ""] | map(select(. != "")) | join("\n")' > "$1/log"
+    printf '0\n' > "$1/rc"
+  fi
+}
+
+# A job bin/hook followed: kept with how it ended when it ran 10s or more, else dropped.
+id=$(printf '%s' "$input" | jq -r '.tool_use_id // empty')
+job=$(grep -lxF -- "$id" "${TMPDIR:-/tmp}/steading/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')"/jobs/runs/*/id 2>/dev/null | head -n 1)
+if [ -n "$id" ] && [ -n "$job" ]; then
+  job=${job%/id}
+  start=$(cat "$job/start" 2>/dev/null)
+  if [ -n "$start" ] && [ $(( $(date +%s) - start )) -ge 10 ]; then
+    outcome "$job"
+    date +%s > "$job/end"
+    rm -f "$job/source" # Claude Code removes its file once the call is done
+  else
+    rm -rf "$job"
+  fi
+fi
+
 case $cmd in *"/bin/run\" "*) exit 0 ;; esac # routed through bin/run: already recorded
 
 # What it ran, on shell tokens (bin/classify): test, build, deploy, or a git
@@ -68,15 +99,8 @@ if [ -n "$bg" ]; then
     -name "$bg.output" -print -quit 2>/dev/null)
   printf '%s\n' "${out:-}" > "$r/source"
   [ -n "$out" ] || printf '(running in the background as %s; output not found)\n' "$bg" > "$r/log"
-elif [ "$(printf '%s' "$input" | jq -r .hook_event_name)" = PostToolUseFailure ]; then
-  # "Exit code N" on the first line, then the combined output.
-  err=$(printf '%s' "$input" | jq -r '.error // ""')
-  rc=$(printf '%s\n' "$err" | sed -n '1s/^Exit code \([0-9][0-9]*\).*/\1/p')
-  printf '%s\n' "$err" | sed '1{/^Exit code [0-9]*$/d;}' > "$r/log"
-  printf '%s\n' "${rc:-1}" > "$r/rc"
 else
-  printf '%s' "$input" | jq -r '[.tool_response.stdout // "", .tool_response.stderr // ""] | map(select(. != "")) | join("\n")' > "$r/log"
-  printf '0\n' > "$r/rc"
+  outcome "$r"
 fi
 [ -n "$bg" ] || printf '%s\n' "$end" > "$r/end"
 

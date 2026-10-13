@@ -22,11 +22,14 @@ Steading은 이 모든 것을 **에이전트 옆 deck 패널 하나**에 모아 
 
 ## 기능
 
-- **deck 하나, 섹션 여섯 개** — `agents`, `servers`, `build`, `test`, `git`, `deploy`. 탭마다 최근 상태를
+- **deck 하나, 섹션 일곱 개** — `agents`, `jobs`, `servers`, `build`, `test`, `git`, `deploy`. 탭마다 최근 상태를
   표시합니다(`✓` `✗`, 실행 중이면 스피너, 떠 있는 서버는 `●`).
 - **에이전트** — 메인 에이전트를 항상 맨 위에 보여 주고(세션 제목, 작업 중·입력 대기·대기 상태), 그 아래에
   지금 일하는 Claude Code 서브 에이전트(백그라운드와 워크플로 에이전트 포함)를 보여 줍니다.
   [zoetrope](https://github.com/furkankly/zoetrope)처럼 세션의 대화 기록 파일을 읽습니다.
+- **오래 걸리는 명령(jobs)** — 에이전트의 다른 명령 중 10초 이상 걸리는 것(대기 루프, 설치, timeout이 긴
+  스크립트 등)을 보여 줍니다. 무엇을 하려는지(호출 설명), timeout 대비 얼마나 돌았는지, 출력이 나오는 대로
+  보여 주며, Claude Code가 그 호출의 출력을 쓰는 파일을 읽습니다. 호출 자체는 바꾸지 않습니다.
 - **항상 곁에** — herdr가 알아보는 에이전트(Claude Code, Codex, OpenCode 등)가 시작되면 그 옆에
   deck이 열리고, `prefix+d`로 어느 패널 옆에서든 열고 닫을 수 있습니다. 셸을 거치지 않고 패널에서
   바로 시작합니다. Claude Code에는 테스트와 빌드를 단순한 명령으로 실행하라고 알려 주어 deck이
@@ -113,9 +116,9 @@ deck에 포커스를 두세요(클릭하거나 herdr의 패널 이동 키 사용
 
 | 위치 | 키 | 동작 |
 |---|---|---|
-| 어디서나 | `[` `]`(또는 `tab` `shift+tab`), `1`–`6` | 이전/다음 섹션, 해당 섹션으로 이동 |
+| 어디서나 | `[` `]`(또는 `tab` `shift+tab`), `1`–`7` | 이전/다음 섹션, 해당 섹션으로 이동 |
 | | `q` | deck 닫기 |
-| 실행 목록(agents, servers, build, test, git) | `j` `k`(또는 `↓` `↑`), `gg` `G` | 실행 고르기(최신이 위) |
+| 실행 목록(agents, jobs, servers, build, test, git) | `j` `k`(또는 `↓` `↑`), `gg` `G` | 실행 고르기(최신이 위) |
 | | `enter` `l` | 출력으로 들어가기 |
 | 출력 | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | 커서 이동(herdr 복사 모드 키) |
 | | `gg` `G`, `ctrl+d` `ctrl+u` | 맨 위/맨 아래(`G`는 실행 중인 출력을 다시 따라감), 반 페이지 |
@@ -148,7 +151,8 @@ flowchart LR
   보여 줄 핵심 명령(`cd x; env -u A pnpm test | tail` → `pnpm test`), 실시간으로 실행해도 되는지를
   판단합니다. 두 훅이 모두 이것을 씁니다.
 - `bin/hook`은 Bash 호출이 무엇인지 판단합니다. 테스트와 빌드는 `bin/run`으로 바꿔 실행하고
-  (승인됨, 아래 참고), 개발 서버는 deck만 엽니다.
+  (승인됨, 아래 참고), 개발 서버는 열린 deck을 `servers`로 바꾸기만 합니다. 나머지는 job으로 기록하고,
+  `bin/job`이 명령이 시작되면 Claude Code가 그 출력을 쓰는 파일을 찾아 연결합니다.
 - `bin/run`은 명령을 의사 터미널(`bin/ptyrun`)에서 실행하고, 실행 기록을
   `$TMPDIR/steading/<agent pane>/<kind>/runs/<n>/`에 쓴 뒤, 일반 텍스트 출력과 종료 코드를 돌려줍니다.
 - `bin/deck`은 herdr 쪽입니다. `toggle`은 단축키용, `auto`는 herdr의 `pane.agent_detected` 이벤트용입니다.

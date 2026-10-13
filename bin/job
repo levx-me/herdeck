@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""job RUN SESSION: find the output file of the Bash call bin/hook just filed
+as RUN, and point the run at it (RUN/source) with the time it started.
+
+Claude Code writes a call's output to <claude tmp>/<project>/<session>/tasks/
+<id>.output while it runs. The call's file is the one that was not there when
+the hook ran (RUN/before). A call waiting on a permission prompt has no file
+yet, so this waits up to 10 minutes; a call that never ran is dropped.
+"""
+import glob
+import os
+import shutil
+import sys
+import time
+
+run, session = sys.argv[1:3]
+uid = os.getuid()
+roots = {f"/tmp/claude-{uid}", os.path.join(os.environ.get("TMPDIR", "/tmp"), f"claude-{uid}")}
+before = set(open(os.path.join(run, "before")).read().split()) if os.path.exists(os.path.join(run, "before")) else set()
+jobs = os.path.dirname(run)
+
+
+def taken():
+    """Output files other jobs already follow."""
+    out = set()
+    for f in glob.glob(os.path.join(jobs, "*", "source")):
+        try:
+            out.add(os.path.basename(open(f).read().strip()))
+        except OSError:
+            pass
+    return out
+
+
+give_up = time.time() + 600
+while time.time() < give_up:
+    if not os.path.isdir(run) or os.path.exists(os.path.join(run, "rc")):
+        sys.exit(0)  # bin/record already filed it (or dropped it)
+    # ponytail: calls started in the same instant may swap files; tool ids are not in the file names.
+    found = [p for root in roots for p in glob.glob(f"{root}/*/{session}/tasks/*.output")
+             if not os.path.islink(p) and os.path.basename(p) not in before]
+    found = [p for p in found if os.path.basename(p) not in taken()]
+    if found:
+        with open(os.path.join(run, "start"), "w") as f:
+            f.write(f"{int(time.time())}\n")
+        with open(os.path.join(run, "source"), "w") as f:
+            f.write(min(found, key=os.path.getmtime) + "\n")
+        sys.exit(0)
+    time.sleep(0.25)
+if not os.path.exists(os.path.join(run, "rc")):
+    shutil.rmtree(run, ignore_errors=True)  # never ran (denied, say)
