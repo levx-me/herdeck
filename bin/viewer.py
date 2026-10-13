@@ -951,6 +951,9 @@ class Runs:
             return
 
         self.msg = ""
+        if k in ("\r", "\n") and self.plain:  # enter on a control line of the log ([… more], [less])
+            getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy])
+            return
         half = max(1, self.height // 2)
         moves = {
             "j": lambda: setattr(self, "cy", self.cy + 1),
@@ -1035,6 +1038,8 @@ class Runs:
             self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
             self.clamp()
             self.dragging = (self.cy, self.cx)
+            if getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy]):
+                self.dragging = None  # a click on a control is not the start of a selection
 
     def drag(self, row, col):
         """Dragging in the log selects from where the button went down, as in herdr."""
@@ -1335,7 +1340,11 @@ def bar(parts, width):
     return out + f"{fg(TAB_RGB)}{'░' * (width - used)}{RESET}"
 
 
-def dashboard(d, cols, main):
+FOLD = re.compile(r"\[… \d+ more lines?\]|\[less\]")
+PROMPT_LINES = 4  # a prompt (request) folded to this many lines
+
+
+def dashboard(d, cols, main, expanded=False):
     """Everything known about an agent, a row each, for trimming down later."""
     w = max(20, cols - 11)
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<10}{RESET} {value}"
@@ -1393,11 +1402,14 @@ def dashboard(d, cols, main):
             out.append(row("report" if n == 0 else "", part))
     out.append("")
     asked = d.request if main else d.prompt
-    lines = wrap(asked, w - 2)  # room for the bar
-    for n, part in enumerate(lines[:4]):
+    lines = [part for line in asked.strip().splitlines() for part in wrap(line, w - 2)]  # room for the bar
+    shown = lines if expanded else lines[:PROMPT_LINES]
+    for n, part in enumerate(shown):
         out.append(row(("request" if main else "prompt") if n == 0 else "", f"{fg(ACCENT['agents'])}│{RESET} {part}"))
-    if len(lines) > 4:
-        out.append(row("", f"{fg(MUTED_RGB)}  … {len(lines) - 4} more lines{RESET}"))
+    if len(lines) > PROMPT_LINES:  # enter or a click there folds or unfolds it
+        more = len(lines) - PROMPT_LINES
+        control = "[less]" if expanded else f"[… {more} more line{'s' * (more != 1)}]"
+        out.append(row("", f"{fg(ACCENT['agents'])}{control}{RESET}"))
     return out
 
 
@@ -1417,6 +1429,7 @@ class AgentRun(Run):
         self.full = self.cmd = self.meta.get("description") or self.id
         self.first, self.calls, self.read_to, self.stamps, self.cols = os.path.getmtime(path), 0, 0, [], 60
         self.digest = Digest()
+        self.expanded = False  # its prompt (request) shown whole
         self.count()
 
     def count(self):
@@ -1502,7 +1515,14 @@ class AgentRun(Run):
         self.count()
         name, colour, icon, since = self.state()
         return status_block(name, colour, icon, since, self.stamps, self.cols) + \
-            dashboard(self.digest, self.cols, isinstance(self, MainRun))
+            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded)
+
+    def activate(self, line):
+        """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it."""
+        if FOLD.search(line):
+            self.expanded = not self.expanded
+            return True
+        return False
 
     def plain(self):
         return [ANSI.sub("", l) for l in self.lines()]
@@ -1516,6 +1536,7 @@ class MainRun(AgentRun):
         self.tag, self.is_git = "", False
         self.first, self.calls, self.read_to, self.stamps, self.cols = os.path.getmtime(path), 0, 0, [], 60
         self.full = self.cmd = "main agent"
+        self.expanded = False
 
     def count(self):  # read with the main transcript (Agents.read_main)
         self.stamps, self.digest = self.deck.stamps, self.deck.digest
