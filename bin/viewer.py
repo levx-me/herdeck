@@ -995,11 +995,12 @@ class Runs:
             self.focus, self.follow, self.cx = "log", False, 0
 
     def click(self, row, col):
-        """A click on the run list shows that run; in the log it moves the cursor."""
+        """A click on the run list opens that run; in the log it moves the cursor."""
         listed = getattr(self, "listed", [])
         if self.runs and 0 <= row - HEAD_ROW - 1 < len(listed):  # below the box's top border
+            # A click opens the run, as enter does: the cursor goes into its output.
             self.select(listed[row - HEAD_ROW - 1], True)
-            self.focus = "list"
+            self.focus, self.follow, self.cx = "log", True, 0  # at the end of its output
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus, self.anchor = "log", None
             self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
