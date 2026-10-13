@@ -43,8 +43,8 @@ without scrolling back through the conversation.
 - **Dev servers** — ports opened by processes inside the project, or started from any pane of
   its herdr workspace (the agent's `pnpm dev` in a sibling app counts), each with its log: the
   file it writes to, or the herdr pane it prints in. One key opens it in the browser.
-- **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel;
-  drag over a log to select and copy it, as in herdr.
+- **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel (over the run list it moves
+  through the runs); drag over a log to select and copy it, as in herdr.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
 ## Quick start

@@ -1024,7 +1024,12 @@ class Runs:
             self.tooltip = (f"copied {len(text)} character{'s' if len(text) != 1 else ''}", time.time() + 1.5)
         self.dragging = None
 
-    def wheel(self, down):
+    def wheel(self, down, row=0):
+        """The wheel over the run list moves through the runs, as j/k do; elsewhere it scrolls the log."""
+        if self.runs and HEAD_ROW < row <= HEAD_ROW + len(getattr(self, "listed", [])):
+            self.focus = "list"
+            self.list_key("j" if down else "k")
+            return
         self.focus, self.follow = "log", False
         self.cy += 3 if down else -3
         self.clamp()
@@ -1187,7 +1192,7 @@ class Deck:
         if button == 32:
             getattr(self.views[self.section], "drag", lambda r, c: None)(row, col)
         elif button in (64, 65):
-            self.views[self.section].wheel(button == 65)
+            self.views[self.section].wheel(button == 65, row)
         elif button == 0 and row == 1:
             for i, x0, x1 in self.spans:
                 if x0 <= col <= x1:
