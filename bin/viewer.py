@@ -1176,8 +1176,7 @@ def status_block(state, colour, icon, since, stamps, cols):
     its transcript writes over the last minutes (one column per BEAT_SECS)."""
     now = time.time()
     pill = f"{bg(colour)}{fg(STRIP_RGB)}{BOLD} {icon} {state.upper()} {RESET}"
-    parts = [since] + ([f"last move {ago(now - stamps[-1])}"] if stamps else [])
-    lines = [f" {pill}{fg(MUTED_RGB)}  {' · '.join(p for p in parts if p)}{RESET}", ""]
+    lines = [f" {pill}{fg(MUTED_RGB)}  {since}{RESET}", ""]
     width = max(10, cols - 2)
     beats = [0] * width
     for t in stamps:
@@ -1190,21 +1189,6 @@ def status_block(state, colour, icon, since, stamps, cols):
     lines += [f" {fg(colour)}{spark}{RESET}",
               f" {fg(MUTED_RGB)}{span}{' ' * max(1, width - len(span) - 3)}now{RESET}"]
     return lines
-
-
-def ago(secs):
-    secs = int(max(0, secs))
-    for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
-        if secs >= size:
-            return f"{secs // size}{unit} ago"
-    return f"{secs}s ago"
-
-TOOL_KINDS = {"Read": "read", "NotebookRead": "read", "Grep": "search", "Glob": "search", "WebSearch": "search",
-              "WebFetch": "search", "ToolSearch": "search", "Edit": "edit", "MultiEdit": "edit", "Write": "edit",
-              "NotebookEdit": "edit", "Bash": "run", "Agent": "agent", "Task": "agent", "Workflow": "agent"}
-KIND_RGB = {"read": "122;162;200", "search": CYAN_RGB, "edit": AMBER_RGB, "run": GREEN_RGB, "agent": "180;142;173",
-            "other": MUTED_RGB}
-CONTEXT_LIMIT = 200_000  # tokens; a "[1m]" model has 1,000,000
 
 
 def tool_summary(name, args, cwd=""):
@@ -1509,7 +1493,7 @@ class AgentRun(Run):
             return end, colour, icon, f"after {took(stamps[-1] - stamps[0])}"
         if colour == AMBER_RGB:
             return "running", colour, icon, f"for {took(time.time() - stamps[0])}"
-        return "idle", MUTED_RGB, icon, f"quiet for {took(time.time() - stamps[-1])}"
+        return "idle", MUTED_RGB, icon, ""
 
     def lines(self):
         self.count()
@@ -1543,12 +1527,11 @@ class MainRun(AgentRun):
 
     def state(self):
         icon, colour = self.status()
-        quiet = f"quiet for {took(time.time() - self.stamps[-1])}" if self.stamps else ""
         if self.deck.agent_status == "working":
             return "working", colour, icon, ""
         if self.deck.agent_status == "blocked":
-            return "waiting for you", RED_RGB, "!", quiet
-        return self.deck.agent_status or "idle", MUTED_RGB, icon, quiet
+            return "waiting for you", RED_RGB, "!", ""
+        return self.deck.agent_status or "idle", MUTED_RGB, icon, ""
 
     def status(self):
         state = self.deck.agent_status
