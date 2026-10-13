@@ -1172,7 +1172,7 @@ class AgentRun(Run):
             self.meta = {}
         self.tag, self.is_git = "", False
         self.full = self.cmd = self.meta.get("description") or self.id
-        self._log, self._loading, self.prompt = (None, None, None, ""), None, ""
+        self._log, self._loading, self.prompt, self.cols = (None, None, None, ""), None, "", 80
         self.first = os.path.getmtime(path)  # until the transcript says when it began
         self.lines()  # read it now: the list orders and dates agents by their first line
 
@@ -1228,19 +1228,15 @@ class AgentRun(Run):
         return ""
 
     def command(self, cols):
-        """The head: the agent's description, then the whole prompt it got, wrapped
-        under an accent bar as the git section shows a commit message."""
-        rows = [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))]
-        self.lines()
-        for line in (self.prompt or "").strip().splitlines():
-            for part in textwrap.wrap(line, max(10, cols - 4)) or [""]:
-                rows.append(f"{fg(ACCENT['subagents'])}  │ {RESET}{part}")
-        return rows
+        """The head: the agent's description. (Its prompt opens the log, which scrolls.)"""
+        if cols != self.cols:  # the log's prompt is wrapped to the pane: wrap it again
+            self.cols = cols
+        return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))[:2]]
 
     def lines(self):
         try:
             st = os.stat(self.path)
-            key = (st.st_mtime_ns, st.st_size)
+            key = (st.st_mtime_ns, st.st_size, self.cols)
         except OSError:
             return []
         if key != self._log[0] and self._loading != key:
@@ -1249,7 +1245,8 @@ class AgentRun(Run):
         return self._log[1]
 
     def _load(self, path, key):
-        """The agent's prompt, then each tool call and message, one line each, as they came."""
+        """The agent's whole prompt, wrapped under an accent bar as a commit message is,
+        then each tool call and message, one line each, as they came."""
         prompt, events, results = "", [], {}
         try:
             with open(path) as f:
@@ -1278,8 +1275,10 @@ class AgentRun(Run):
                 self.first = datetime_epoch(rows[0]["timestamp"])
             except ValueError:
                 pass
-        self.prompt = prompt  # shown whole in the head (command)
-        shown = []
+        self.prompt = prompt
+        bar = f"{fg(ACCENT['subagents'])}│ {RESET}"
+        shown = [bar + part for line in prompt.strip().splitlines()
+                 for part in (textwrap.wrap(line, max(10, key[2] - 2)) or [""])] + [""]
         for ts, what, name, text, call in events:
             if what == "text":
                 shown.append(f"{fg(MUTED_RGB)}{clock(ts)}   {RESET}{short(text, 400)}")
