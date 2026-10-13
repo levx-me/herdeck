@@ -625,6 +625,7 @@ class Runs:
     copy-mode cursor, with the same keys as herdr's copy mode."""
 
     noun = "runs"
+    pin_top = False  # a log follows its end; a summary (Subagents) stays at its top
 
     def __init__(self, kind):
         self.kind, self.dir = kind, os.path.join(BASE, kind, "runs")
@@ -789,7 +790,9 @@ class Runs:
         running = run.status()[1] == AMBER_RGB
         # While it runs, the last row shows a spinner under the output.
         self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head) - (1 if running else 0))
-        if self.follow or self.focus == "list":  # pinned to the end while the run grows
+        if self.focus == "list" and self.pin_top:  # a summary shows from its top
+            self.cy = 0
+        elif self.follow or self.focus == "list":  # pinned to the end while the run grows
             self.cy = max(0, len(self.plain) - 1)
         self.clamp()
         if self.cy < self.offset:
@@ -1008,7 +1011,9 @@ class Runs:
         if self.runs and 0 <= row - HEAD_ROW - 1 < len(listed):  # below the box's top border
             # A click opens the run, as enter does: the cursor goes into its output.
             self.select(listed[row - HEAD_ROW - 1])
-            self.focus, self.follow, self.cx = "log", True, 0  # at the end of its output
+            self.focus, self.follow, self.cx = "log", not self.pin_top, 0  # at the end of its output
+            if self.pin_top:  # a summary: at its top
+                self.cy = self.offset = 0
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus, self.anchor = "log", None
             self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
@@ -1354,6 +1359,7 @@ class Subagents(Runs):
     """The agent's Claude Code subagents: what each is doing, and how it ended."""
 
     noun = "subagents"
+    pin_top = True  # its log is a summary, read from the top
 
     def __init__(self):
         super().__init__("subagents")
