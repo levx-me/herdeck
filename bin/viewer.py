@@ -1794,6 +1794,12 @@ class Deck:
             for i, x0, x1 in self.spans:
                 if x0 <= col <= x1:
                     self.choose(i)
+                    return
+            # The scroll marks: ‹ picks the hidden tab before the shown ones, › the one after.
+            if self.spans and col <= 1 and self.spans[0][0] > 0:
+                self.choose(self.spans[0][0] - 1)
+            elif self.spans and col > self.spans[-1][2] and self.spans[-1][0] < len(self.views) - 1:
+                self.choose(self.spans[-1][0] + 1)
         elif button == 0:
             self.views[self.section].click(row, col)
 
