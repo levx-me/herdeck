@@ -1228,11 +1228,10 @@ class Digest:
         self.says = ""
         self.tasks, self.task_seq = {}, 0      # TaskCreate / TaskUpdate (TodoWrite too)
         self.first = self.last = None
-        self.kinds, self.turns = {}, 0
-        self.changed, self.read, self.ran, self.searched = [], [], [], []
-        self.error = ""
+        self.kinds = {}
         self.report = self.prompt = self.request = ""
-        self.cwd = self.branch = ""
+        self.request_at = None                 # when the latest request came: the main agent's turn
+        self.cwd = ""
         self.task_calls = {}                   # TaskCreate call id -> its order
 
     def feed(self, row):
@@ -1242,7 +1241,6 @@ class Digest:
         except (KeyError, TypeError, ValueError):
             pass
         self.cwd = row.get("cwd") or self.cwd
-        self.branch = row.get("gitBranch") or self.branch
         self.effort = row.get("effort") or self.effort
         self.requested = row.get("requestedModel") or self.requested
         self.thinking_ms = row.get("thinkingDurationMs") or self.thinking_ms
@@ -1252,16 +1250,10 @@ class Digest:
             if isinstance(content, str) and not row.get("isMeta") and content.strip() \
                     and not content.lstrip().startswith("<"):
                 self.prompt = self.prompt or content.strip()
-                self.request = content.strip()
-                self.turns += 1
+                self.request, self.request_at = content.strip(), self.last
             for b in content if isinstance(content, list) else []:
                 if isinstance(b, dict) and b.get("type") == "tool_result":
-                    call = self.open.pop(b.get("tool_use_id"), None)
-                    if b.get("is_error") and call:
-                        text = b.get("content")
-                        text = text if isinstance(text, str) else " ".join(
-                            x.get("text", "") for x in text or [] if isinstance(x, dict))
-                        self.error = f"{call[0]}: {' '.join(text.split())[:300]}"
+                    self.open.pop(b.get("tool_use_id"), None)
             return
         if row.get("type") != "assistant":
             return
@@ -1290,11 +1282,6 @@ class Digest:
             self.last_tool = (name, what, self.last)
             kind = TOOL_KINDS.get(name, "other")
             self.kinds[kind] = self.kinds.get(kind, 0) + 1
-            bucket = {"edit": self.changed, "read": self.read, "run": self.ran, "search": self.searched}.get(kind)
-            if bucket is not None and what:
-                if what in bucket:
-                    bucket.remove(what)
-                bucket.append(what)
             if name == "TaskCreate":
                 self.task_seq += 1
                 self.tasks[str(self.task_seq)] = [args.get("subject", ""), "pending"]
@@ -1401,20 +1388,6 @@ def dashboard(d, cols, main):
         out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
         legend = "  ".join(f"{fg(KIND_RGB[k])}■{RESET} {k} {n}" for k, n in kinds)
         out.append(row("", legend))
-    if main:
-        out.append(row("turns", str(d.turns)))
-    out.append("")
-    # what it touched
-    for label, items, mark in (("changed", d.changed, f"{fg(AMBER_RGB)}✎{RESET}"), ("read", d.read, f"{fg(MUTED_RGB)}·{RESET}"),
-                               ("ran", d.ran, f"{fg(GREEN_RGB)}${RESET}"), ("searched", d.searched, f"{fg(CYAN_RGB)}?{RESET}")):
-        if items:
-            shown = items[-4:]
-            for n, item in enumerate(shown):
-                more = f" {fg(MUTED_RGB)}+{len(items) - len(shown)}{RESET}" if n == 0 and len(items) > len(shown) else ""
-                out.append(row(label if n == 0 else "", f"{mark} {cut(item, w - 8)}{more}"))
-    if d.error:
-        for n, part in enumerate(wrap(d.error)[:2]):
-            out.append(row("error" if n == 0 else "", f"{fg(RED_RGB)}{'✗ ' if n == 0 else '  '}{part}{RESET}"))
     if d.report:
         for n, part in enumerate(wrap(d.report)[:4]):
             out.append(row("report" if n == 0 else "", part))
@@ -1425,8 +1398,6 @@ def dashboard(d, cols, main):
         out.append(row(("request" if main else "prompt") if n == 0 else "", f"{fg(ACCENT['agents'])}│{RESET} {part}"))
     if len(lines) > 4:
         out.append(row("", f"{fg(MUTED_RGB)}  … {len(lines) - 4} more lines{RESET}"))
-    where = d.cwd.replace(os.path.expanduser("~"), "~", 1)
-    out.append(row("where", f"{where}{fg(MUTED_RGB)}  ⎇ {RESET}{d.branch}" if d.branch else where))
     return out
 
 
@@ -1503,7 +1474,8 @@ class AgentRun(Run):
         return "  " * int(self.meta.get("spawnDepth") or 1) + self.full  # under the main agent
 
     def age(self):
-        return ""  # an agent's row is its name alone
+        """How long it has been at work (the list shows only those at work)."""
+        return took(time.time() - (self.digest.first or self.first))
 
     def info(self):
         self.count()
@@ -1568,6 +1540,12 @@ class MainRun(AgentRun):
 
     def label(self):
         return self.deck.title or "main agent"
+
+    def age(self):
+        """How long the current turn has run: since the latest request, while working."""
+        self.count()
+        at = self.digest.request_at
+        return took(time.time() - at) if at and self.deck.agent_status == "working" else ""
 
 
     def info(self):
