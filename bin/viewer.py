@@ -1191,6 +1191,14 @@ def status_block(state, colour, icon, since, stamps, cols):
     return lines
 
 
+TOOL_KINDS = {"Read": "read", "NotebookRead": "read", "Grep": "search", "Glob": "search", "WebSearch": "search",
+              "WebFetch": "search", "ToolSearch": "search", "Edit": "edit", "MultiEdit": "edit", "Write": "edit",
+              "NotebookEdit": "edit", "Bash": "run", "Agent": "agent", "Task": "agent", "Workflow": "agent"}
+KIND_RGB = {"read": "122;162;200", "search": CYAN_RGB, "edit": AMBER_RGB, "run": GREEN_RGB, "agent": "180;142;173",
+            "other": MUTED_RGB}
+CONTEXT_LIMIT = 200_000  # tokens; a "[1m]" model has 1,000,000
+
+
 def tool_summary(name, args, cwd=""):
     """One line for a tool call, picked as zoetrope does: the field that says what it does."""
     if not isinstance(args, dict):
