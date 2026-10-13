@@ -505,16 +505,17 @@ s = v.Subagents(); s.session, s.looked = sys.argv[2], time.time()
 s.read_main(); s.refresh()
 print("listed", len(s.runs), s.every[0].prompt if s.every[0].id == "aaa" else "")  # only running agents are listed
 for r in s.every:
-    print(r.id, r.ended(), r.meta.get("agentType"), r._log[3], *(l for l in r._log[2] if "Read" in l or "Done" in l))
+    shown = r.lines() and r._log[2]
+    print(r.id, r.ended(), r.meta.get("agentType"), r._log[3], *(" ".join(l.split()) for l in shown if "Read" in l or "Done" in l or "progress" in l))
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
       env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
     });
     expect(r.stderr.toString()).toBe("");
     const out = r.stdout.toString().trim().split("\n").sort();
-    expect(out[0]).toMatch(/^aaa done Explore 1 .*✓ Read\s+src\/a\.ts.*Done mapping\.$/); // cwd-relative path, its message
-    expect(out[1]).toBe("bbb failed general-purpose 0");
-    expect(out[2]).toBe("ccc done Plan 0"); // background, ended by its notification
+    expect(out[0]).toMatch(/^aaa done Explore 1 now ✓ Read src\/a\.ts .* says Done mapping\. progress .*read 1$/); // now, says, progress
+    expect(out[1]).toBe("bbb failed general-purpose 0 progress 0s");
+    expect(out[2]).toBe("ccc done Plan 0 progress 0s"); // background, ended by its notification
     expect(out[3]).toMatch(/^listed 0/); // all ended: none listed
   });
 });

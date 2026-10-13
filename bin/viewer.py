@@ -1124,6 +1124,18 @@ class Servers(Runs):
 # <task-notification> names it. Otherwise it is running while its file moves.
 
 LIVE_SECS = 300  # a subagent unended and silent this long reads as idle
+HARNESS_TOOLS = {"SubagentHandback"}  # the harness's own steps, not the agent's work
+TOOL_KINDS = {"Read": "read", "NotebookRead": "read", "Grep": "search", "Glob": "search", "WebSearch": "search",
+              "WebFetch": "search", "ToolSearch": "search", "Edit": "edit", "MultiEdit": "edit", "Write": "edit",
+              "NotebookEdit": "edit", "Bash": "run", "Agent": "agent", "Task": "agent", "Workflow": "agent"}
+
+
+def duration(secs):
+    secs = int(max(0, secs))
+    for unit, size in (("h", 3600), ("m", 60)):
+        if secs >= size:
+            return f"{secs // size}{unit} {secs % size // 60 if unit == 'h' else secs % 60}{'m' if unit == 'h' else 's'}"
+    return f"{secs}s"
 NOTIFICATION = re.compile(r"<task-id>([^<]+)</task-id>.*?<status>([^<]+)</status>", re.S)
 
 
@@ -1172,7 +1184,7 @@ class AgentRun(Run):
             self.meta = {}
         self.tag, self.is_git = "", False
         self.full = self.cmd = self.meta.get("description") or self.id
-        self._log, self._loading, self.prompt, self.cols = (None, None, None, ""), None, "", 80
+        self._log, self._loading, self.prompt, self.cols, self.parsed = (None, None, None, 0), None, "", 80, None
         self.first = os.path.getmtime(path)  # until the transcript says when it began
         self.lines()  # read it now: the list orders and dates agents by their first line
 
@@ -1234,26 +1246,66 @@ class AgentRun(Run):
         return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))[:2]]
 
     def lines(self):
+        """The log: what the agent is doing now, its latest message, how far it has got,
+        the files it changed, then its whole prompt. Parsed when the transcript changes,
+        laid out on every call so the clocks tick."""
         try:
             st = os.stat(self.path)
-            key = (st.st_mtime_ns, st.st_size, self.cols)
+            key = (st.st_mtime_ns, st.st_size)
         except OSError:
             return []
         if key != self._log[0] and self._loading != key:
             self._loading = key
             background(self._load, self.path, key)
-        return self._log[1]
+        if self.parsed is None:
+            return None
+        shown = self.summary(self.parsed)
+        self._log = (self._log[0], shown, [ANSI.sub("", l) for l in shown], self.parsed["calls"])
+        return shown
+
+    def summary(self, p):
+        width = max(20, self.cols)
+        label = lambda name: f"{fg(MUTED_RGB)}{name:<10}{RESET}"
+        pad = " " * 10
+        out = []
+        tool = p["last_tool"]
+        if tool:
+            name, what, ts, done = tool
+            since = duration(time.time() - ts) if ts else ""
+            if done is None and self.status()[1] == AMBER_RGB:
+                mark, when = f"{fg(AMBER_RGB)}{spinner()}", f"{since}"
+            else:
+                mark = f"{fg(RED_RGB)}✗" if done else f"{fg(GREEN_RGB)}✓"
+                when = f"{since} ago" if since else ""
+            line = f"{mark} {fg(ACCENT['subagents'])}{name}{RESET} {what}"
+            out.append(label("now") + fit(line, width - 10 - len(when) - 3) + f"{fg(MUTED_RGB)} · {when}{RESET}")
+        else:
+            out.append(label("now") + f"{DIM}starting{RESET}")
+        says = textwrap.wrap(" ".join(p["says"].split()), width - 10)[:4] if p["says"] else []
+        for n, part in enumerate(says or [f"{DIM}—{RESET}"]):
+            out.append((label("says") if n == 0 else pad) + part)
+        end = time.time() if not self.ended() and p["first"] else (p["last"] or time.time())
+        took = duration(end - p["first"]) if p["first"] else ""
+        counts = " · ".join(f"{kind} {n}" for kind, n in sorted(p["kinds"].items(), key=lambda kv: -kv[1]))
+        out.append(label("progress") + " · ".join(x for x in (took, counts) if x))
+        for n, path in enumerate(p["changed"] or ["—"]):
+            out.append((label("changed") if n == 0 else pad) + (f"{fg(AMBER_RGB)}✎ {RESET}{path}" if p["changed"] else f"{DIM}{path}{RESET}"))
+        out.append(rule(width))
+        bar = f"{fg(ACCENT['subagents'])}│ {RESET}"
+        out += [bar + part for line in p["prompt"].strip().splitlines()
+                for part in (textwrap.wrap(line, width - 2) or [""])]
+        return out
 
     def _load(self, path, key):
-        """The agent's whole prompt, wrapped under an accent bar as a commit message is,
-        then each tool call and message, one line each, as they came."""
-        prompt, events, results = "", [], {}
+        """Read the agent's transcript into what the summary needs."""
+        prompt, says, last_tool, results, kinds, changed, calls = "", "", None, {}, {}, [], 0
         try:
             with open(path) as f:
                 rows = [json.loads(l) for l in f if l.strip()]
         except (OSError, ValueError):
             rows = []
         cwd = next((r.get("cwd") for r in rows if r.get("cwd")), "")
+        stamps = [r["timestamp"] for r in rows if r.get("timestamp")]
         for r in rows:
             content = (r.get("message") or {}).get("content")
             if r.get("type") == "user":
@@ -1261,33 +1313,39 @@ class AgentRun(Run):
                     prompt = content
                 elif isinstance(content, list):
                     for b in content:
-                        if b.get("type") == "tool_result":
+                        if isinstance(b, dict) and b.get("type") == "tool_result":
                             results[b.get("tool_use_id")] = bool(b.get("is_error"))
             elif r.get("type") == "assistant" and isinstance(content, list):
                 for b in content:
                     if b.get("type") == "text" and b.get("text", "").strip():
-                        events.append((r.get("timestamp"), "text", "", b["text"], None))
-                    elif b.get("type") == "tool_use":
-                        events.append((r.get("timestamp"), "tool", b.get("name", ""),
-                                       tool_summary(b.get("name", ""), b.get("input"), cwd), b.get("id")))
-        if rows and rows[0].get("timestamp"):
+                        says = b["text"]
+                    elif b.get("type") == "tool_use" and b.get("name") not in HARNESS_TOOLS:
+                        name = b.get("name", "")
+                        what = tool_summary(name, b.get("input"), cwd)
+                        last_tool = (name, what, r.get("timestamp"), b.get("id"))
+                        kind = TOOL_KINDS.get(name, "other")
+                        kinds[kind] = kinds.get(kind, 0) + 1
+                        calls += 1
+                        if kind == "edit" and what and what not in changed:
+                            changed.append(what)
+        if last_tool:
+            name, what, ts, call = last_tool
             try:
-                self.first = datetime_epoch(rows[0]["timestamp"])
+                ts = datetime_epoch(ts) if ts else None
             except ValueError:
-                pass
+                ts = None
+            last_tool = (name, what, ts, results.get(call))
+        epoch = lambda t: datetime_epoch(t) if t else None
+        try:
+            first, last = (epoch(stamps[0]), epoch(stamps[-1])) if stamps else (None, None)
+        except ValueError:
+            first = last = None
+        if first:
+            self.first = first
         self.prompt = prompt
-        bar = f"{fg(ACCENT['subagents'])}│ {RESET}"
-        shown = [bar + part for line in prompt.strip().splitlines()
-                 for part in (textwrap.wrap(line, max(10, key[2] - 2)) or [""])] + [""]
-        for ts, what, name, text, call in events:
-            if what == "text":
-                shown.append(f"{fg(MUTED_RGB)}{clock(ts)}   {RESET}{short(text, 400)}")
-                continue
-            done = results.get(call)
-            mark = (f"{fg(RED_RGB)}✗" if done else f"{fg(GREEN_RGB)}✓") if done is not None else f"{fg(AMBER_RGB)}…"
-            shown.append(f"{fg(MUTED_RGB)}{clock(ts)} {mark} {fg(ACCENT['subagents'])}{name:<8}{RESET} {text}")
-        calls = sum(1 for e in events if e[1] == "tool")
-        self._log = (key, shown, [ANSI.sub("", l) for l in shown], calls)
+        self.parsed = {"prompt": prompt, "says": says, "last_tool": last_tool, "kinds": kinds,
+                       "changed": changed, "calls": calls, "first": first, "last": last}
+        self._log = (key, None, None, calls)
         if self._loading == key:
             self._loading = None
 
