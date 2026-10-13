@@ -1371,13 +1371,25 @@ def dashboard(d, cols, main, expanded=False):
                              f"{tokens(d.usage['cache'])}  {fg(MUTED_RGB)}out{RESET} {tokens(d.usage['out'])}"))
     out.append("")
     # now · says
-    if d.open:
-        name, what, t = list(d.open.values())[-1]
-        since = f" {fg(MUTED_RGB)}· {took(time.time() - t)}{RESET}" if t else ""
-        out.append(row("now", f"{fg(AMBER_RGB)}{spinner()} {fg(ACCENT['agents'])}{name}{RESET} {cut(what, w - len(name) - 12)}{since}"))
-    elif d.last_tool:
-        name, what, _ = d.last_tool
-        out.append(row("last", f"{fg(GREEN_RGB)}✓ {fg(ACCENT['agents'])}{name}{RESET} {cut(what, w - len(name) - 3)}"))
+    # The current (or last) call, its whole input wrapped under itself rather than cut.
+    call = list(d.open.values())[-1] if d.open else d.last_tool
+    if call:
+        name, what, t = call
+        mark = f"{fg(AMBER_RGB)}{spinner()}" if d.open else f"{fg(GREEN_RGB)}✓"
+        since = f" {fg(MUTED_RGB)}· {took(time.time() - t)}{RESET}" if d.open and t else ""
+        indent = " " * (len(name) + 3)
+        width = w - len(name) - 3
+        parts = wrap(what, width)
+        if len(parts) > 3:  # three lines at most, … where it goes on
+            last = parts[2] if cells(parts[2]) < width else cut(parts[2], width - 1)
+            parts = parts[:2] + [last if last.endswith("…") else last + "…"]
+        for n, part in enumerate(parts):
+            lead = f"{mark} {fg(ACCENT['agents'])}{name}{RESET} " if n == 0 else indent
+            out.append(row(("now" if d.open else "last") if n == 0 else "", lead + part))
+        if since and cells(ANSI.sub("", out[-1] + since)) > cols:  # no room left on the last line
+            out.append(row("", indent + since.lstrip()))
+        else:
+            out[-1] += since
     for n, part in enumerate(wrap(d.says)[:3] if d.says else []):
         out.append(row("says" if n == 0 else "", f"{fg(MUTED_RGB)}“{RESET}{part}" if n == 0 else part))
     # tasks
