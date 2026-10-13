@@ -429,3 +429,27 @@ describe("classify reads a command line by its shell tokens", () => {
   test("sudo in front is never run live", () => expect(classify("sudo cargo test").routable).toBe(false));
   test("time in front may run live", () => expect(classify("time forge test").routable).toBe(true));
 });
+
+describe("servers lists the project's dev servers", () => {
+  const { mkdtempSync } = require("node:fs");
+  const { tmpdir } = require("node:os");
+
+  test("a server started from a workspace shell counts even outside the project", async () => {
+    const project = mkdtempSync(join(tmpdir(), "steading-project-"));
+    const elsewhere = mkdtempSync(join(tmpdir(), "steading-sibling-"));
+    // A "pane shell" that starts a server in a sibling directory, like an agent would.
+    const shell = Bun.spawn(["sh", "-c", "cd \"$0\" && python3 -m http.server 0 --bind 127.0.0.1", elsewhere], { stdout: "ignore", stderr: "ignore" });
+    try {
+      let out = "";
+      for (let i = 0; i < 40 && !out; i++) {
+        await Bun.sleep(100);
+        out = Bun.spawnSync([join(root, "bin/servers"), project, String(shell.pid)]).stdout.toString();
+      }
+      expect(out).toMatch(/^\d+\t\d+\t\S*python3? -m http.server/im);
+      expect(Bun.spawnSync([join(root, "bin/servers"), project]).stdout.toString()).toBe(""); // not without the shell
+    } finally {
+      shell.kill();
+      Bun.spawnSync(["pkill", "-f", `http.server 0 --bind 127.0.0.1`]);
+    }
+  });
+});

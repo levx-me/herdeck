@@ -13,15 +13,16 @@ Keys: [ ] (or tab/shift-tab) and 1-5 switch sections,
 q close the pane. In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
-selected), / ? search, n N repeat, esc cancel. In servers, j/k pick a server and
-enter/o opens it.
-Mouse: click a section tab or a run in the list to switch, click in a log to place the
-cursor, click a server to open it, wheel to scroll.
+selected), / ? search, n N repeat, esc cancel. Servers work the same way, their
+log being the server's output; o opens the selected one in the browser.
+Mouse: click a section tab or a run (or server) in the list to switch, click in a log to place the
+cursor, wheel to scroll.
 
 Standard library only, so it runs on the python3 that macOS and Linux ship.
 Editing this file restarts every open deck with the new code.
 """
 import functools
+import json
 import os
 import re
 import select
@@ -401,6 +402,109 @@ class Run:
             self._loading = None
 
 
+_panes = (0.0, [])
+
+
+def herdr_panes():
+    """Every herdr pane as (pane id, workspace id, shell pid, tty), looked up
+    at most every 10s. Call it from a thread: it asks herdr once per pane."""
+    global _panes
+    if time.time() - _panes[0] < 10:
+        return _panes[1]
+    herdr = os.environ.get("HERDR_BIN_PATH", "herdr")
+
+    def ask(*args):
+        try:
+            out = subprocess.run([herdr, *args], capture_output=True, text=True, timeout=3).stdout
+            return json.loads(out).get("result", {})
+        except (OSError, subprocess.SubprocessError, ValueError):
+            return {}
+    found = []
+    for pane in ask("pane", "list").get("panes", []):
+        shell = ask("pane", "process-info", "--pane", pane["pane_id"]).get("process_info", {}).get("shell_pid")
+        if shell:
+            tty = subprocess.run(["ps", "-o", "tty=", "-p", str(shell)], capture_output=True, text=True).stdout.strip()
+            found.append((pane["pane_id"], pane.get("workspace_id", ""), str(shell), tty))
+    _panes = (time.time(), found)
+    return found
+
+
+class ServerRun(Run):
+    """A dev server in the servers list. Its log is wherever its output goes:
+    a file (a server Claude sent to the background writes to its task output)
+    or the herdr pane whose terminal it prints to."""
+
+    def __init__(self, port, pid, cmd):
+        self.port, self.pid = port, pid
+        self.path, self.tag, self.is_git = "", "", False
+        self.full = self.cmd = re.sub(r"^\S*/", "", cmd.strip())  # /long/path/Python -m x -> Python -m x
+        self._log, self._loading, self._read_at = (None, None, None, ""), None, 0.0
+        self.where = None  # ("file", path) | ("pane", pane id) | ("none", why); None while looking
+        threading.Thread(target=self._find, daemon=True).start()
+
+    def _find(self):
+        """Follow stdout up the process tree (a dev server's workers write to a
+        pipe their parent reads) until it is a file or a terminal."""
+        pid = self.pid
+        for _ in range(8):
+            out = subprocess.run(["lsof", "-a", "-p", pid, "-d", "1", "-Fn"], capture_output=True, text=True).stdout
+            name = next((l[1:] for l in out.splitlines() if l.startswith("n")), "")
+            if name.startswith("/dev/tty"):
+                pane = next((p for p, _, _, tty in herdr_panes() if tty and name == "/dev/" + tty), None)
+                self.where = ("pane", pane) if pane else ("none", f"it prints to {name}, outside herdr")
+                return
+            if os.path.isfile(name):
+                self.where = ("file", name)
+                return
+            pid = subprocess.run(["ps", "-o", "ppid=", "-p", pid], capture_output=True, text=True).stdout.strip()
+            if pid in ("", "0", "1"):
+                break
+        self.where = ("none", "its output goes nowhere the deck can read")
+
+    def source(self):
+        return self.where[1] if self.where and self.where[0] == "file" else ""
+
+    def rc(self):
+        return ""
+
+    def status(self):
+        return ("●", GREEN_RGB)
+
+    def age(self):
+        return f":{self.port}"
+
+    def end(self):
+        return ""
+
+    def info(self):
+        url = f"http://localhost:{self.port}"
+        where = {"file": "log file", "pane": f"pane {self.where[1]}"}.get(self.where[0], "") if self.where else ""
+        return f"  {link(url, fg(CYAN_RGB) + url + RESET)}{DIM} · pid {self.pid}{' · ' + where if where else ''}{RESET}"
+
+    def lines(self):
+        if self.where is None:
+            return None
+        kind, what = self.where
+        if kind == "file":
+            return super().lines()
+        if kind == "none":
+            self._log = (None, [f"{DIM}no log: {what}{RESET}"], [f"no log: {what}"], "")
+        elif time.time() - self._read_at >= 1 and not self._loading:  # a pane: read its terminal every second
+            self._read_at, self._loading = time.time(), True
+            threading.Thread(target=self._read_pane, args=(what,), daemon=True).start()
+        return self._log[1]
+
+    def _read_pane(self, pane):
+        try:
+            text = subprocess.run([os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "read", pane, "--source", "recent",
+                                   "--lines", "2000", "--format", "ansi"], capture_output=True, text=True, timeout=3).stdout
+        except (OSError, subprocess.SubprocessError):
+            text = ""
+        shown = clean(text.rstrip("\n"))
+        self._log = (None, shown, [ANSI.sub("", l) for l in shown], "")
+        self._loading = None
+
+
 CSI = re.compile(r"\x1b\[([0-9;?]*)[ -/]*([@-~])")
 OTHER = re.compile(r"\x1b\](?!8;)[^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[()][0-9A-Za-z]|\x1b[=>78]|[\x00-\x06\x08\x0b\x0c\x0e-\x1a\x1c-\x1f]")
 GIT_COLOURS = [  # plain git output gets the colours git would use on a terminal
@@ -467,8 +571,11 @@ class Runs:
     """One run section (build, test or git): run tabs and the log under a
     copy-mode cursor, with the same keys as herdr's copy mode."""
 
+    noun = "runs"
+
     def __init__(self, kind):
         self.kind, self.dir = kind, os.path.join(BASE, kind, "runs")
+        self.empty = f"no {kind} runs yet"
         self.runs, self.known, self.tab = [], None, 0
         self.offset, self.follow = 0, True
         self.cy = self.cx = 0              # cursor line / column in the plain text
@@ -605,7 +712,7 @@ class Runs:
     def frame(self, cols, rows):
         """Head lines (run list, info, rule) and the visible log lines."""
         if not self.runs:
-            return [f"{DIM} no {self.kind} runs yet{RESET}", rule(cols)], []
+            return [f"{DIM} {self.empty}{RESET}", rule(cols)], []
         run = self.runs[self.tab]
         loaded = run.lines()
         self.raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
@@ -655,7 +762,7 @@ class Runs:
         the focus."""
         edge = fg(ACCENT[self.kind]) if self.focus == "list" else fg("70;76;88")
         inner = cols - 2
-        title = f" runs · {len(self.runs)} "
+        title = f" {self.noun} · {len(self.runs)} "
         top = f"{edge}╭─{fg(MUTED_RGB)}{title}{edge}{'─' * max(0, inner - 1 - len(title))}╮{RESET}"
         rows = [f"{edge}│{RESET}{line}{RESET}{edge}│{RESET}" for line in self.rows(inner)]
         return [top, *rows, f"{edge}╰{'─' * inner}╯{RESET}"]
@@ -836,71 +943,64 @@ class Runs:
             self.follow = True
 
 
-class Servers:
-    """The project's running dev servers, refreshed every 2s."""
+class Servers(Runs):
+    """The dev servers of the project, or started from this workspace, as a run
+    list with each server's log under it; rescanned every 2s."""
 
-    kind = "servers"
+    noun = "servers"
 
     def __init__(self):
-        self.servers, self.at, self.pick = [], 0.0, 0
-        self.scanning = False
+        super().__init__("servers")
+        self.empty = "no dev servers running in this project"
+        self.found, self.at, self.scanning = [], 0.0, False
 
     def refresh(self):
         # lsof takes ~0.2s: scan in a thread so the deck never waits on it.
         if time.time() - self.at >= 2 and not self.scanning:
             self.scanning = True
             threading.Thread(target=self.scan, daemon=True).start()
-        self.pick = max(0, min(self.pick, len(self.servers) - 1))
+        # Keep each server's object (and its log) and the one picked; lowest port on top.
+        keep = {(r.port, r.pid): r for r in self.runs}
+        picked = (self.runs[self.tab].port, self.runs[self.tab].pid) if self.runs else None
+        self.runs = [keep.get((port, pid)) or ServerRun(port, pid, cmd)
+                     for port, pid, cmd in sorted(self.found, key=lambda s: -int(s[0]))]
+        keys = [(r.port, r.pid) for r in self.runs]
+        if picked in keys:
+            self.tab = keys.index(picked)
+        elif self.runs:
+            self.select(len(self.runs) - 1)
         return False
 
     def scan(self):
         root, out = read(os.path.join(BASE, "root")), ""
+        # The shells of the agent's workspace: servers started from any of them count too.
+        agent = os.path.basename(BASE).replace("_", ":")
+        panes = herdr_panes()
+        ws = next((w for p, w, _, _ in panes if p == agent), None)
+        shells = [shell for _, w, shell, _ in panes if ws and w == ws]
         if root:
             try:
-                out = subprocess.run([SERVERS, root], capture_output=True, text=True, timeout=5).stdout
+                out = subprocess.run([SERVERS, root, *shells], capture_output=True, text=True, timeout=5).stdout
             except (OSError, subprocess.SubprocessError):
                 pass
-        self.servers = [l.split("\t", 2) for l in out.splitlines() if l.count("\t") == 2]
+        self.found = [l.split("\t", 2) for l in out.splitlines() if l.count("\t") == 2]
         self.at, self.scanning = time.time(), False
 
     def badge(self):
-        return ("●", GREEN_RGB) if self.servers else ("·", MUTED_RGB)
+        return ("●", GREEN_RGB) if self.runs else ("·", MUTED_RGB)
 
     def hints(self):
-        return [("j/k", "select"), ("enter", "browser"), ("[ ]", "tabs"), ("q", "close")]
+        if self.focus == "list" and self.search is None:
+            return [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("[ ]", "tabs"), ("q", "close")]
+        return super().hints()
 
-    def frame(self, cols, rows):
-        n = len(self.servers)
-        head = [f"{fg(MUTED_RGB)} {n} running {DIM}· {read(os.path.join(BASE, 'root'))}{RESET}", rule(cols)]
-        self.body_row = HEAD_ROW + len(head)
-        if not n:
-            return head, [f"{DIM}no dev servers running in this project{RESET}"]
-        body = []
-        for i, (port, pid, cmd) in enumerate(self.servers):
-            url = f"http://localhost:{port}"
-            mark = f"{fg(ACCENT['servers'])}▎{RESET}" if i == self.pick else " "
-            body.append(f"{mark}{fg(GREEN_RGB)}●{RESET} {link(url, fg(CYAN_RGB) + url + RESET)}"
-                        f"  {cmd}  {DIM}pid {pid}{RESET}")
-        return head, body[:max(1, rows - self.body_row + 1)]
-
-    def click(self, row, col):
-        """A click on a server row opens that server."""
-        if 0 <= row - self.body_row < len(self.servers):
-            self.pick = row - self.body_row
-            self.key("o")
-
-    def wheel(self, down):
-        self.key("j" if down else "k")
-
-    def key(self, k):
-        if k == "j":
-            self.pick = min(len(self.servers) - 1, self.pick + 1)
-        elif k == "k":
-            self.pick = max(0, self.pick - 1)
-        elif k in ("\r", "\n", "o") and self.servers:
+    def list_key(self, k):
+        if k == "o" and self.runs:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.Popen([opener, f"http://localhost:{self.servers[self.pick][0]}"],
+            subprocess.Popen([opener, f"http://localhost:{self.runs[self.tab].port}"],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            super().list_key(k)
 
 
 class Deck:

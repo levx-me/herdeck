@@ -40,8 +40,9 @@ without scrolling back through the conversation.
   last 50); pick one with `j` `k` or a click. A session resumed in a new pane gets its list
   back from the transcript.
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
-- **Dev servers** — ports opened by processes inside the project, clickable, one key
-  to open in the browser.
+- **Dev servers** — ports opened by processes inside the project, or started from any pane of
+  its herdr workspace (the agent's `pnpm dev` in a sibling app counts), each with its log: the
+  file it writes to, or the herdr pane it prints in. One key opens it in the browser.
 - **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
@@ -108,14 +109,14 @@ the keys that apply right now.
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`5` | previous / next section, jump to one |
 | | `q` | close the deck |
-| run list (build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
+| run list (servers, build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |
 | | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
 | | `v` `V`, `y` | select by character / line, yank (the cursor line when nothing is selected) |
 | | `/` `?`, `n` `N` | search forward / back, repeat |
 | | `esc` | cancel the selection, or back to the run list |
-| servers | `j` `k`, `enter` `o` | pick a server, open it in the browser |
+| servers | `j` `k`, `enter` `l`, `o` | pick a server, move into its log (same keys as output), open it in the browser |
 
 Yanks go to `pbcopy`, `wl-copy` or `xclip`, falling back to the terminal clipboard (OSC 52).
 
