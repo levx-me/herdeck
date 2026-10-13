@@ -1396,8 +1396,16 @@ def dashboard(d, cols, main, expanded=False):
     if d.kinds:
         kinds = sorted(d.kinds.items(), key=lambda kv: -kv[1])
         out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
-        legend = "  ".join(f"{fg(KIND_RGB[k])}■{RESET} {k} {n}" for k, n in kinds)
-        out.append(row("", legend))
+        # The legend wraps item by item rather than being cut.
+        line, used = "", 0
+        for k, n in kinds:
+            item, size = f"{fg(KIND_RGB[k])}■{RESET} {k} {n}", len(f"■ {k} {n}")
+            if used and used + 2 + size > w:
+                out.append(row("", line))
+                line, used = "", 0
+            line, used = (f"{line}  {item}", used + 2 + size) if used else (item, size)
+        if used:
+            out.append(row("", line))
     if d.report:
         for n, part in enumerate(wrap(d.report)[:4]):
             out.append(row("report" if n == 0 else "", part))

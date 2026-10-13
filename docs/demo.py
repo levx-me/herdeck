@@ -14,7 +14,7 @@ from xml.sax.saxutils import escape
 CW, LH, FS = 8.4, 19, 14          # cell width, line height, font size (px)
 PAD, TOP = 14, 38                 # inner padding, title bar height
 A, D = 90, 60                     # agent and deck columns: 60:40
-SCENE_SECS = 4                    # how long each section shows
+SCENE_SECS = 3                    # how long each section shows
 SPINNER = "·✢✳✶✻✽✻✶✳✢"            # Claude Code's spinner, forward and back
 SPIN_SECS = 0.12                  # one spinner frame
 TIMER_FROM = 12                   # the "Testing..." timer's first second
