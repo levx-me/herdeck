@@ -9,6 +9,7 @@ the first one still. Every run of text sits on a character grid at its own x,
 so the columns line up whatever monospace font the viewer has. Colours are the
 deck's own (bin/viewer.py).
 """
+import random
 from xml.sax.saxutils import escape
 
 CW, LH, FS = 8.4, 19, 14          # cell width, line height, font size (px)
@@ -20,7 +21,9 @@ SPIN_SECS = 0.12                  # one spinner frame
 TIMER_FROM = 12                   # the "Testing..." timer's first second
 BRAILLE = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"            # the deck's spinner (bin/viewer.py), 8 frames a second
 SPIN = "<spin>"                   # a run's text: the deck's spinner, turning
-CYCLE = 6 * SCENE_SECS            # one loop of the deck, in seconds: what ticks, ticks over it
+AGENTS_SECS = 5                   # the agents section stays longer: it moves the most
+SCENE_TIMES = [AGENTS_SECS] + [SCENE_SECS] * 5  # in tab order
+CYCLE = sum(SCENE_TIMES)          # one loop of the deck, in seconds: what ticks, ticks over it
 
 BG, STRIP, TAB, ACTIVE = "#1b1e23", "#21252b", "#2c313a", "#3e4451"
 MUTED, BRIGHT, TEXT, DIMMED = "#787f8c", "#dcdfe4", "#abb2bf", "#585e69"
@@ -155,13 +158,15 @@ line(A + 0.5, 0, A + 0.5, ROWS, ACTIVE)
 css = []
 
 
-def layers(prefix, n, secs):
+def layers(prefix, n, secs, slots=None):
     """CSS showing layers {prefix}0..{prefix}{n-1} one at a time over a secs-long
-    loop, each for its slot, switching at once (step-end)."""
+    loop, each for its slot (equal, or the given lengths), switching at once (step-end)."""
+    slots = slots or [secs / n] * n
+    edges = [sum(slots[:i]) * 100 / sum(slots) for i in range(n + 1)]
     css.append(f".{prefix}{{opacity:0;animation-duration:{secs}s;animation-iteration-count:infinite;"
                "animation-timing-function:step-end}" f".{prefix}0{{opacity:1}}")
     for i in range(n):
-        a, b = 100 * i / n, 100 * (i + 1) / n
+        a, b = edges[i], edges[i + 1]
         frames = f"0%{{opacity:{1 if i == 0 else 0}}}" + (f"{a:.3f}%{{opacity:1}}" if i else "")
         frames += f"{b:.3f}%{{opacity:0}}100%{{opacity:0}}"
         css.append(f"@keyframes {prefix}k{i}{{{frames}}}.{prefix}{i}{{animation-name:{prefix}k{i}}}")
@@ -244,6 +249,28 @@ def body(row, lines):
             text(d0, row + i, runs_, end)
 
 
+def heartbeat(n, seed=7):
+    """n columns of a working agent's heartbeat: bursts of writes of uneven height
+    (a reply, a run of tool calls) with quiet gaps between, and the tok/min each
+    second would read (the last minute's columns, scaled). Seeded: the file stays put."""
+    rng = random.Random(seed)
+    counts = []
+    while len(counts) < n:
+        if rng.random() < 0.35:                      # a quiet stretch: waiting on a tool
+            counts += [0] * rng.randint(1, 5)
+        else:                                        # a burst: rises, peaks, falls off unevenly
+            peak = rng.randint(2, 9)
+            counts += [max(1, int(peak * rng.uniform(0.3, 1.0))) for _ in range(rng.randint(2, 7))]
+    counts = counts[:n]
+    top = max(counts)
+    beats = "".join(" ▁▂▃▄▅▆▇█"[min(8, -(-c * 8 // top))] if c else " " for c in counts)
+    rates = []
+    for t in range(n - (D - 2) + 1):
+        window = counts[t + D - 2 - 6:t + D - 2]  # the newest 6 columns: the last minute
+        rates.append(f"{sum(window) * 0.21:.1f}k" if sum(window) else "0")
+    return beats, rates
+
+
 def took(secs):
     return f"{secs // 60}m {secs % 60}s" if secs >= 60 else f"{secs}s"
 
@@ -267,9 +294,7 @@ def scene_agents():
                    (SPIN, AMBER, "  Map the auth tests", lambda t: took(38 + t))], ACCENT["AGENTS"], "agents")
     rect(d0 + 1, row, 11, AMBER)  # the WORKING pill
     # The heartbeat scrolls left a column a second, new beats coming in at the right.
-    beats = "▂▃▅▇▅▃▂▁▁▂▃▆█▆▃▂▁▂▃▅▃▂▁▁▁▂▄▆▇▅▃▂▃▅▆▅▃▂▁▁▂▃▅▇█▇▅▃▂▃▄▆▅▃▂▁▂▄▆█▆▄▂▁▁▃▅▇▅▃▁▂▄▆▄▂▁▁▂▃▅▆"
-    rates = ["1.8k", "1.9k", "2.1k", "2.0k", "1.7k", "1.6k", "1.8k", "2.2k", "2.4k",
-             "2.3k", "2.0k", "1.9k", "1.7k", "1.8k", "2.0k", "2.1k", "1.9k", "1.8k"]
+    beats, rates = heartbeat(CYCLE + D - 2)
     body(row, [
         [("  ", STRIP, True), (SPIN, STRIP, True), (" WORKING ", STRIP, True), ("   ", MUTED), ("↑", GREEN),
          (lambda t: f" {rates[t % len(rates)]} tok/min", MUTED)],
@@ -426,7 +451,7 @@ def scene_deploy():
 scenes = [scene_agents, scene_servers, scene_build, scene_test, scene_git, scene_deploy]
 for i, draw in enumerate(scenes):
     layer("s", i, draw)
-layers("s", len(scenes), len(scenes) * SCENE_SECS)
+layers("s", len(scenes), CYCLE, SCENE_TIMES)
 layers("t", CYCLE, CYCLE)                                    # what ticks each second
 layers("b", len(BRAILLE), round(len(BRAILLE) / 8, 3))        # the deck's spinner
 layers("p", len(SPINNER), round(len(SPINNER) * SPIN_SECS, 2))  # Claude Code's spinner
