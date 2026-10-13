@@ -48,9 +48,12 @@ case ${1:-} in
     [ "$(cat "$base/placement" 2>/dev/null)" = up ] && to=right || to=up
     printf '%s\n' "$to" > "$base/placement"
     old=$(cat "$base/pane" 2>/dev/null)
+    focused=$(herdr pane get "$old" 2>/dev/null | jq -r '.result.pane.focused')
     alive "$old" && herdr pane close "$old" >/dev/null
     # The same TMPDIR the deck was opened with, so the new one finds its runs.
     TMPDIR=$(dirname "$(dirname "$base")") open_beside "$agent" "$(cat "$base/root" 2>/dev/null)"
+    # L was pressed in the deck: the focus stays in it, on its new side of the agent.
+    [ "$focused" = true ] && herdr pane focus --pane "$agent" --direction "$to" >/dev/null 2>&1
     ;;
   *)
     echo "usage: deck toggle|auto|flip BASE" >&2
