@@ -46,6 +46,7 @@ LIST_ROWS = 10  # run list height (rows) before it scrolls
 RESET, DIM, BOLD = "\033[0m", "\033[2m", "\033[1m"
 STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
 MUTED_RGB, BRIGHT_RGB = "120;127;140", "220;223;228"
+DIMMED_RGB = "88;94;105"  # the side without the cursor: list labels or the log's plain text
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
 ACCENT = {"servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
@@ -73,6 +74,31 @@ def read(path, default=""):
             return f.read().strip()
     except OSError:
         return default
+
+
+SGR = re.compile(r"\x1b\[([0-9;]*)m")
+
+
+def tint(line, rgb):
+    """The line with its default-coloured text in rgb; text the program coloured keeps its colour."""
+    def after(m):
+        params = m.group(1).split(";") if m.group(1) else ["0"]
+        # Back to the default foreground: a reset or 39 with no colour set after it.
+        back, i = False, 0
+        while i < len(params):
+            p = params[i]
+            if p in ("", "0", "39"):
+                back = True
+            elif p in ("38", "48"):  # extended colour: skip its arguments
+                if p == "38":
+                    back = False
+                i += 4 if params[i + 1:i + 2] == ["2"] else 2
+                continue
+            elif p.isdigit() and (30 <= int(p) <= 37 or 90 <= int(p) <= 97):
+                back = False
+            i += 1
+        return m.group(0) + (fg(rgb) if back else "")
+    return fg(rgb) + SGR.sub(after, line)
 
 
 def visible_len(s):
@@ -752,7 +778,8 @@ class Runs:
             if (cursor and y == self.cy) or self.selected(y, 0) or self.selected(y, len(self.plain[y]) - 1):
                 body.append(self.marked(y))
             else:
-                body.append(self.raw[y])
+                # The log reads dim while the cursor is in the list.
+                body.append(tint(self.raw[y], DIMMED_RGB) if self.focus == "list" else self.raw[y])
         if running:
             start = int(read(os.path.join(run.path, "start"), "0") or 0)
             secs = f" {int(time.time()) - start}s" if start else ""
@@ -813,7 +840,9 @@ class Runs:
                 lines.append(f"{bg(ACTIVE_RGB)}{arrow}{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
                              f"\033[22m{gap}{fg(MUTED_RGB)}{shown} {RESET}")
             else:
-                lines.append(f"  {fg(colour)}{icon} {fg(MUTED_RGB)}{label}{gap}{shown} {RESET}")
+                # Labels bright while the cursor is in the list, dim while it is in the log.
+                text = BRIGHT_RGB if self.focus == "list" else DIMMED_RGB
+                lines.append(f"  {fg(colour)}{icon} {fg(text)}{label}{fg(MUTED_RGB)}{gap}{shown} {RESET}")
         return lines
 
     def marked(self, y):
