@@ -1220,6 +1220,7 @@ class Digest:
         self.thinking_ms = 0
         self.usage = {"in": 0, "cache": 0, "out": 0}
         self.context = 0                       # input tokens of the latest request
+        self.outputs = []                      # (time, output tokens) per reply, the last few minutes
         self.seen_messages = set()
         self.open, self.last_tool = {}, None   # tool calls without a result; the latest call
         self.says = ""
@@ -1261,6 +1262,8 @@ class Digest:
             self.usage["in"] += usage.get("input_tokens", 0)
             self.usage["cache"] += usage.get("cache_read_input_tokens", 0) + usage.get("cache_creation_input_tokens", 0)
             self.usage["out"] += usage.get("output_tokens", 0)
+            if self.last:
+                self.outputs = [o for o in self.outputs if o[0] > self.last - 300] + [(self.last, usage.get("output_tokens", 0))]
             self.context = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0) \
                 + usage.get("cache_creation_input_tokens", 0)
         for b in content if isinstance(content, list) else []:
@@ -1314,6 +1317,12 @@ def wrap_cells(text, width):
         else:
             line = f"{line} {word}" if line else word
     return [l for l in lines + [line] if l] or [""]
+
+
+def rate(d):
+    """Output tokens per minute over the last minute, as "↑ 1.2k tok/min", or ""."""
+    per_min = sum(n for t, n in d.outputs if t > time.time() - 60)
+    return f"{fg(GREEN_RGB)}↑{RESET}{fg(MUTED_RGB)} {tokens(per_min)} tok/min{RESET}" if per_min else ""
 
 
 def tokens(n):
@@ -1506,6 +1515,7 @@ class AgentRun(Run):
     def lines(self):
         self.count()
         name, colour, icon, since = self.state()
+        since = "  ".join(x for x in (since, rate(self.digest)) if x)
         return status_block(name, colour, icon, since, self.stamps, self.cols) + \
             dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded)
 
