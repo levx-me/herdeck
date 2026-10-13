@@ -1172,7 +1172,7 @@ class AgentRun(Run):
             self.meta = {}
         self.tag, self.is_git = "", False
         self.full = self.cmd = self.meta.get("description") or self.id
-        self._log, self._loading = (None, None, None, ""), None
+        self._log, self._loading, self.prompt = (None, None, None, ""), None, ""
         self.first = os.path.getmtime(path)  # until the transcript says when it began
         self.lines()  # read it now: the list orders and dates agents by their first line
 
@@ -1228,8 +1228,14 @@ class AgentRun(Run):
         return ""
 
     def command(self, cols):
-        """The head: what the agent was asked to do, as its spawn described it."""
-        return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))[:3]]
+        """The head: the agent's description, then the whole prompt it got, wrapped
+        under an accent bar as the git section shows a commit message."""
+        rows = [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))]
+        self.lines()
+        for line in (self.prompt or "").strip().splitlines():
+            for part in textwrap.wrap(line, max(10, cols - 4)) or [""]:
+                rows.append(f"{fg(ACCENT['subagents'])}  │ {RESET}{part}")
+        return rows
 
     def lines(self):
         try:
@@ -1272,9 +1278,8 @@ class AgentRun(Run):
                 self.first = datetime_epoch(rows[0]["timestamp"])
             except ValueError:
                 pass
-        shown = [f"{fg(MUTED_RGB)}prompt{RESET}"]
-        shown += [f"  {l}" for l in (prompt.strip().splitlines() or [""])[:12]]
-        shown.append("")
+        self.prompt = prompt  # shown whole in the head (command)
+        shown = []
         for ts, what, name, text, call in events:
             if what == "text":
                 shown.append(f"{fg(MUTED_RGB)}{clock(ts)}   {RESET}{short(text, 400)}")
@@ -1295,7 +1300,7 @@ class Subagents(Runs):
 
     def __init__(self):
         super().__init__("subagents")
-        self.empty = "no subagents in this session yet"
+        self.empty = "no subagents at work"
         self.session, self.looked = "", 0.0          # the main transcript, found through herdr
         self.results, self.notified = {}, {}          # what the main transcript says about them
         self.read_to, self.reading = 0, False
@@ -1366,8 +1371,10 @@ class Subagents(Runs):
             background(self.read_main)
         folder = self.session[:-len(".jsonl")] + "/subagents" if self.session else ""
         paths = glob.glob(f"{folder}/agent-*.jsonl") + glob.glob(f"{folder}/workflows/*/agent-*.jsonl") if folder else []
-        keep = {r.path: r for r in self.runs}
-        runs = sorted((keep.get(p) or AgentRun(p, self) for p in paths), key=lambda r: r.first)
+        keep = {r.path: r for r in getattr(self, "every", [])}
+        self.every = [keep.get(p) or AgentRun(p, self) for p in paths]
+        # Only the subagents at work now: an ended or long-quiet one leaves the list.
+        runs = sorted((r for r in self.every if r.status()[1] == AMBER_RGB), key=lambda r: r.first)
         new = self.known is not None and any(r.path not in self.known for r in runs)
         picked = self.runs[self.tab].path if self.runs else None
         self.runs = runs
@@ -1380,10 +1387,7 @@ class Subagents(Runs):
         return new
 
     def badge(self):
-        running = [r for r in self.runs if r.status()[1] == AMBER_RGB]
-        if running:
-            return (spinner(), AMBER_RGB)
-        return self.runs[-1].status() if self.runs else ("·", MUTED_RGB)
+        return (spinner(), AMBER_RGB) if self.runs else ("·", MUTED_RGB)
 
 
 class Deck:

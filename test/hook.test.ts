@@ -503,7 +503,8 @@ v = SourceFileLoader("v", sys.argv[1]).load_module()
 v.background = lambda fn, *a: fn(*a)  # inline, for the test
 s = v.Subagents(); s.session, s.looked = sys.argv[2], time.time()
 s.read_main(); s.refresh()
-for r in s.runs:
+print("listed", len(s.runs), s.every[0].prompt if s.every[0].id == "aaa" else "")  # only running agents are listed
+for r in s.every:
     print(r.id, r.ended(), r.meta.get("agentType"), r._log[3], *(l for l in r._log[2] if "Read" in l or "Done" in l))
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
@@ -514,5 +515,6 @@ for r in s.runs:
     expect(out[0]).toMatch(/^aaa done Explore 1 .*✓ Read\s+src\/a\.ts.*Done mapping\.$/); // cwd-relative path, its message
     expect(out[1]).toBe("bbb failed general-purpose 0");
     expect(out[2]).toBe("ccc done Plan 0"); // background, ended by its notification
+    expect(out[3]).toMatch(/^listed 0/); // all ended: none listed
   });
 });
