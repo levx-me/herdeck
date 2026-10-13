@@ -557,10 +557,12 @@ describe("jobs: other commands followed while they run", () => {
     expect(readFileSync(join(job(tmp), "timeout"), "utf8").trim()).toBe("60000");
     rmSync(tmp, { recursive: true }); // bin/job stops once its run is gone
   });
-  test("background calls and routed tests are not jobs", () => {
+  test("background calls and what other tabs show are not jobs", () => {
     const tmp = mkdtempSync(join(tmpdir(), "steading-"));
     start(tmp, "sleep 30", { run_in_background: true });
     start(tmp, "npm test");
+    start(tmp, "bun test 2>&1 | grep -E fail"); // not routed, but the test tab files it
+    start(tmp, "git push", { description: "git: git push" });
     expect(existsSync(job(tmp))).toBe(false);
   });
   test("record keeps a job of 10s or more with its output and drops a short one", () => {

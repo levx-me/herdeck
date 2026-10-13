@@ -29,6 +29,9 @@ fi
 # it runs), and bin/record files how it ended. Nothing about the call changes.
 job() {
   [ "$(printf '%s' "$input" | jq -r '.tool_input.run_in_background // false')" = true ] && return
+  # Tests, builds, git and deploys have their own tabs (bin/record files them once run).
+  [ -n "$(printf '%s' "$what" | jq -r '.kind // empty')" ] && return
+  [[ $(printf '%s' "$input" | jq -r '.tool_input.description // empty') =~ ^(test|build|git|deploy): ]] && return
   local id sid r n dir
   id=$(printf '%s' "$input" | jq -r '.tool_use_id // empty')
   sid=$(printf '%s' "$input" | jq -r '.session_id // empty')

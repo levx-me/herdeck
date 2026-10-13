@@ -30,7 +30,7 @@ apply right now.
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`7` | previous / next tab, jump to one |
 | | `L` | move the deck to the other side of the agent |
-| | `q` | close the deck |
+| | `q` | close the deck (in a log: back to the list) |
 | run list | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |

@@ -1051,7 +1051,7 @@ class Runs:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
             return [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
-        return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
+        return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc/q", "back")]
 
     def list_key(self, k):
         """Keys while the run list has the focus (newest run on top)."""
@@ -2033,6 +2033,18 @@ class Deck:
             self.views[self.section].key(k)
 
 
+def legacy(key):
+    """A kitty keyboard protocol key (CSI code;mods u) as the bytes it stands for:
+    esc, ctrl+letter as its control character, anything else as its character."""
+    m = re.fullmatch(r"\x1b\[(\d+)(?:;(\d+))?u", key)
+    if not m:
+        return key
+    code, mods = int(m.group(1)), int(m.group(2) or 1) - 1
+    if mods & 4 and chr(code).isalpha():
+        return chr(code & 0x1f)
+    return chr(code)
+
+
 def main():
     deck = Deck()
     me = os.path.abspath(__file__)
@@ -2042,12 +2054,14 @@ def main():
 
     def restore():
         termios.tcsetattr(fd, termios.TCSADRAIN, saved)
-        sys.stdout.write("\033[?1006l\033[?1002l\033[?1000l\033[?7h\033[?25h\033[?1049l")
+        sys.stdout.write("\033[<u\033[?1006l\033[?1002l\033[?1000l\033[?7h\033[?25h\033[?1049l")
         sys.stdout.flush()
 
     # Alternate screen, hidden cursor, no autowrap (long lines are cut, not
     # wrapped), and SGR mouse reports so clicks and the wheel reach the deck.
-    sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1002h\033[?1006h")
+    # Kitty keyboard protocol, disambiguate only: esc then comes as its own sequence, so
+    # nothing on the way (herdr, the terminal) has to wait to tell it from an arrow key.
+    sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1002h\033[?1006h\033[>1u")
     try:
         tty.setcbreak(fd)
         while True:
@@ -2069,9 +2083,13 @@ def main():
                     continue
                 # One read can hold several keys (fast presses, arrows): take them one at a time.
                 for key in KEYS.findall(k):
-                    typing = getattr(deck.views[deck.section], "search", None) is not None
+                    key = legacy(key)
+                    view = deck.views[deck.section]
+                    typing = getattr(view, "search", None) is not None
                     if key == "q" and not typing:
-                        return
+                        if getattr(view, "focus", "list") != "log":
+                            return
+                        key = "\x1b"  # in a log, q goes back to the list as esc does
                     deck.key(key if typing else ARROWS.get(key, key))
     except KeyboardInterrupt:
         pass
