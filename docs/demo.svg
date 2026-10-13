@@ -2272,7 +2272,8 @@
 <text x="1198.4" y="141.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">21m ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
-<text x="795.2" y="198.7" textLength="159.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 7s · exit 1</text>
+<text x="795.2" y="198.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 7s ·</text>
+<text x="904.4" y="198.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">exit 1</text>
 <line x1="778.4" y1="213.5" x2="1282.4" y2="213.5" stroke="#3e4451" stroke-width="1"/>
 <text x="778.4" y="236.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">&gt; next build</text>
 <text x="778.4" y="274.7" textLength="151.2" lengthAdjust="spacingAndGlyphs" fill="#d0868d">Failed to compile.</text>
@@ -2725,7 +2726,8 @@
 <text x="1206.8" y="179.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="217.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="217.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test</text>
-<text x="795.2" y="236.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 11s · exit 1</text>
+<text x="795.2" y="236.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 11s ·</text>
+<text x="912.8" y="236.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">exit 1</text>
 <line x1="778.4" y1="251.5" x2="1282.4" y2="251.5" stroke="#3e4451" stroke-width="1"/>
 <text x="786.8" y="274.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
 <text x="803.6" y="274.7" textLength="226.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">src/middleware/auth.test.ts</text>
@@ -3193,7 +3195,8 @@
 <text x="1206.8" y="141.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
-<text x="795.2" y="198.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 22s · exit 1</text>
+<text x="795.2" y="198.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 22s ·</text>
+<text x="912.8" y="198.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">exit 1</text>
 <line x1="778.4" y1="213.5" x2="1282.4" y2="213.5" stroke="#3e4451" stroke-width="1"/>
 <text x="778.4" y="236.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">Vercel CLI 44.2.0</text>
 <text x="778.4" y="255.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">Error:</text>

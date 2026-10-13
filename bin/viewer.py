@@ -279,6 +279,11 @@ def git_hash(text):
     return max(found)[1][:7] if found else ""
 
 
+def exit_code(rc):
+    """'exit N' for the info line, a failure's in red at full strength (the line is dim)."""
+    return "exit 0" if rc == "0" else f"\033[22m{fg(RED_RGB)}exit {rc}{fg(MUTED_RGB)}{DIM}"
+
+
 class Run:
     def __init__(self, path):
         self.path = path
@@ -434,7 +439,7 @@ class Run:
             parts.append(f"on {branch}")
         if start:
             parts.append(f"{(int(end) if end else int(time.time())) - start}s")
-        parts.append(f"exit {rc}" if rc else "running in the background" if self.source() else "running")
+        parts.append(exit_code(rc) if rc else "running in the background" if self.source() else "running")
         return f"{DIM}  {' · '.join(p for p in parts if p)}{RESET}"
 
     MAX_BYTES = 2_000_000  # a bigger log shows its last 2 MB
@@ -1141,7 +1146,7 @@ class JobRun(Run):
         took = f"{(int(end) if end else int(time.time())) - start}s"
         parts = [read(os.path.join(self.path, "cwd")).replace(os.path.expanduser("~"), "~", 1)]
         if rc:
-            parts += [took, f"exit {rc}"]
+            parts += [took, exit_code(rc)]
         elif self.stopped():
             parts += ["stopped"]
         else:
