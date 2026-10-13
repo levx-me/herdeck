@@ -417,6 +417,19 @@ print(m.${fn}(sys.stdin.read()), end="")`;
     expect(summary("git status -sb | head -1; git add -A && git diff --cached --stat && git commit -m 'x'")).toBe('git add · git commit "x"'));
   test("ls-remote and other reads are not steps next to a push", () =>
     expect(summary("git remote -v; git ls-remote --heads origin main && git stash list && git push")).toBe("git push"));
+  test("repository state for the list border: branch, unpushed, uncommitted", () => {
+    const { mkdtempSync, writeFileSync } = require("node:fs");
+    const { tmpdir } = require("node:os");
+    const repo = mkdtempSync(join(tmpdir(), "steading-repo-"));
+    const git = (...a: string[]) => Bun.spawnSync(["git", "-C", repo, "-c", "user.name=t", "-c", "user.email=t@example.com", ...a]);
+    git("init", "-q", "-b", "main");
+    git("commit", "-q", "--allow-empty", "-m", "x");
+    const state = () => py("repo_state", repo).replace(/\x1b\[[0-9;]*m/g, "");
+    expect(state()).toBe(" main · clean ");
+    writeFileSync(join(repo, "a"), "a");
+    expect(state()).toBe(" main · 1 changed ");
+    expect(py("repo_state", "/")).toBe("");
+  });
   test("heredoc commit message", () =>
     expect(summary("git commit -m \"$(cat <<'EOF'\nFix the flicker\n\nbody\nEOF\n)\"")).toBe('git commit "Fix the flicker"'));
 });

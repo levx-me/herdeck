@@ -44,6 +44,8 @@ without scrolling back through the conversation.
 - **Run history** — each section lists its runs, newest on top (the last 20, git the
   last 50); pick one with `j` `k` or a click. A session resumed in a new pane gets its list
   back from the transcript.
+- **Repository at a glance** — the git list's border shows the branch, commits not pushed (`↑2`)
+  or not pulled (`↓1`), and how many files are not committed (or `clean`).
 - **herdr copy-mode keys** — move a cursor over any log, select, yank to the clipboard, search.
 - **Dev servers** — ports opened by processes inside the project, or started from any pane of
   its herdr workspace (the agent's `pnpm dev` in a sibling app counts), each with its log: the

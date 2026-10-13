@@ -2011,6 +2011,11 @@
 <rect x="782.6" y="80.5" width="495.6" height="114.0" rx="5" fill="none" stroke="#b48ead"/>
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 4</text>
+<rect x="1055.6" y="72.9" width="210.0" height="15.2" fill="#1b1e23"/>
+<text x="1064.0" y="84.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#b48ead">feat/refresh</text>
+<text x="1173.2" y="84.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">↑1</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">·</text>
+<text x="1215.2" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#98b17d">clean</text>
 <rect x="786.8" y="90.0" width="487.2" height="38.0" rx="0" fill="#3e4451"/>
 <rect class="f4" x="786.8" y="90.0" width="487.2" height="38.0" fill="#b48ead"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
@@ -2049,6 +2054,11 @@
 <rect x="782.6" y="80.5" width="495.6" height="114.0" rx="5" fill="none" stroke="#b48ead"/>
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 4</text>
+<rect x="1055.6" y="72.9" width="210.0" height="15.2" fill="#1b1e23"/>
+<text x="1064.0" y="84.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#b48ead">feat/refresh</text>
+<text x="1173.2" y="84.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">↑1</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">·</text>
+<text x="1215.2" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#98b17d">clean</text>
 <rect x="786.8" y="128.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git add</text>
@@ -2077,6 +2087,11 @@
 <rect x="782.6" y="80.5" width="495.6" height="114.0" rx="5" fill="none" stroke="#b48ead"/>
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 4</text>
+<rect x="1055.6" y="72.9" width="210.0" height="15.2" fill="#1b1e23"/>
+<text x="1064.0" y="84.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#b48ead">feat/refresh</text>
+<text x="1173.2" y="84.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">↑1</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">·</text>
+<text x="1215.2" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#98b17d">clean</text>
 <rect x="786.8" y="147.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git add</text>

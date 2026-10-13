@@ -686,6 +686,10 @@ class Runs:
     def select(self, tab):
         self.tab, self.follow, self.anchor, self.msg = tab, True, None, ""
 
+    def title_right(self):
+        """Text for the right end of the run list's top border."""
+        return ""
+
     def badge(self):
         return self.runs[-1].status() if self.runs else ("·", MUTED_RGB)
 
@@ -791,7 +795,7 @@ class Runs:
     def frame(self, cols, rows):
         """Head lines (run list, info, rule) and the visible log lines."""
         if not self.runs:
-            return [f"{DIM} {self.empty}{RESET}", rule(cols)], []
+            return [f"{DIM} {self.empty}{RESET}{self.title_right()}", rule(cols)], []
         run = self.runs[self.tab]
         run.cols = cols  # agents lay their status out to the pane
         loaded = run.lines()
@@ -865,7 +869,11 @@ class Runs:
         edge = fg(ACCENT[self.kind]) if self.focus == "list" else fg("70;76;88")
         inner = cols - 2
         title = f" {self.noun} · {len(self.runs)} "
-        top = f"{edge}╭─{fg(MUTED_RGB)}{title}{edge}{'─' * max(0, inner - 1 - len(title))}╮{RESET}"
+        right = self.title_right()
+        if inner - 2 - len(title) - visible_len(right) < 1:  # too narrow: the count alone
+            right = ""
+        fill = max(0, inner - 2 - len(title) - visible_len(right)) + (0 if right else 1)
+        top = f"{edge}╭─{fg(MUTED_RGB)}{title}{edge}{'─' * fill}{right}{edge}{'─' if right else ''}╮{RESET}"
         rows = [f"{edge}│{RESET}{line}{RESET}{edge}│{RESET}" for line in self.rows(inner)]
         return [top, *rows, f"{edge}╰{'─' * inner}╯{RESET}"]
 
@@ -1081,6 +1089,57 @@ class Runs:
         self.clamp()
         if down and self.cy >= len(self.plain) - 1:
             self.follow = True
+
+
+class Git(Runs):
+    """The git runs, with the repository's state in the list's border: branch,
+    commits not pushed (↑) or not pulled (↓), files not committed. Read every 3s."""
+
+    def __init__(self):
+        super().__init__("git")
+        self.repo, self.at, self.reading = "", 0.0, False
+
+    def refresh(self):
+        if time.time() - self.at >= 3 and not self.reading:
+            self.reading, self.at = True, time.time()
+            background(self.read_repo)
+        return super().refresh()
+
+    def read_repo(self):
+        try:
+            self.repo = repo_state(read(os.path.join(BASE, "root")))
+        finally:
+            self.reading = False
+
+    def title_right(self):
+        return self.repo
+
+
+def repo_state(root):
+    """' main ↑2 ↓1 · 3 changed ' in colour, from git status; "" outside a repository."""
+    try:
+        out = subprocess.run(["git", "-C", root, "status", "--porcelain=v2", "--branch"],
+                             capture_output=True, text=True, timeout=5)
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    if not root or out.returncode:
+        return ""
+    branch, ahead, behind, changed = "", 0, 0, 0
+    for line in out.stdout.splitlines():
+        if line.startswith("# branch.head "):
+            branch = line.split(" ", 2)[2]
+        elif line.startswith("# branch.ab "):
+            a, b = line.split()[2:4]
+            ahead, behind = int(a), -int(b)
+        elif not line.startswith("#"):
+            changed += 1
+    parts = [f"{fg(ACCENT['git'])}{branch}"]
+    if ahead:
+        parts.append(f" {fg(AMBER_RGB)}↑{ahead}")
+    if behind:
+        parts.append(f" {fg(ACCENT['test'])}↓{behind}")
+    parts.append(f"{fg(MUTED_RGB)} · " + (f"{fg(AMBER_RGB)}{changed} changed" if changed else f"{fg(GREEN_RGB)}clean"))
+    return f" {''.join(parts)} "
 
 
 class Servers(Runs):
@@ -1744,7 +1803,7 @@ class Agents(Runs):
 
 class Deck:
     def __init__(self):
-        self.views = [Agents(), Servers()] + [Runs(k) for k in SECTIONS[2:]]
+        self.views = [Agents(), Servers()] + [Git() if k == "git" else Runs(k) for k in SECTIONS[2:]]
         self.section = 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")

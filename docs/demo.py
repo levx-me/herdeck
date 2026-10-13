@@ -219,15 +219,21 @@ def section_bar(active):
         text(col, 0, [("›", MUTED)], end)
 
 
-def run_box(rows, accent, noun, picked=0, fade=None):
+def run_box(rows, accent, noun, picked=0, fade=None, state=None):
     """The run list: a rounded box, its count in the border, run `picked` raised.
-    A row with no icon continues the run above (a git run's steps)."""
+    A row with no icon continues the run above (a git run's steps). `state` runs
+    to the right end of the top border (git: the repository's state)."""
     first = 2
     rect(d0 + 0.5, first - 0.5, D - 1, None, rows=len(rows) + 1, rx=5, stroke=accent)
     title = f" {noun} · {sum(1 for r in rows if r[0])} "
     out.append(f'<rect x="{x(d0 + 1.5):.1f}" y="{top(first - 1) + LH * 0.1:.1f}" width="{len(title) * CW:.1f}" '
                f'height="{LH * 0.8:.1f}" fill="{BG}"/>')
     text(d0 + 2, first - 1, [(title, MUTED)], end)
+    if state:
+        width = sum(len(t) for t, _ in state)
+        out.append(f'<rect x="{x(d0 + D - 2 - width):.1f}" y="{top(first - 1) + LH * 0.1:.1f}" '
+                   f'width="{width * CW:.1f}" height="{LH * 0.8:.1f}" fill="{BG}"/>')
+        text(d0 + D - 2 - width, first - 1, state, end)
     starts = [n for n, r in enumerate(rows) if r[0]]
     at = starts[picked]
     span = (starts[picked + 1] if picked + 1 < len(starts) else len(rows)) - at
@@ -245,7 +251,7 @@ def run_box(rows, accent, noun, picked=0, fade=None):
     return first + len(rows) + 1
 
 
-def browse(section, rows, accent, noun, contents, keys):
+def browse(section, rows, accent, noun, contents, keys, state=None):
     """A run section whose selection walks down a run a second through its slot of
     the loop, the head and output below following it."""
     section_bar(section)
@@ -257,7 +263,7 @@ def browse(section, rows, accent, noun, contents, keys):
                f"{b:.3f}%,100%{{opacity:0}}}}")
     for picked, content in enumerate(contents):
         fade = f"f{section}" if picked == 0 else None
-        layer("t", start + picked, lambda: body(run_box(rows, accent, noun, picked, fade), content))
+        layer("t", start + picked, lambda: body(run_box(rows, accent, noun, picked, fade, state), content))
     hints(keys)
 
 
@@ -474,7 +480,7 @@ def scene_git():
         [[("$ git switch -c feat/refresh", BRIGHT, True)],
          [("  ~/app · on feat/refresh · 0s · exit 0", MUTED)], RULE,
          [("Switched to a new branch 'feat/refresh'", TEXT)]],
-    ], RUN_KEYS)
+    ], RUN_KEYS, state=[(" feat/refresh", ACCENT["GIT"]), (" ↑1", AMBER), (" · ", MUTED), ("clean ", GREEN)])
 
 
 def scene_deploy():
