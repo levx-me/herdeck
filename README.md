@@ -110,7 +110,8 @@ command = "steading.toggle"
 ```
 
 `prefix+d` opens the deck beside the focused pane, or closes it; on the deck itself it closes that
-deck. A closed deck stays closed until you open it. To stop decks opening when an agent starts: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
+deck. It opens to the right of the agent, or on top of it when the agent pane is too narrow for a
+deck beside it (under 140 columns); `L` in the deck moves it. A closed deck stays closed until you open it. To stop decks opening when an agent starts: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
 
 ### Keys
 
@@ -121,6 +122,7 @@ the keys that apply right now.
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`7` | previous / next section, jump to one |
 | | `q` | close the deck |
+| | `L` | move the deck to the other side of the agent (right or on top); that agent's deck stays there |
 | run list (agents, jobs, servers, build, test, git) | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |

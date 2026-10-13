@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Make sure the agent has its Steading deck: one viewer pane split off to the
-# right, with agents, jobs, servers, build, test, git and deploy sections. Prints the pane id.
+# right (or above a narrow agent pane, or where L last put it), with agents, jobs, servers, build, test, git and deploy sections. Prints the pane id.
 #
 #   pane [--follow] [SECTION] [CWD]
 #                           SECTION (agents|jobs|servers|build|test|git|deploy) is brought forward;
@@ -27,15 +27,45 @@ if [ -n "$pane" ] && herdr pane get "$pane" >/dev/null 2>&1; then
   exit 0
 fi
 [ -n "$follow" ] && exit 0
+printf '%s\n' "$agent" > "$base/agent" # for L in the deck (bin/deck flip)
+
+# Beside the agent or above it: where this agent's deck last was (L in the deck
+# flips it), else by the agent pane's size: right when 40% of its width still
+# holds a deck (56 columns), above when it is too narrow for that but tall enough.
+placement=$(cat "$base/placement" 2>/dev/null)
+if [ "$placement" != right ] && [ "$placement" != up ]; then
+  read -r width height < <(herdr pane layout --pane "$agent" 2>/dev/null |
+    jq -r --arg p "$agent" '.result.layout.panes[] | select(.pane_id == $p) | "\(.rect.width) \(.rect.height)"')
+  placement=right
+  [ "${width:-999}" -lt 140 ] && [ "${height:-0}" -ge 30 ] && placement=up
+fi
+# herdr splits right or down; a deck on top is split below, then swapped up.
+direction=right; [ "$placement" = up ] && direction=down
 
 # herdr starts the deck straight in a split (the plugin's "deck" pane), so no
 # shell shows first and nothing a shell might ask at startup gets in the way.
 pane=$(herdr plugin pane open --plugin steading --entrypoint deck --placement split --target-pane "$agent" \
-  --direction right --env "STEADING_BASE=$base" --no-focus 2>/dev/null |
+  --direction "$direction" --env "STEADING_BASE=$base" --no-focus 2>/dev/null |
   jq -r '.result.plugin_pane.pane.pane_id // empty')
-if [ -n "$pane" ]; then
-  # Plugin panes split in half; give the agent 60%.
-  python3 -I - "$agent" "$pane" <<'PY' 2>/dev/null
+if [ -z "$pane" ]; then
+  # The herdr plugin is not installed (only the Claude Code side): split a shell
+  # and start the deck in it.
+  pane=$(herdr pane split --pane "$agent" --direction "$direction" --ratio 0.6 --cwd "$cwd" --no-focus |
+    jq -r '.result.pane.pane_id // empty')
+  [ -n "$pane" ] || exit 1
+  herdr pane rename "$pane" "Steading" >/dev/null 2>&1
+  sleep 0.4 # let the new shell reach its prompt
+  # exec: the deck replaces the shell, so quitting it closes the pane.
+  herdr pane run "$pane" "exec python3 $(printf '%q' "$root/bin/viewer.py") $(printf '%q' "$base")" >/dev/null
+fi
+if [ "$placement" = up ]; then
+  # The swap takes the focus along with the place: hand it back to the agent if it had it.
+  had=$(herdr pane get "$agent" 2>/dev/null | jq -r '.result.pane.focused')
+  herdr pane swap --pane "$pane" --direction up >/dev/null 2>&1
+  [ "$had" = true ] && herdr pane focus --pane "$pane" --direction down >/dev/null 2>&1
+fi
+# Splits come out even (or as asked); give the agent 60%, whichever side it is on.
+python3 -I - "$agent" "$pane" <<'PY' 2>/dev/null
 import json, os, socket, sys
 agent, deck = sys.argv[1:]
 def call(method, params):
@@ -48,24 +78,15 @@ def call(method, params):
 def find(node, path=()):
     if node["type"] == "split":
         a, b = node["first"], node["second"]
-        if a.get("pane_id") == agent and b.get("pane_id") == deck:
-            return list(path)
+        if {a.get("pane_id"), b.get("pane_id")} == {agent, deck}:
+            return list(path), a.get("pane_id") == agent
         return find(a, path + (False,)) or find(b, path + (True,))
 root = call("layout.export", {"pane_id": agent})["layout"]["root"]
-path = find(root)
-if path is not None:
-    call("layout.set_split_ratio", {"pane_id": agent, "path": path, "ratio": 0.6})
+found = find(root)
+if found:
+    path, agent_first = found
+    call("layout.set_split_ratio", {"pane_id": agent, "path": path, "ratio": 0.6 if agent_first else 0.4})
 PY
-else
-  # The herdr plugin is not installed (only the Claude Code side): split a shell
-  # and start the deck in it.
-  pane=$(herdr pane split --pane "$agent" --direction right --ratio 0.6 --cwd "$cwd" --no-focus |
-    jq -r '.result.pane.pane_id // empty')
-  [ -n "$pane" ] || exit 1
-  herdr pane rename "$pane" "Steading" >/dev/null 2>&1
-  sleep 0.4 # let the new shell reach its prompt
-  # exec: the deck replaces the shell, so quitting it closes the pane.
-  herdr pane run "$pane" "exec python3 $(printf '%q' "$root/bin/viewer.py") $(printf '%q' "$base")" >/dev/null
-fi
 printf '%s' "$pane" > "$base/pane"
+printf '%s\n' "$placement" > "$base/placement"
 printf '%s\n' "$pane"

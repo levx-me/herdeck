@@ -12,7 +12,7 @@ the agent's other commands that ran 10s or more (bin/hook, bin/job), live from
 Claude Code's own output file while they run.
 
 Keys: [ ] (or tab/shift-tab) and 1-7 switch sections,
-q close the pane. In a run section j/k pick a run from the list and enter (or l)
+q close the pane, L reopen it on the other side of the agent (right or above). In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
 selected), / ? search, n N repeat, esc cancel. Servers work the same way, their
@@ -1033,7 +1033,7 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("[ ]", "tabs"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
         return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc", "back")]
 
     def list_key(self, k):
@@ -1272,7 +1272,7 @@ class Servers(Runs):
 
     def hints(self):
         if self.focus == "list" and self.search is None:
-            return [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("[ ]", "tabs"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
         return super().hints()
 
     def list_key(self, k):
@@ -1980,6 +1980,10 @@ class Deck:
             self.choose(self.section - 1)
         elif k.isdigit() and 1 <= int(k) <= len(self.views):
             self.choose(int(k) - 1)
+        elif k == "L":  # reopen beside / above the agent; this process goes with the old pane
+            subprocess.Popen([os.path.join(os.path.dirname(os.path.abspath(__file__)), "deck"), "flip", BASE],
+                             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                             start_new_session=True)
         else:
             self.views[self.section].key(k)
 

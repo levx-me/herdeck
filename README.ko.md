@@ -107,7 +107,8 @@ command = "steading.toggle"
 ```
 
 `prefix+d`는 포커스된 패널 옆에 deck을 열거나 닫습니다. deck 위에서 누르면 그 deck을 닫습니다.
-닫은 deck은 직접 열 때까지 닫혀 있습니다. 에이전트가 시작될 때도 열리지 않게 하려면: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
+deck은 에이전트 오른쪽에 열리고, 에이전트 패널이 옆에 두기엔 좁으면(140칸 미만) 위에 열립니다. deck에서
+`L`을 누르면 반대쪽으로 옮겨집니다. 닫은 deck은 직접 열 때까지 닫혀 있습니다. 에이전트가 시작될 때도 열리지 않게 하려면: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
 
 ### 키
 
@@ -118,6 +119,7 @@ deck에 포커스를 두세요(클릭하거나 herdr의 패널 이동 키 사용
 |---|---|---|
 | 어디서나 | `[` `]`(또는 `tab` `shift+tab`), `1`–`7` | 이전/다음 섹션, 해당 섹션으로 이동 |
 | | `q` | deck 닫기 |
+| | `L` | deck을 에이전트의 반대쪽(오른쪽 또는 위)으로 옮기기. 그 에이전트의 deck은 계속 그쪽에 열림 |
 | 실행 목록(agents, jobs, servers, build, test, git) | `j` `k`(또는 `↓` `↑`), `gg` `G` | 실행 고르기(최신이 위) |
 | | `enter` `l` | 출력으로 들어가기 |
 | 출력 | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | 커서 이동(herdr 복사 모드 키) |

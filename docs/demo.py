@@ -354,10 +354,10 @@ def scene_agents():
         label("", ("│ ", ACCENT["AGENTS"]), ("middleware, with rotation and reuse", TEXT)),
         label("", ("│ ", ACCENT["AGENTS"]), ("detection", TEXT)),
     ])
-    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
+    hints([("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "sections"), ("q", "close")])
 
 
-RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")]
+RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "sections"), ("q", "close")]
 
 
 def scene_jobs():
@@ -408,7 +408,7 @@ def scene_servers():
             [("- KV Namespaces: SESSIONS", TEXT)], [],
             [("[wrangler:info] Ready on ", TEXT), ("http://localhost:8787", CYAN)],
             [("[wrangler:info] GET /health ", TEXT), ("200", GREEN), (" OK (3ms)", MUTED)]),
-    ], [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("[ ]", "tabs"), ("q", "close")])
+    ], [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("L", "side"), ("[ ]", "tabs")])  # q close: cut off at this width, as in the deck
 
 
 def scene_build():

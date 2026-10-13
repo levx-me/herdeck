@@ -6,6 +6,8 @@
 #   deck auto     herdr event pane.agent_detected: open a deck beside the pane
 #                 an agent (claude, codex, opencode, ...) just showed up in.
 #                 Off when $HERDR_PLUGIN_CONFIG_DIR/no-auto-open exists.
+#   deck flip BASE  L in a deck: reopen it on the other side of its agent (right
+#                 or above); that agent's deck keeps opening there.
 set -u
 root=$(cd "$(dirname "$0")/.." && pwd)
 state="${TMPDIR:-/tmp}/steading"
@@ -36,8 +38,22 @@ case ${1:-} in
     cwd=$(herdr pane get "$pane" | jq -r '.result.pane.cwd // empty')
     open_beside "$pane" "$cwd"
     ;;
+  flip)
+    base=${2:?usage: deck flip BASE}
+    agent=$(cat "$base/agent" 2>/dev/null)
+    # A deck opened before bin/pane kept the agent: the pane whose id names the base.
+    [ -n "$agent" ] || agent=$(herdr pane list 2>/dev/null | jq -r '.result.panes[].pane_id' |
+      while read -r p; do [ "$(printf '%s' "$p" | tr ':/' '__')" = "$(basename "$base")" ] && echo "$p"; done | head -n 1)
+    [ -n "$agent" ] || exit 1
+    [ "$(cat "$base/placement" 2>/dev/null)" = up ] && to=right || to=up
+    printf '%s\n' "$to" > "$base/placement"
+    old=$(cat "$base/pane" 2>/dev/null)
+    alive "$old" && herdr pane close "$old" >/dev/null
+    # The same TMPDIR the deck was opened with, so the new one finds its runs.
+    TMPDIR=$(dirname "$(dirname "$base")") open_beside "$agent" "$(cat "$base/root" 2>/dev/null)"
+    ;;
   *)
-    echo "usage: deck toggle|auto" >&2
+    echo "usage: deck toggle|auto|flip BASE" >&2
     exit 2
     ;;
 esac
