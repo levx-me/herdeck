@@ -18,6 +18,9 @@ SCENE_SECS = 3                    # how long each section shows
 SPINNER = "·✢✳✶✻✽✻✶✳✢"            # Claude Code's spinner, forward and back
 SPIN_SECS = 0.12                  # one spinner frame
 TIMER_FROM = 12                   # the "Testing..." timer's first second
+BRAILLE = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"            # the deck's spinner (bin/viewer.py), 8 frames a second
+SPIN = "<spin>"                   # a run's text: the deck's spinner, turning
+CYCLE = 6 * SCENE_SECS            # one loop of the deck, in seconds: what ticks, ticks over it
 
 BG, STRIP, TAB, ACTIVE = "#1b1e23", "#21252b", "#2c313a", "#3e4451"
 MUTED, BRIGHT, TEXT, DIMMED = "#787f8c", "#dcdfe4", "#abb2bf", "#585e69"
@@ -85,7 +88,7 @@ agent = [
 ]
 ROWS = len(agent)
 
-SECTIONS = [("AGENTS", "◐", AMBER), ("SERVERS", "●", GREEN), ("BUILD", "✓", GREEN), ("TEST", "◐", AMBER),
+SECTIONS = [("AGENTS", SPIN, AMBER), ("SERVERS", "●", GREEN), ("BUILD", SPIN, AMBER), ("TEST", SPIN, AMBER),
             ("GIT", "✓", GREEN), ("DEPLOY", "·", MUTED)]
 
 out = []
@@ -111,7 +114,20 @@ def line(col0, row0, col1, row1, colour):
 
 
 def text(col, row, runs, limit):
+    """Runs of text on the grid. A run whose text is SPIN turns as the deck's spinner;
+    one whose text is a function of the second (0..CYCLE-1) ticks with the loop."""
     for run in runs:
+        if run[0] == SPIN:
+            for j, frame in enumerate(BRAILLE):
+                layer("b", j, lambda: text(col, row, [(frame, *run[1:])], limit))
+            col += 1
+            continue
+        if callable(run[0]):
+            width = max(len(run[0](i)) for i in range(CYCLE))
+            for i in range(CYCLE):
+                layer("t", i, lambda: text(col, row, [(run[0](i).ljust(width), *run[1:])], limit))
+            col += width
+            continue
         s, colour, bold = run[0], run[1], len(run) > 2
         lead, body = len(s) - len(s.lstrip(" ")), s.strip(" ")
         assert col + len(s) <= limit, f"row {row} runs past column {limit}: {s!r}"
@@ -165,12 +181,7 @@ for row, runs_ in enumerate(agent):
         for i, glyph in enumerate(SPINNER):
             layer("p", i, lambda: text(1, row, [(glyph, CLAUDE)], A))
         text(3, row, [("Testing...", CLAUDE), (" (", MUTED)], A)
-        cycle = 6 * SCENE_SECS  # the timer counts through one loop of the deck
-        for i in range(cycle):
-            layer("t", i, lambda: text(15, row, [(f"{TIMER_FROM + i}s", MUTED)], A))
-        text(18, row, [(" · esc to interrupt)", MUTED)], A)
-        layers("p", len(SPINNER), round(len(SPINNER) * SPIN_SECS, 2))
-        layers("t", cycle, cycle)
+        text(15, row, [(lambda i: f"{TIMER_FROM + i}s", MUTED), (" · esc to interrupt)", MUTED)], A)
     else:
         text(1, row, runs_, A)
 
@@ -206,15 +217,17 @@ def run_box(rows, accent, noun):
     """The run list: a rounded box, its count in the border, the first row picked."""
     first = 2
     rect(d0 + 0.5, first - 0.5, D - 1, None, rows=len(rows) + 1, rx=5, stroke=accent)
-    title = f" {noun} · {sum(1 for r in rows if r[0])} "
+    title = f" {noun} · {sum(1 for r in rows if r[0])} "  # rows without an icon continue the one above
     out.append(f'<rect x="{x(d0 + 1.5):.1f}" y="{top(first - 1) + LH * 0.1:.1f}" width="{len(title) * CW:.1f}" '
                f'height="{LH * 0.8:.1f}" fill="{BG}"/>')
     text(d0 + 2, first - 1, [(title, MUTED)], end)
     rect(d0 + 1, first, D - 2, ACTIVE, rows=next((n for n, r in enumerate(rows[1:], 1) if r[0]), len(rows)))
     for i, (icon, colour, label, right) in enumerate(rows):
-        left = [("   ", MUTED), (f"{icon} " if icon else "  ", colour), (label, BRIGHT if i == 0 else TEXT, i == 0)]
-        width = sum(len(r[0]) for r in left)
-        text(d0, first + i, left + [(right.rjust(D - 2 - width - 1), MUTED)], end)
+        mark = [(SPIN, colour), (" ", colour)] if icon == SPIN else [(f"{icon} " if icon else "  ", colour)]
+        left = [("   ", MUTED), *mark, (label, BRIGHT if i == 0 else TEXT, i == 0)]
+        room = D - 2 - (3 + 2 + len(label)) - 1
+        tail = (lambda n: lambda t: right(t).rjust(n))(room) if callable(right) else right.rjust(room)
+        text(d0, first + i, left + [(tail, MUTED)], end)
     return first + len(rows) + 1
 
 
@@ -229,6 +242,10 @@ def body(row, lines):
             line(d0, row + i + 0.5, end, row + i + 0.5, ACTIVE)
         else:
             text(d0, row + i, runs_, end)
+
+
+def took(secs):
+    return f"{secs // 60}m {secs % 60}s" if secs >= 60 else f"{secs}s"
 
 
 def label(name, *runs):
@@ -246,22 +263,26 @@ def bar(parts, width):
 
 def scene_agents():
     section_bar(0)
-    row = run_box([("◐", AMBER, "add refresh tokens to the auth middleware", "2m 14s"),
-                   ("◐", AMBER, "  Map the auth tests", "38s")], ACCENT["AGENTS"], "agents")
-    pill = [(" ◐ WORKING ", STRIP, True)]
-    rect(d0 + 1, row, len(pill[0][0]), AMBER)
-    beats = "▂▃▅▇▅▃▂▁▁▂▃▆█▆▃▂▁▂▃▅▃▂▁▁▁▂▄▆▇▅▃▂▃▅▆▅▃▂▁▁▂▃▅▇█▇▅▃▂▃▄▆▅▃▂▁"
+    row = run_box([(SPIN, AMBER, "add refresh tokens to the auth middleware", lambda t: took(134 + t)),
+                   (SPIN, AMBER, "  Map the auth tests", lambda t: took(38 + t))], ACCENT["AGENTS"], "agents")
+    rect(d0 + 1, row, 11, AMBER)  # the WORKING pill
+    # The heartbeat scrolls left a column a second, new beats coming in at the right.
+    beats = "▂▃▅▇▅▃▂▁▁▂▃▆█▆▃▂▁▂▃▅▃▂▁▁▁▂▄▆▇▅▃▂▃▅▆▅▃▂▁▁▂▃▅▇█▇▅▃▂▃▄▆▅▃▂▁▂▄▆█▆▄▂▁▁▃▅▇▅▃▁▂▄▆▄▂▁▁▂▃▅▆"
+    rates = ["1.8k", "1.9k", "2.1k", "2.0k", "1.7k", "1.6k", "1.8k", "2.2k", "2.4k",
+             "2.3k", "2.0k", "1.9k", "1.7k", "1.8k", "2.0k", "2.1k", "1.9k", "1.8k"]
     body(row, [
-        [(" ", MUTED), *pill, ("   ", MUTED), ("↑", GREEN), (" 1.8k tok/min", MUTED)],
+        [("  ", STRIP, True), (SPIN, STRIP, True), (" WORKING ", STRIP, True), ("   ", MUTED), ("↑", GREEN),
+         (lambda t: f" {rates[t % len(rates)]} tok/min", MUTED)],
         [],
-        [(" " + beats[:D - 2], AMBER)],
+        [(" ", AMBER), (lambda t: beats[t:t + D - 2], AMBER)],
         [(" 8m ago", MUTED), ("now".rjust(D - 9), MUTED)],
         [],
         label("model", (" opus-5-5 ", BRIGHT), ("  ", MUTED), (" medium ", AMBER), ("  ✻ thought 1.3s", MUTED)),
         label("context", *bar([(8, GREEN)], 24), (" 34%", GREEN), (" 68k/200k", MUTED)),
         label("tokens", ("in ", MUTED), ("2k  ", TEXT), ("cache ", MUTED), ("1.4M  ", TEXT), ("out ", MUTED), ("18k", TEXT)),
         [],
-        label("now", ("◐ ", AMBER), ("Bash ", ACCENT["AGENTS"]), ("npm test", TEXT), (" · 12s", MUTED)),
+        label("now", (SPIN, AMBER), (" Bash ", ACCENT["AGENTS"]), ("npm test", TEXT),
+              (lambda t: f" · {12 + t}s", MUTED)),
         label("says", ("“", MUTED), ("Fixing the expiry check and running", TEXT)),
         label("", ("the tests again.", TEXT)),
         label("tasks", *bar([(14, GREEN)], 24), (" 3/5", TEXT)),
@@ -271,7 +292,7 @@ def scene_agents():
         label("", ("◐ ", AMBER), ("Fix the last-second expiry", TEXT)),
         label("", ("○ ", MUTED), ("Document the flow", TEXT)),
         [],
-        label("time", ("started 14:02 · 2m 14s", TEXT)),
+        label("time", ("started 14:02 · ", TEXT), (lambda t: took(134 + t), TEXT)),
         label("tools", *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)),
         label("", ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED), ("■ ", AMBER),
               ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)),
@@ -285,12 +306,12 @@ def scene_agents():
 
 def scene_test():
     section_bar(3)
-    row = run_box([("◐", AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
+    row = run_box([(SPIN, AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
                    ("✓", GREEN, "npm test -- auth", "9m ago"), ("✓", GREEN, "npm test", "24m ago"),
                    ("✓", GREEN, "npm test", "1h ago")], ACCENT["TEST"], "runs")
     body(row, [
         [("$ ", MUTED), ("npm test", BRIGHT, True)],
-        [("  ~/app · 12s · running", MUTED)],
+        [("  ~/app · ", MUTED), (lambda t: f"{12 + t}s", MUTED), (" · running", MUTED)],
         RULE,
         [(" RUN ", BLUE, True), (" v3.2.4 ", TEXT), ("~/app", MUTED)],
         [],
@@ -306,7 +327,7 @@ def scene_test():
         [("   ✓ ", GREEN), ("rotates the refresh token on every use", TEXT)],
         [("   ✓ ", GREEN), ("accepts a token in its last second", TEXT)],
         [],
-        [("◐ running 12s", AMBER)],
+        [(SPIN, AMBER), (" running ", AMBER), (lambda t: f"{12 + t}s", AMBER)],
     ])
     hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
 
@@ -361,11 +382,11 @@ def scene_servers():
 
 def scene_build():
     section_bar(2)
-    row = run_box([("◐", AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
+    row = run_box([(SPIN, AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
                    ("✗", RED, "npm run build", "21m ago")], ACCENT["BUILD"], "runs")
     body(row, [
         [("$ ", MUTED), ("npm run build", BRIGHT, True)],
-        [("  ~/app · 9s · running", MUTED)],
+        [("  ~/app · ", MUTED), (lambda t: f"{9 + t}s", MUTED), (" · running", MUTED)],
         RULE,
         [("> app@0.1.0 build", MUTED)],
         [("> next build", MUTED)],
@@ -377,7 +398,7 @@ def scene_build():
         [(" ✓ ", GREEN), ("Linting and checking validity of types", TEXT)],
         [("   Collecting page data ", TEXT), ("...", MUTED)],
         [],
-        [("◐ running 9s", AMBER)],
+        [(SPIN, AMBER), (" running ", AMBER), (lambda t: f"{9 + t}s", AMBER)],
     ])
     hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
 
@@ -406,7 +427,10 @@ scenes = [scene_agents, scene_servers, scene_build, scene_test, scene_git, scene
 for i, draw in enumerate(scenes):
     layer("s", i, draw)
 layers("s", len(scenes), len(scenes) * SCENE_SECS)
-css.append("@media (prefers-reduced-motion:reduce){.s,.p,.t{animation:none}}")
+layers("t", CYCLE, CYCLE)                                    # what ticks each second
+layers("b", len(BRAILLE), round(len(BRAILLE) / 8, 3))        # the deck's spinner
+layers("p", len(SPINNER), round(len(SPINNER) * SPIN_SECS, 2))  # Claude Code's spinner
+css.append("@media (prefers-reduced-motion:reduce){.s,.p,.t,.b{animation:none}}")
 
 print(f'<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 {W:.0f} {H:.0f}" '
       f'font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, \'Liberation Mono\', monospace" '
