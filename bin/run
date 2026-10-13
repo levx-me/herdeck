@@ -28,7 +28,7 @@ fi
 
 dir="${TMPDIR:-/tmp}/steading/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')/$kind"
 mkdir -p "$dir/runs"
-"$root/bin/pane" "$kind" >/dev/null
+"$root/bin/pane" --follow "$kind" >/dev/null
 
 # Next run number; keep the newest 20 runs.
 n=$(ls "$dir/runs" | sort -n | tail -1); n=$(( ${n:-0} + 1 ))

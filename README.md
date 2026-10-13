@@ -33,7 +33,8 @@ without scrolling back through the conversation.
   straight in its pane, no shell first. Claude Code is also told to run tests and builds as
   plain commands so the deck can stream them (added to the session's context; no file is edited).
 - **Follows the agent** — when the agent runs a test, a build or a git command, or
-  starts a dev server, the deck switches to that section and run.
+  starts a dev server, an open deck switches to that section and run. Runs never open a deck you
+  closed: they are still recorded, and show when you open it again.
 - **Live, coloured output** — builds and tests run on a pseudo-terminal, so you see
   the colours you would in a shell; the agent still gets plain text and the real exit code.
 - **Commands, not prose** — each run is listed by its core command: the agent is asked to
@@ -103,7 +104,7 @@ command = "steading.toggle"
 ```
 
 `prefix+d` opens the deck beside the focused pane, or closes it; on the deck itself it closes that
-deck. To stop decks opening by themselves: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
+deck. A closed deck stays closed until you open it. To stop decks opening when an agent starts: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
 
 ### Keys
 
@@ -154,7 +155,8 @@ flowchart LR
   When the session is resumed in a new pane (or `/tmp` was cleared) and its deck is empty,
   `bin/restore` refills the deck from the session transcript, through `bin/record`.
 - `bin/record` keeps git commands, and tests and builds that were not routed, after Claude ran them.
-- `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show.
+- `bin/pane` opens the deck once per agent (split to the right) and tells it which section to show;
+  with `--follow` (runs) it only switches a deck that is already open.
 - `bin/viewer.py` draws the deck from those run directories and reloads itself when edited.
 
 ## Configuration

@@ -15,11 +15,11 @@ input=$(cat)
 cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
 [ -n "$cmd" ] || exit 0
 
-# Starting a dev server: leave the command alone, just bring up the servers section.
+# Starting a dev server: leave the command alone, just bring an open deck to servers.
 devs='(^|[;&|(] *)(npx |pnpm (exec |dlx )?|yarn |bunx )?((npm|pnpm|yarn|bun) (run )?(dev|start|serve|preview)|next (dev|start)|vite( |$)|astro dev|nuxt dev|remix dev|wrangler dev|python3? -m http\.server|uvicorn |flask run|rails (s|server)|anvil( |$)|php artisan serve)'
 if [[ $cmd =~ $devs ]]; then
   cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
-  (cd "${cwd:-$PWD}" && "$CLAUDE_PLUGIN_ROOT/bin/pane" servers >/dev/null 2>&1 &)
+  (cd "${cwd:-$PWD}" && "$CLAUDE_PLUGIN_ROOT/bin/pane" --follow servers >/dev/null 2>&1 &)
   exit 0
 fi
 

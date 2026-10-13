@@ -80,8 +80,8 @@ else
 fi
 [ -n "$bg" ] || printf '%s\n' "$end" > "$r/end"
 
-# Open (or reuse) the deck on that section without holding up the agent.
+# Bring an open deck to that section without holding up the agent.
 [ -n "${STEADING_RESTORE_END:-}" ] && exit 0
 cwd=$(cat "$r/cwd")
-(cd "${cwd:-$PWD}" 2>/dev/null && "$root/bin/pane" "$kind" >/dev/null 2>&1 &)
+(cd "${cwd:-$PWD}" 2>/dev/null && "$root/bin/pane" --follow "$kind" >/dev/null 2>&1 &)
 exit 0

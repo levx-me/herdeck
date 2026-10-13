@@ -2,9 +2,14 @@
 # Make sure the agent has its Steading deck: one viewer pane split off to the
 # right, with agents, servers, build, test, git and deploy sections. Prints the pane id.
 #
-#   pane [SECTION] [CWD]    SECTION (agents|servers|build|test|git|deploy) is brought forward;
+#   pane [--follow] [SECTION] [CWD]
+#                           SECTION (agents|servers|build|test|git|deploy) is brought forward;
 #                           CWD (default $PWD) picks the project for servers.
+#                           --follow: only switch an open deck, never open one (runs use it;
+#                           the deck opens from prefix+d or when an agent starts).
 set -u
+follow=
+[ "${1:-}" = --follow ] && { follow=1; shift; }
 section=${1:-}
 cwd=${2:-$PWD}
 agent=${HERDR_PANE_ID:?not inside a herdr pane}
@@ -21,6 +26,7 @@ if [ -n "$pane" ] && herdr pane get "$pane" >/dev/null 2>&1; then
   printf '%s\n' "$pane"
   exit 0
 fi
+[ -n "$follow" ] && exit 0
 
 # herdr starts the deck straight in a split (the plugin's "deck" pane), so no
 # shell shows first and nothing a shell might ask at startup gets in the way.
