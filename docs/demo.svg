@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1296 807" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
-<style>.s{opacity:0;animation-duration:20s;animation-iteration-count:infinite;animation-timing-function:step-end}.s0{opacity:1}@keyframes sk0{0%{opacity:1}25.000%{opacity:0}100%{opacity:0}}.s0{animation-name:sk0}@keyframes sk1{0%{opacity:0}25.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.s1{animation-name:sk1}@keyframes sk2{0%{opacity:0}40.000%{opacity:1}55.000%{opacity:0}100%{opacity:0}}.s2{animation-name:sk2}@keyframes sk3{0%{opacity:0}55.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.s3{animation-name:sk3}@keyframes sk4{0%{opacity:0}70.000%{opacity:1}85.000%{opacity:0}100%{opacity:0}}.s4{animation-name:sk4}@keyframes sk5{0%{opacity:0}85.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.s5{animation-name:sk5}.t{opacity:0;animation-duration:20s;animation-iteration-count:infinite;animation-timing-function:step-end}.t0{opacity:1}@keyframes tk0{0%{opacity:1}5.000%{opacity:0}100%{opacity:0}}.t0{animation-name:tk0}@keyframes tk1{0%{opacity:0}5.000%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.t1{animation-name:tk1}@keyframes tk2{0%{opacity:0}10.000%{opacity:1}15.000%{opacity:0}100%{opacity:0}}.t2{animation-name:tk2}@keyframes tk3{0%{opacity:0}15.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.t3{animation-name:tk3}@keyframes tk4{0%{opacity:0}20.000%{opacity:1}25.000%{opacity:0}100%{opacity:0}}.t4{animation-name:tk4}@keyframes tk5{0%{opacity:0}25.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.t5{animation-name:tk5}@keyframes tk6{0%{opacity:0}30.000%{opacity:1}35.000%{opacity:0}100%{opacity:0}}.t6{animation-name:tk6}@keyframes tk7{0%{opacity:0}35.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.t7{animation-name:tk7}@keyframes tk8{0%{opacity:0}40.000%{opacity:1}45.000%{opacity:0}100%{opacity:0}}.t8{animation-name:tk8}@keyframes tk9{0%{opacity:0}45.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.t9{animation-name:tk9}@keyframes tk10{0%{opacity:0}50.000%{opacity:1}55.000%{opacity:0}100%{opacity:0}}.t10{animation-name:tk10}@keyframes tk11{0%{opacity:0}55.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.t11{animation-name:tk11}@keyframes tk12{0%{opacity:0}60.000%{opacity:1}65.000%{opacity:0}100%{opacity:0}}.t12{animation-name:tk12}@keyframes tk13{0%{opacity:0}65.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.t13{animation-name:tk13}@keyframes tk14{0%{opacity:0}70.000%{opacity:1}75.000%{opacity:0}100%{opacity:0}}.t14{animation-name:tk14}@keyframes tk15{0%{opacity:0}75.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.t15{animation-name:tk15}@keyframes tk16{0%{opacity:0}80.000%{opacity:1}85.000%{opacity:0}100%{opacity:0}}.t16{animation-name:tk16}@keyframes tk17{0%{opacity:0}85.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.t17{animation-name:tk17}@keyframes tk18{0%{opacity:0}90.000%{opacity:1}95.000%{opacity:0}100%{opacity:0}}.t18{animation-name:tk18}@keyframes tk19{0%{opacity:0}95.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.t19{animation-name:tk19}.b{opacity:0;animation-duration:1.25s;animation-iteration-count:infinite;animation-timing-function:step-end}.b0{opacity:1}@keyframes bk0{0%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.b0{animation-name:bk0}@keyframes bk1{0%{opacity:0}10.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.b1{animation-name:bk1}@keyframes bk2{0%{opacity:0}20.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.b2{animation-name:bk2}@keyframes bk3{0%{opacity:0}30.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.b3{animation-name:bk3}@keyframes bk4{0%{opacity:0}40.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.b4{animation-name:bk4}@keyframes bk5{0%{opacity:0}50.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.b5{animation-name:bk5}@keyframes bk6{0%{opacity:0}60.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.b6{animation-name:bk6}@keyframes bk7{0%{opacity:0}70.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.b7{animation-name:bk7}@keyframes bk8{0%{opacity:0}80.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.b8{animation-name:bk8}@keyframes bk9{0%{opacity:0}90.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.b9{animation-name:bk9}.p{opacity:0;animation-duration:1.2s;animation-iteration-count:infinite;animation-timing-function:step-end}.p0{opacity:1}@keyframes pk0{0%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.p0{animation-name:pk0}@keyframes pk1{0%{opacity:0}10.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.p1{animation-name:pk1}@keyframes pk2{0%{opacity:0}20.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.p2{animation-name:pk2}@keyframes pk3{0%{opacity:0}30.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.p3{animation-name:pk3}@keyframes pk4{0%{opacity:0}40.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.p4{animation-name:pk4}@keyframes pk5{0%{opacity:0}50.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.p5{animation-name:pk5}@keyframes pk6{0%{opacity:0}60.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.p6{animation-name:pk6}@keyframes pk7{0%{opacity:0}70.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.p7{animation-name:pk7}@keyframes pk8{0%{opacity:0}80.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.p8{animation-name:pk8}@keyframes pk9{0%{opacity:0}90.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.p9{animation-name:pk9}@media (prefers-reduced-motion:reduce){.s,.p,.t,.b{animation:none}}</style>
+<style>.f1{animation:fk1 20s linear infinite;opacity:0}@keyframes fk1{0%,25.000%{opacity:0}25.001%{opacity:.9}37.500%,100%{opacity:0}}.f2{animation:fk2 20s linear infinite;opacity:0}@keyframes fk2{0%,40.000%{opacity:0}40.001%{opacity:.9}52.500%,100%{opacity:0}}.f3{animation:fk3 20s linear infinite;opacity:0}@keyframes fk3{0%,55.000%{opacity:0}55.001%{opacity:.9}67.500%,100%{opacity:0}}.f4{animation:fk4 20s linear infinite;opacity:0}@keyframes fk4{0%,70.000%{opacity:0}70.001%{opacity:.9}82.500%,100%{opacity:0}}.f5{animation:fk5 20s linear infinite;opacity:0}@keyframes fk5{0%,85.000%{opacity:0}85.001%{opacity:.9}97.500%,100%{opacity:0}}.s{opacity:0;animation-duration:20s;animation-iteration-count:infinite;animation-timing-function:step-end}.s0{opacity:1}@keyframes sk0{0%{opacity:1}25.000%{opacity:0}100%{opacity:0}}.s0{animation-name:sk0}@keyframes sk1{0%{opacity:0}25.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.s1{animation-name:sk1}@keyframes sk2{0%{opacity:0}40.000%{opacity:1}55.000%{opacity:0}100%{opacity:0}}.s2{animation-name:sk2}@keyframes sk3{0%{opacity:0}55.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.s3{animation-name:sk3}@keyframes sk4{0%{opacity:0}70.000%{opacity:1}85.000%{opacity:0}100%{opacity:0}}.s4{animation-name:sk4}@keyframes sk5{0%{opacity:0}85.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.s5{animation-name:sk5}.t{opacity:0;animation-duration:20s;animation-iteration-count:infinite;animation-timing-function:step-end}.t0{opacity:1}@keyframes tk0{0%{opacity:1}5.000%{opacity:0}100%{opacity:0}}.t0{animation-name:tk0}@keyframes tk1{0%{opacity:0}5.000%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.t1{animation-name:tk1}@keyframes tk2{0%{opacity:0}10.000%{opacity:1}15.000%{opacity:0}100%{opacity:0}}.t2{animation-name:tk2}@keyframes tk3{0%{opacity:0}15.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.t3{animation-name:tk3}@keyframes tk4{0%{opacity:0}20.000%{opacity:1}25.000%{opacity:0}100%{opacity:0}}.t4{animation-name:tk4}@keyframes tk5{0%{opacity:0}25.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.t5{animation-name:tk5}@keyframes tk6{0%{opacity:0}30.000%{opacity:1}35.000%{opacity:0}100%{opacity:0}}.t6{animation-name:tk6}@keyframes tk7{0%{opacity:0}35.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.t7{animation-name:tk7}@keyframes tk8{0%{opacity:0}40.000%{opacity:1}45.000%{opacity:0}100%{opacity:0}}.t8{animation-name:tk8}@keyframes tk9{0%{opacity:0}45.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.t9{animation-name:tk9}@keyframes tk10{0%{opacity:0}50.000%{opacity:1}55.000%{opacity:0}100%{opacity:0}}.t10{animation-name:tk10}@keyframes tk11{0%{opacity:0}55.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.t11{animation-name:tk11}@keyframes tk12{0%{opacity:0}60.000%{opacity:1}65.000%{opacity:0}100%{opacity:0}}.t12{animation-name:tk12}@keyframes tk13{0%{opacity:0}65.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.t13{animation-name:tk13}@keyframes tk14{0%{opacity:0}70.000%{opacity:1}75.000%{opacity:0}100%{opacity:0}}.t14{animation-name:tk14}@keyframes tk15{0%{opacity:0}75.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.t15{animation-name:tk15}@keyframes tk16{0%{opacity:0}80.000%{opacity:1}85.000%{opacity:0}100%{opacity:0}}.t16{animation-name:tk16}@keyframes tk17{0%{opacity:0}85.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.t17{animation-name:tk17}@keyframes tk18{0%{opacity:0}90.000%{opacity:1}95.000%{opacity:0}100%{opacity:0}}.t18{animation-name:tk18}@keyframes tk19{0%{opacity:0}95.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.t19{animation-name:tk19}.b{opacity:0;animation-duration:1.25s;animation-iteration-count:infinite;animation-timing-function:step-end}.b0{opacity:1}@keyframes bk0{0%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.b0{animation-name:bk0}@keyframes bk1{0%{opacity:0}10.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.b1{animation-name:bk1}@keyframes bk2{0%{opacity:0}20.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.b2{animation-name:bk2}@keyframes bk3{0%{opacity:0}30.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.b3{animation-name:bk3}@keyframes bk4{0%{opacity:0}40.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.b4{animation-name:bk4}@keyframes bk5{0%{opacity:0}50.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.b5{animation-name:bk5}@keyframes bk6{0%{opacity:0}60.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.b6{animation-name:bk6}@keyframes bk7{0%{opacity:0}70.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.b7{animation-name:bk7}@keyframes bk8{0%{opacity:0}80.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.b8{animation-name:bk8}@keyframes bk9{0%{opacity:0}90.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.b9{animation-name:bk9}.p{opacity:0;animation-duration:1.2s;animation-iteration-count:infinite;animation-timing-function:step-end}.p0{opacity:1}@keyframes pk0{0%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.p0{animation-name:pk0}@keyframes pk1{0%{opacity:0}10.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.p1{animation-name:pk1}@keyframes pk2{0%{opacity:0}20.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.p2{animation-name:pk2}@keyframes pk3{0%{opacity:0}30.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.p3{animation-name:pk3}@keyframes pk4{0%{opacity:0}40.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.p4{animation-name:pk4}@keyframes pk5{0%{opacity:0}50.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.p5{animation-name:pk5}@keyframes pk6{0%{opacity:0}60.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.p6{animation-name:pk6}@keyframes pk7{0%{opacity:0}70.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.p7{animation-name:pk7}@keyframes pk8{0%{opacity:0}80.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.p8{animation-name:pk8}@keyframes pk9{0%{opacity:0}90.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.p9{animation-name:pk9}@media (prefers-reduced-motion:reduce){.s,.p,.t,.b{animation:none}}</style>
 <rect width="1296" height="807" rx="10" fill="#1b1e23"/>
 <path d="M10 0H1286a10 10 0 0 1 10 10V38H0V10a10 10 0 0 1 10-10z" fill="#21252b"/>
 <circle cx="20" cy="19.0" r="6" fill="#ff5f57"/>
@@ -632,199 +632,137 @@
 <text x="980.0" y="293.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">1.4M</text>
 <text x="1030.4" y="293.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">out</text>
 <text x="1064.0" y="293.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">18k</text>
-<text x="778.4" y="331.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
+<text x="778.4" y="312.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tools</text>
+<text x="870.8" y="312.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#98b17d">█████████</text>
+<text x="946.4" y="312.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">██████</text>
+<text x="996.8" y="312.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">█████</text>
+<text x="1038.8" y="312.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">██</text>
+<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">■</text>
+<text x="887.6" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">run 9</text>
+<text x="946.4" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">■</text>
+<text x="963.2" y="331.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">read 6</text>
+<text x="1030.4" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">■</text>
+<text x="1047.2" y="331.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">edit 5</text>
+<text x="1114.4" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">■</text>
+<text x="1131.2" y="331.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">search 2</text>
+<text x="778.4" y="350.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tasks</text>
+<text x="870.8" y="350.7" textLength="117.6" lengthAdjust="spacingAndGlyphs" fill="#98b17d">██████████████</text>
+<text x="988.4" y="350.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#2c313a">░░░░░░░░░░</text>
+<text x="1080.8" y="350.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">3/5</text>
+<text x="870.8" y="369.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="887.6" y="369.7" textLength="226.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Add the refresh-token store</text>
+<text x="870.8" y="388.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="887.6" y="388.7" textLength="193.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Rotate on every refresh</text>
+<text x="870.8" y="407.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="887.6" y="407.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Detect a reused token</text>
+<text x="870.8" y="426.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">◐</text>
+<text x="887.6" y="426.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fix the last-second expiry</text>
+<text x="870.8" y="445.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">○</text>
+<text x="887.6" y="445.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Document the flow</text>
+<text x="778.4" y="483.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <g class="b b0">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="870.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="887.6" y="331.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">Bash</text>
-<text x="929.6" y="331.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
+<text x="887.6" y="483.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">Bash</text>
+<text x="929.6" y="483.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <g class="t t0">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 12s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 12s</text>
 </g>
 <g class="t t1">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 13s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 13s</text>
 </g>
 <g class="t t2">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 14s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 14s</text>
 </g>
 <g class="t t3">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 15s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 15s</text>
 </g>
 <g class="t t4">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 16s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 16s</text>
 </g>
 <g class="t t5">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 17s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 17s</text>
 </g>
 <g class="t t6">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 18s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 18s</text>
 </g>
 <g class="t t7">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 19s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 19s</text>
 </g>
 <g class="t t8">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 20s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 20s</text>
 </g>
 <g class="t t9">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 21s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 21s</text>
 </g>
 <g class="t t10">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 22s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 22s</text>
 </g>
 <g class="t t11">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 23s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 23s</text>
 </g>
 <g class="t t12">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 24s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 24s</text>
 </g>
 <g class="t t13">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 25s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 25s</text>
 </g>
 <g class="t t14">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 26s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 26s</text>
 </g>
 <g class="t t15">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 27s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 27s</text>
 </g>
 <g class="t t16">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 28s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 28s</text>
 </g>
 <g class="t t17">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 29s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 29s</text>
 </g>
 <g class="t t18">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 30s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 30s</text>
 </g>
 <g class="t t19">
-<text x="1005.2" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 31s</text>
+<text x="1005.2" y="483.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 31s</text>
 </g>
-<text x="778.4" y="350.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">says</text>
-<text x="870.8" y="350.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">“</text>
-<text x="879.2" y="350.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fixing the expiry check and running</text>
-<text x="870.8" y="369.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">the tests again.</text>
-<text x="778.4" y="388.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tasks</text>
-<text x="870.8" y="388.7" textLength="117.6" lengthAdjust="spacingAndGlyphs" fill="#98b17d">██████████████</text>
-<text x="988.4" y="388.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#2c313a">░░░░░░░░░░</text>
-<text x="1080.8" y="388.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">3/5</text>
-<text x="870.8" y="407.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="887.6" y="407.7" textLength="226.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Add the refresh-token store</text>
-<text x="870.8" y="426.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="887.6" y="426.7" textLength="193.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Rotate on every refresh</text>
-<text x="870.8" y="445.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="887.6" y="445.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Detect a reused token</text>
-<text x="870.8" y="464.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">◐</text>
-<text x="887.6" y="464.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fix the last-second expiry</text>
-<text x="870.8" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">○</text>
-<text x="887.6" y="483.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Document the flow</text>
-<text x="778.4" y="521.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">time</text>
-<text x="870.8" y="521.7" textLength="126.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">started 14:02 ·</text>
-<g class="t t0">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 14s</text>
-</g>
-<g class="t t1">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 15s</text>
-</g>
-<g class="t t2">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 16s</text>
-</g>
-<g class="t t3">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 17s</text>
-</g>
-<g class="t t4">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 18s</text>
-</g>
-<g class="t t5">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 19s</text>
-</g>
-<g class="t t6">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 20s</text>
-</g>
-<g class="t t7">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 21s</text>
-</g>
-<g class="t t8">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 22s</text>
-</g>
-<g class="t t9">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 23s</text>
-</g>
-<g class="t t10">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 24s</text>
-</g>
-<g class="t t11">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 25s</text>
-</g>
-<g class="t t12">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 26s</text>
-</g>
-<g class="t t13">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 27s</text>
-</g>
-<g class="t t14">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 28s</text>
-</g>
-<g class="t t15">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 29s</text>
-</g>
-<g class="t t16">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 30s</text>
-</g>
-<g class="t t17">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 31s</text>
-</g>
-<g class="t t18">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 32s</text>
-</g>
-<g class="t t19">
-<text x="1005.2" y="521.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">2m 33s</text>
-</g>
-<text x="778.4" y="540.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tools</text>
-<text x="870.8" y="540.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#98b17d">█████████</text>
-<text x="946.4" y="540.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">██████</text>
-<text x="996.8" y="540.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">█████</text>
-<text x="1038.8" y="540.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">██</text>
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">■</text>
-<text x="887.6" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">run 9</text>
-<text x="946.4" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">■</text>
-<text x="963.2" y="559.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">read 6</text>
-<text x="1030.4" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">■</text>
-<text x="1047.2" y="559.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">edit 5</text>
-<text x="1114.4" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">■</text>
-<text x="1131.2" y="559.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">search 2</text>
-<text x="778.4" y="597.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">request</text>
-<text x="870.8" y="597.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
-<text x="887.6" y="597.7" textLength="252.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">add refresh tokens to the auth</text>
-<text x="870.8" y="616.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
-<text x="887.6" y="616.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">middleware, with rotation and reuse</text>
-<text x="870.8" y="635.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
-<text x="887.6" y="635.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">detection</text>
+<text x="778.4" y="502.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">says</text>
+<text x="870.8" y="502.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">“</text>
+<text x="879.2" y="502.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fixing the expiry check and running</text>
+<text x="870.8" y="521.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">the tests again.</text>
+<text x="778.4" y="540.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">request</text>
+<text x="870.8" y="540.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
+<text x="887.6" y="540.7" textLength="252.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">add refresh tokens to the auth</text>
+<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
+<text x="887.6" y="559.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">middleware, with rotation and reuse</text>
+<text x="870.8" y="578.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
+<text x="887.6" y="578.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">detection</text>
 <rect x="778.4" y="774.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="786.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
 <text x="820.4" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
@@ -945,6 +883,7 @@
 <rect x="791.0" y="72.9" width="109.2" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">servers · 3</text>
 <rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
+<rect class="f1" x="786.8" y="90.0" width="487.2" height="19.0" fill="#98b17d"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
 <text x="1215.2" y="103.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:3000</text>
@@ -1155,6 +1094,7 @@
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 3</text>
 <rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
+<rect class="f2" x="786.8" y="90.0" width="487.2" height="19.0" fill="#d8b46a"/>
 <g class="b b0">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
@@ -1592,6 +1532,7 @@
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 5</text>
 <rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
+<rect class="f3" x="786.8" y="90.0" width="487.2" height="19.0" fill="#7aa2c8"/>
 <g class="b b0">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
@@ -2071,6 +2012,7 @@
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 4</text>
 <rect x="786.8" y="90.0" width="487.2" height="38.0" rx="0" fill="#3e4451"/>
+<rect class="f4" x="786.8" y="90.0" width="487.2" height="38.0" fill="#b48ead"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">git add</text>
 <text x="1013.6" y="103.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  1m ago  a41c9e2</text>
@@ -2245,6 +2187,7 @@
 <rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 3</text>
 <rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
+<rect class="f5" x="786.8" y="90.0" width="487.2" height="19.0" fill="#d19a66"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
 <text x="1206.8" y="103.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">2m ago</text>

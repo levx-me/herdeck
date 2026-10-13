@@ -1394,10 +1394,7 @@ def dashboard(d, cols, main, expanded=False):
                               f"{fg(MUTED_RGB)} {tokens(d.context)}/{tokens(limit)}{RESET}"))
     out.append(row("tokens", f"{fg(MUTED_RGB)}in{RESET} {tokens(d.usage['in'])}  {fg(MUTED_RGB)}cache{RESET} "
                              f"{tokens(d.usage['cache'])}  {fg(MUTED_RGB)}out{RESET} {tokens(d.usage['out'])}"))
-    # time · tools · turns
-    if d.first:
-        started = time.strftime("%H:%M", time.localtime(d.first))
-        out.append(row("time", f"started {started} {fg(MUTED_RGB)}·{RESET} {took((d.last or time.time()) - d.first)}"))
+    # tools
     if d.kinds:
         kinds = sorted(d.kinds.items(), key=lambda kv: -kv[1])
         out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
@@ -1725,7 +1722,11 @@ class Agents(Runs):
         # the last on top, so the main agent is always there.
         runs = sorted((r for r in self.every if r.status()[1] == AMBER_RGB), key=lambda r: r.first)
         runs += [self.main] if self.session else []
-        new = self.known is not None and any(r.path not in self.known for r in runs)
+        # New: a subagent never seen before. (An ended one can show as at work for a moment
+        # until the main transcript is read; coming back is not being new.)
+        ever = getattr(self, "ever", None)
+        new = ever is not None and any(r.path not in ever for r in runs)
+        self.ever = (ever or set()) | {r.path for r in self.every} | {r.path for r in runs}
         picked = self.runs[self.tab].path if self.runs else None
         self.runs = runs
         paths = [r.path for r in runs]

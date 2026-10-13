@@ -23,6 +23,7 @@ BRAILLE = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"            # the deck's spinner (bin/
 SPIN = "<spin>"                   # a run's text: the deck's spinner, turning
 AGENTS_SECS = 5                   # the agents section stays longer: it moves the most
 SCENE_TIMES = [AGENTS_SECS] + [SCENE_SECS] * 5  # in tab order
+FADE_SECS = 2.5                   # a new run's row fades in from the section's colour (bin/viewer.py)
 CYCLE = sum(SCENE_TIMES)          # one loop of the deck, in seconds: what ticks, ticks over it
 
 BG, STRIP, TAB, ACTIVE = "#1b1e23", "#21252b", "#2c313a", "#3e4451"
@@ -218,7 +219,7 @@ def section_bar(active):
         text(col, 0, [("›", MUTED)], end)
 
 
-def run_box(rows, accent, noun, picked=0):
+def run_box(rows, accent, noun, picked=0, fade=None):
     """The run list: a rounded box, its count in the border, run `picked` raised.
     A row with no icon continues the run above (a git run's steps)."""
     first = 2
@@ -231,6 +232,9 @@ def run_box(rows, accent, noun, picked=0):
     at = starts[picked]
     span = (starts[picked + 1] if picked + 1 < len(starts) else len(rows)) - at
     rect(d0 + 1, first + at, D - 2, ACTIVE, rows=span)
+    if fade:  # a run just added: its row starts in the section's colour and fades (bin/viewer.py FADE_SECS)
+        out.append(f'<rect class="{fade}" x="{x(d0 + 1):.1f}" y="{top(first + at):.1f}" width="{(D - 2) * CW:.1f}" '
+                   f'height="{span * LH:.1f}" fill="{accent}"/>')
     for i, (icon, colour, label, right) in enumerate(rows):
         on = at <= i < at + span
         mark = [(SPIN, colour), (" ", colour)] if icon == SPIN else [(f"{icon} " if icon else "  ", colour)]
@@ -246,8 +250,14 @@ def browse(section, rows, accent, noun, contents, keys):
     the loop, the head and output below following it."""
     section_bar(section)
     start = sum(SCENE_TIMES[:section])
+    # The newest run has just come in as the section opens: its row fades in, as the deck's does.
+    a, b = 100 * start / CYCLE, 100 * (start + FADE_SECS) / CYCLE
+    css.append(f".f{section}{{animation:fk{section} {CYCLE}s linear infinite;opacity:0}}"
+               f"@keyframes fk{section}{{0%,{a:.3f}%{{opacity:0}}{a + 0.001:.3f}%{{opacity:.9}}"
+               f"{b:.3f}%,100%{{opacity:0}}}}")
     for picked, content in enumerate(contents):
-        layer("t", start + picked, lambda: body(run_box(rows, accent, noun, picked), content))
+        fade = f"f{section}" if picked == 0 else None
+        layer("t", start + picked, lambda: body(run_box(rows, accent, noun, picked, fade), content))
     hints(keys)
 
 
@@ -320,11 +330,9 @@ def scene_agents():
         label("model", (" opus-5-5 ", BRIGHT), ("  ", MUTED), (" medium ", AMBER), ("  ✻ thought 1.3s", MUTED)),
         label("context", *bar([(8, GREEN)], 24), (" 34%", GREEN), (" 68k/200k", MUTED)),
         label("tokens", ("in ", MUTED), ("2k  ", TEXT), ("cache ", MUTED), ("1.4M  ", TEXT), ("out ", MUTED), ("18k", TEXT)),
-        [],
-        label("now", (SPIN, AMBER), (" Bash ", ACCENT["AGENTS"]), ("npm test", TEXT),
-              (lambda t: f" · {12 + t}s", MUTED)),
-        label("says", ("“", MUTED), ("Fixing the expiry check and running", TEXT)),
-        label("", ("the tests again.", TEXT)),
+        label("tools", *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)),
+        label("", ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED), ("■ ", AMBER),
+              ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)),
         label("tasks", *bar([(14, GREEN)], 24), (" 3/5", TEXT)),
         label("", ("✓ ", GREEN), ("Add the refresh-token store", TEXT)),
         label("", ("✓ ", GREEN), ("Rotate on every refresh", TEXT)),
@@ -332,11 +340,10 @@ def scene_agents():
         label("", ("◐ ", AMBER), ("Fix the last-second expiry", TEXT)),
         label("", ("○ ", MUTED), ("Document the flow", TEXT)),
         [],
-        label("time", ("started 14:02 · ", TEXT), (lambda t: took(134 + t), TEXT)),
-        label("tools", *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)),
-        label("", ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED), ("■ ", AMBER),
-              ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)),
-        [],
+        label("now", (SPIN, AMBER), (" Bash ", ACCENT["AGENTS"]), ("npm test", TEXT),
+              (lambda t: f" · {12 + t}s", MUTED)),
+        label("says", ("“", MUTED), ("Fixing the expiry check and running", TEXT)),
+        label("", ("the tests again.", TEXT)),
         label("request", ("│ ", ACCENT["AGENTS"]), ("add refresh tokens to the auth", TEXT)),
         label("", ("│ ", ACCENT["AGENTS"]), ("middleware, with rotation and reuse", TEXT)),
         label("", ("│ ", ACCENT["AGENTS"]), ("detection", TEXT)),
