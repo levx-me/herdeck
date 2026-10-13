@@ -1194,6 +1194,242 @@ def ago(secs):
             return f"{secs // size}{unit} ago"
     return f"{secs}s ago"
 
+TOOL_KINDS = {"Read": "read", "NotebookRead": "read", "Grep": "search", "Glob": "search", "WebSearch": "search",
+              "WebFetch": "search", "ToolSearch": "search", "Edit": "edit", "MultiEdit": "edit", "Write": "edit",
+              "NotebookEdit": "edit", "Bash": "run", "Agent": "agent", "Task": "agent", "Workflow": "agent"}
+KIND_RGB = {"read": "122;162;200", "search": CYAN_RGB, "edit": AMBER_RGB, "run": GREEN_RGB, "agent": "180;142;173",
+            "other": MUTED_RGB}
+CONTEXT_LIMIT = 200_000  # tokens; a "[1m]" model has 1,000,000
+
+
+def tool_summary(name, args, cwd=""):
+    """One line for a tool call, picked as zoetrope does: the field that says what it does."""
+    if not isinstance(args, dict):
+        return ""
+    pick = lambda *keys: next((str(args[k]) for k in keys if isinstance(args.get(k), str) and args[k]), "")
+    if name in ("Read", "Write", "Edit", "MultiEdit", "NotebookEdit"):
+        path = pick("file_path", "path", "notebook_path")
+        return os.path.relpath(path, cwd) if cwd and path.startswith(cwd + "/") else path
+    if name == "Bash":
+        return pick("command", "description")
+    return pick("description", "subagent_type", "pattern", "url", "query", "prompt", "command", "path", "subject")
+
+
+class Digest:
+    """What a transcript says about its agent, gathered one line at a time."""
+
+    def __init__(self):
+        self.model = self.effort = self.requested = ""
+        self.thinking_ms = 0
+        self.usage = {"in": 0, "cache": 0, "out": 0}
+        self.context = 0                       # input tokens of the latest request
+        self.seen_messages = set()
+        self.open, self.last_tool = {}, None   # tool calls without a result; the latest call
+        self.says = ""
+        self.tasks, self.task_seq = {}, 0      # TaskCreate / TaskUpdate (TodoWrite too)
+        self.first = self.last = None
+        self.kinds, self.turns = {}, 0
+        self.changed, self.read, self.ran, self.searched = [], [], [], []
+        self.error = ""
+        self.report = self.prompt = self.request = ""
+        self.cwd = self.branch = ""
+        self.task_calls = {}                   # TaskCreate call id -> its order
+
+    def feed(self, row):
+        try:
+            t = datetime_epoch(row["timestamp"])
+            self.first, self.last = self.first or t, t
+        except (KeyError, TypeError, ValueError):
+            pass
+        self.cwd = row.get("cwd") or self.cwd
+        self.branch = row.get("gitBranch") or self.branch
+        self.effort = row.get("effort") or self.effort
+        self.requested = row.get("requestedModel") or self.requested
+        self.thinking_ms = row.get("thinkingDurationMs") or self.thinking_ms
+        msg = row.get("message") if isinstance(row.get("message"), dict) else {}
+        content = msg.get("content")
+        if row.get("type") == "user":
+            if isinstance(content, str) and not row.get("isMeta") and content.strip() \
+                    and not content.lstrip().startswith("<"):
+                self.prompt = self.prompt or content.strip()
+                self.request = content.strip()
+                self.turns += 1
+            for b in content if isinstance(content, list) else []:
+                if isinstance(b, dict) and b.get("type") == "tool_result":
+                    call = self.open.pop(b.get("tool_use_id"), None)
+                    if b.get("is_error") and call:
+                        text = b.get("content")
+                        text = text if isinstance(text, str) else " ".join(
+                            x.get("text", "") for x in text or [] if isinstance(x, dict))
+                        self.error = f"{call[0]}: {' '.join(text.split())[:300]}"
+            return
+        if row.get("type") != "assistant":
+            return
+        self.model = msg.get("model") or self.model
+        usage = msg.get("usage") or {}
+        if usage and msg.get("id") not in self.seen_messages:  # one turn repeats its usage on each block
+            self.seen_messages.add(msg.get("id"))
+            self.usage["in"] += usage.get("input_tokens", 0)
+            self.usage["cache"] += usage.get("cache_read_input_tokens", 0) + usage.get("cache_creation_input_tokens", 0)
+            self.usage["out"] += usage.get("output_tokens", 0)
+            self.context = usage.get("input_tokens", 0) + usage.get("cache_read_input_tokens", 0) \
+                + usage.get("cache_creation_input_tokens", 0)
+        for b in content if isinstance(content, list) else []:
+            if not isinstance(b, dict):
+                continue
+            if b.get("type") == "text" and b.get("text", "").strip():
+                self.says = b["text"].strip()
+            if b.get("type") != "tool_use":
+                continue
+            name, args = b.get("name", ""), b.get("input") or {}
+            if name == "SubagentHandback":
+                self.report = str(args.get("report") or args.get("text") or args.get("content") or "")
+                continue
+            what = " ".join(tool_summary(name, args, self.cwd).split())  # one line, heredocs too
+            self.open[b.get("id")] = (name, what, self.last)
+            self.last_tool = (name, what, self.last)
+            kind = TOOL_KINDS.get(name, "other")
+            self.kinds[kind] = self.kinds.get(kind, 0) + 1
+            bucket = {"edit": self.changed, "read": self.read, "run": self.ran, "search": self.searched}.get(kind)
+            if bucket is not None and what:
+                if what in bucket:
+                    bucket.remove(what)
+                bucket.append(what)
+            if name == "TaskCreate":
+                self.task_seq += 1
+                self.tasks[str(self.task_seq)] = [args.get("subject", ""), "pending"]
+            elif name == "TaskUpdate" and str(args.get("taskId")) in self.tasks:
+                if args.get("status") == "deleted":
+                    self.tasks.pop(str(args["taskId"]))
+                elif args.get("status"):
+                    self.tasks[str(args["taskId"])][1] = args["status"]
+            elif name == "TodoWrite" and isinstance(args.get("todos"), list):
+                self.tasks = {str(i): [t.get("content", ""), t.get("status", "pending")]
+                              for i, t in enumerate(args["todos"]) if isinstance(t, dict)}
+
+
+def wrap_cells(text, width):
+    """Wrap text to width terminal cells (wide characters count two), at spaces where it can."""
+    lines, line = [], ""
+    for word in text.split(" "):
+        while cells(word) > width:  # a word longer than a line: break it
+            room = width - cells(line) - (1 if line else 0)
+            if room <= 0:
+                lines.append(line)
+                line, room = "", width
+            head = ""
+            for ch in word:
+                if cells(head + ch) > room:
+                    break
+                head += ch
+            lines.append((line + " " if line else "") + head)
+            line, word = "", word[len(head):]
+        if cells(line) + cells(word) + (1 if line else 0) > width:
+            lines.append(line)
+            line = word
+        else:
+            line = f"{line} {word}" if line else word
+    return [l for l in lines + [line] if l] or [""]
+
+
+def tokens(n):
+    return f"{n / 1_000_000:.1f}M" if n >= 1_000_000 else f"{n / 1000:.0f}k" if n >= 1000 else str(n)
+
+
+def bar(parts, width):
+    """A stacked bar: [(count, rgb)] scaled to width cells."""
+    total = sum(n for n, _ in parts) or 1
+    out, used = "", 0
+    for i, (n, rgb) in enumerate(parts):
+        cells_ = round(n * width / total) if i < len(parts) - 1 else width - used
+        cells_ = max(1 if n else 0, min(cells_, width - used))
+        out += f"{fg(rgb)}{'█' * cells_}"
+        used += cells_
+    return out + f"{fg(TAB_RGB)}{'░' * (width - used)}{RESET}"
+
+
+def dashboard(d, cols, main):
+    """Everything known about an agent, a row each, for trimming down later."""
+    w = max(20, cols - 11)
+    row = lambda label, value: f"{fg(MUTED_RGB)}{label:<10}{RESET} {value}"
+    wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
+    out = [""]
+    # model · effort · thinking
+    model = (d.model or d.requested or "?").replace("claude-", "")
+    chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]
+    if d.effort:
+        chips.append(f"{bg(TAB_RGB)}{fg(AMBER_RGB)} {d.effort} {RESET}")
+    if d.thinking_ms >= 100:
+        chips.append(f"{fg(MUTED_RGB)}✻ thought {d.thinking_ms / 1000:.1f}s{RESET}")
+    out.append(row("model", " ".join(chips)))
+    # context gauge
+    # A 1M-window model says so in its name, or has already gone past the usual limit.
+    limit = 1_000_000 if "[1m]" in (d.requested or "") or d.context > CONTEXT_LIMIT else CONTEXT_LIMIT
+    pct = min(100, d.context * 100 // limit) if d.context else 0
+    rgb = GREEN_RGB if pct < 60 else AMBER_RGB if pct < 85 else RED_RGB
+    gauge = min(24, w - 18)
+    out.append(row("context", f"{bar([(pct, rgb), (100 - pct, TAB_RGB)], gauge)} {fg(rgb)}{pct}%{RESET}"
+                              f"{fg(MUTED_RGB)} {tokens(d.context)}/{tokens(limit)}{RESET}"))
+    out.append(row("tokens", f"{fg(MUTED_RGB)}in{RESET} {tokens(d.usage['in'])}  {fg(MUTED_RGB)}cache{RESET} "
+                             f"{tokens(d.usage['cache'])}  {fg(MUTED_RGB)}out{RESET} {tokens(d.usage['out'])}"))
+    out.append("")
+    # now · says
+    if d.open:
+        name, what, t = list(d.open.values())[-1]
+        since = f" {fg(MUTED_RGB)}· {took(time.time() - t)}{RESET}" if t else ""
+        out.append(row("now", f"{fg(AMBER_RGB)}{spinner()} {fg(ACCENT['agents'])}{name}{RESET} {cut(what, w - len(name) - 12)}{since}"))
+    elif d.last_tool:
+        name, what, _ = d.last_tool
+        out.append(row("last", f"{fg(GREEN_RGB)}✓ {fg(ACCENT['agents'])}{name}{RESET} {cut(what, w - len(name) - 3)}"))
+    for n, part in enumerate(wrap(d.says)[:3] if d.says else []):
+        out.append(row("says" if n == 0 else "", f"{fg(MUTED_RGB)}“{RESET}{part}" if n == 0 else part))
+    # tasks
+    if d.tasks:
+        done = sum(1 for _, st in d.tasks.values() if st == "completed")
+        out.append(row("tasks", f"{bar([(done, GREEN_RGB), (len(d.tasks) - done, TAB_RGB)], min(24, w - 8))} "
+                                f"{done}/{len(d.tasks)}"))
+        for subject, st in list(d.tasks.values())[:8]:
+            mark = {"completed": f"{fg(GREEN_RGB)}✓", "in_progress": f"{fg(AMBER_RGB)}◐"}.get(st, f"{fg(MUTED_RGB)}○")
+            out.append(row("", f"{mark}{RESET} {cut(subject, w - 2)}"))
+    out.append("")
+    # time · tools · turns
+    if d.first:
+        started = time.strftime("%H:%M", time.localtime(d.first))
+        out.append(row("time", f"started {started} {fg(MUTED_RGB)}·{RESET} {took((d.last or time.time()) - d.first)}"))
+    if d.kinds:
+        kinds = sorted(d.kinds.items(), key=lambda kv: -kv[1])
+        out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
+        legend = "  ".join(f"{fg(KIND_RGB[k])}■{RESET} {k} {n}" for k, n in kinds)
+        out.append(row("", legend))
+    if main:
+        out.append(row("turns", str(d.turns)))
+    out.append("")
+    # what it touched
+    for label, items, mark in (("changed", d.changed, f"{fg(AMBER_RGB)}✎{RESET}"), ("read", d.read, f"{fg(MUTED_RGB)}·{RESET}"),
+                               ("ran", d.ran, f"{fg(GREEN_RGB)}${RESET}"), ("searched", d.searched, f"{fg(CYAN_RGB)}?{RESET}")):
+        if items:
+            shown = items[-4:]
+            for n, item in enumerate(shown):
+                more = f" {fg(MUTED_RGB)}+{len(items) - len(shown)}{RESET}" if n == 0 and len(items) > len(shown) else ""
+                out.append(row(label if n == 0 else "", f"{mark} {cut(item, w - 8)}{more}"))
+    if d.error:
+        for n, part in enumerate(wrap(d.error)[:2]):
+            out.append(row("error" if n == 0 else "", f"{fg(RED_RGB)}{'✗ ' if n == 0 else '  '}{part}{RESET}"))
+    if d.report:
+        for n, part in enumerate(wrap(d.report)[:4]):
+            out.append(row("report" if n == 0 else "", part))
+    out.append("")
+    asked = d.request if main else d.prompt
+    lines = wrap(asked, w - 2)  # room for the bar
+    for n, part in enumerate(lines[:4]):
+        out.append(row(("request" if main else "prompt") if n == 0 else "", f"{fg(ACCENT['agents'])}│{RESET} {part}"))
+    if len(lines) > 4:
+        out.append(row("", f"{fg(MUTED_RGB)}  … {len(lines) - 4} more lines{RESET}"))
+    where = d.cwd.replace(os.path.expanduser("~"), "~", 1)
+    out.append(row("where", f"{where}{fg(MUTED_RGB)}  ⎇ {RESET}{d.branch}" if d.branch else where))
+    return out
+
+
 
 class AgentRun(Run):
     """One subagent: its row (description, type, state) and its head. No log."""
@@ -1208,32 +1444,30 @@ class AgentRun(Run):
             self.meta = {}
         self.tag, self.is_git = "", False
         self.full = self.cmd = self.meta.get("description") or self.id
-        self.first, self.calls, self.read_key, self.stamps, self.cols = os.path.getmtime(path), 0, None, [], 60
+        self.first, self.calls, self.read_to, self.stamps, self.cols = os.path.getmtime(path), 0, 0, [], 60
+        self.digest = Digest()
         self.count()
 
     def count(self):
-        """When it began and how many tool calls it has made, read when its file changes."""
+        """Feed the transcript's new lines to the digest (its file only grows)."""
         try:
-            st = os.stat(self.path)
-            if (st.st_mtime_ns, st.st_size) == self.read_key:
-                return
-            self.read_key = (st.st_mtime_ns, st.st_size)
-            with open(self.path) as f:
-                rows = [json.loads(l) for l in f if l.strip()]
-        except (OSError, ValueError):
+            with open(self.path, "rb") as f:
+                f.seek(self.read_to)
+                data = f.read()
+        except OSError:
             return
-        stamps = []
-        for r in rows:
+        done = data.rfind(b"\n") + 1
+        for raw in data[:done].splitlines():
             try:
-                stamps.append(datetime_epoch(r["timestamp"]))
-            except (KeyError, TypeError, ValueError):
-                pass
-        self.stamps = stamps
-        if stamps:
-            self.first = stamps[0]
-        self.calls = sum(1 for r in rows if r.get("type") == "assistant"
-                         for b in (r.get("message") or {}).get("content") or []
-                         if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") not in HARNESS_TOOLS)
+                row = json.loads(raw)
+            except ValueError:
+                continue
+            self.digest.feed(row)
+            if self.digest.last and (not self.stamps or self.stamps[-1] != self.digest.last):
+                self.stamps.append(self.digest.last)
+        self.read_to += done
+        self.first = self.digest.first or self.first
+        self.calls = sum(self.digest.kinds.values())
 
     def ended(self):
         """"done", "failed" or "stopped" once the main transcript says so, else ""."""
@@ -1295,7 +1529,8 @@ class AgentRun(Run):
     def lines(self):
         self.count()
         name, colour, icon, since = self.state()
-        return status_block(name, colour, icon, since, self.stamps, self.cols)
+        return status_block(name, colour, icon, since, self.stamps, self.cols) + \
+            dashboard(self.digest, self.cols, isinstance(self, MainRun))
 
     def plain(self):
         return [ANSI.sub("", l) for l in self.lines()]
@@ -1307,11 +1542,11 @@ class MainRun(AgentRun):
     def __init__(self, path, deck):
         self.path, self.deck, self.id, self.meta = path, deck, "main", {}
         self.tag, self.is_git = "", False
-        self.first, self.calls, self.read_key, self.stamps, self.cols = os.path.getmtime(path), 0, None, [], 60
+        self.first, self.calls, self.read_to, self.stamps, self.cols = os.path.getmtime(path), 0, 0, [], 60
         self.full = self.cmd = "main agent"
 
-    def count(self):
-        self.stamps = self.deck.stamps  # read with the main transcript (Agents.read_main)
+    def count(self):  # read with the main transcript (Agents.read_main)
+        self.stamps, self.digest = self.deck.stamps, self.deck.digest
 
     def state(self):
         icon, colour = self.status()
@@ -1362,6 +1597,7 @@ class Agents(Runs):
         self.results, self.notified = {}, {}          # what the main transcript says about subagents
         self.read_to, self.reading = 0, False
         self.main, self.stamps = None, []             # the main transcript's write times, last hour
+        self.digest = Digest()                        # what the main transcript says about the agent
 
     def find_session(self):
         """The newest transcript of the Claude session herdr runs in the agent's pane."""
@@ -1386,6 +1622,7 @@ class Agents(Runs):
         session = max(found, key=os.path.getmtime) if found else ""
         if session != self.session:
             self.session, self.results, self.notified, self.read_to, self.stamps = session, {}, {}, 0, []
+            self.digest = Digest()
 
     def read_main(self):
         """What the main transcript has said since the last read: answers to Agent calls
@@ -1407,11 +1644,12 @@ class Agents(Runs):
                 self.stamps.append(t)
         self.stamps = [t for t in self.stamps if t > horizon]
         for raw in data[:done].splitlines():
-            if b"tool_result" not in raw and b"task-notification" not in raw:
-                continue
             try:
                 row = json.loads(raw)
             except ValueError:
+                continue
+            self.digest.feed(row)
+            if b"tool_result" not in raw and b"task-notification" not in raw:
                 continue
             content = (row.get("message") or {}).get("content")
             blocks = content if isinstance(content, list) else [{"type": "text", "text": content or ""}]
