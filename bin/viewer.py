@@ -786,6 +786,7 @@ class Runs:
         if not self.runs:
             return [f"{DIM} {self.empty}{RESET}", rule(cols)], []
         run = self.runs[self.tab]
+        run.cols = cols  # agents lay their status out to the pane
         loaded = run.lines()
         self.raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
         self.plain = run.plain() if loaded is not None else [""]
@@ -797,13 +798,15 @@ class Runs:
             mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
-        # The run list box, then the run's command.
-        head += [*run.command(cols), info]
+        # The run list box, then the run's command (agents have none: their status is the body).
+        if not isinstance(run, AgentRun):
+            head += [*run.command(cols), info]
         if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
             head.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
         if self.focus == "list":  # the run's head reads faint with its log while the cursor is in the list
             head[box:] = [tint(line, DIMMED_RGB) for line in head[box:]]
-        head.append(rule(cols))
+        if not isinstance(run, AgentRun):
+            head.append(rule(cols))
 
         running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
         # While it runs, the last row shows a spinner under the output.
@@ -1151,6 +1154,39 @@ def datetime_epoch(ts):
     return datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
 
 
+STAMP = re.compile(rb'"timestamp":"([0-9T:.\-]+Z)"')
+BEAT_SECS = 10  # one heartbeat column: this many seconds of transcript writes
+SPARK = " ▁▂▃▄▅▆▇█"
+
+
+def took(secs):
+    secs = int(max(0, secs))
+    if secs >= 3600:
+        return f"{secs // 3600}h {secs % 3600 // 60}m"
+    return f"{secs // 60}m {secs % 60}s" if secs >= 60 else f"{secs}s"
+
+
+def status_block(state, colour, icon, since, stamps, cols):
+    """An agent's state at a glance: a coloured pill, how long, and a heartbeat of
+    its transcript writes over the last minutes (one column per BEAT_SECS)."""
+    now = time.time()
+    pill = f"{bg(colour)}{fg(STRIP_RGB)}{BOLD} {icon} {state.upper()} {RESET}"
+    parts = [since] + ([f"last move {ago(now - stamps[-1])}"] if stamps else [])
+    lines = [f" {pill}{fg(MUTED_RGB)}  {' · '.join(p for p in parts if p)}{RESET}", ""]
+    width = max(10, cols - 2)
+    beats = [0] * width
+    for t in stamps:
+        col = width - 1 - int((now - t) // BEAT_SECS)
+        if 0 <= col < width:
+            beats[col] += 1
+    top = max(beats) or 1
+    spark = "".join(SPARK[min(8, -(-n * 8 // top))] if n else SPARK[0] for n in beats)
+    span = f"{width * BEAT_SECS // 60}m ago"
+    lines += [f" {fg(colour)}{spark}{RESET}",
+              f" {fg(MUTED_RGB)}{span}{' ' * max(1, width - len(span) - 3)}now{RESET}"]
+    return lines
+
+
 def ago(secs):
     secs = int(max(0, secs))
     for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
@@ -1172,7 +1208,7 @@ class AgentRun(Run):
             self.meta = {}
         self.tag, self.is_git = "", False
         self.full = self.cmd = self.meta.get("description") or self.id
-        self.first, self.calls, self.read_key = os.path.getmtime(path), 0, None
+        self.first, self.calls, self.read_key, self.stamps, self.cols = os.path.getmtime(path), 0, None, [], 60
         self.count()
 
     def count(self):
@@ -1186,12 +1222,15 @@ class AgentRun(Run):
                 rows = [json.loads(l) for l in f if l.strip()]
         except (OSError, ValueError):
             return
-        stamp = next((r["timestamp"] for r in rows if r.get("timestamp")), None)
-        if stamp:
+        stamps = []
+        for r in rows:
             try:
-                self.first = datetime_epoch(stamp)
-            except ValueError:
+                stamps.append(datetime_epoch(r["timestamp"]))
+            except (KeyError, TypeError, ValueError):
                 pass
+        self.stamps = stamps
+        if stamps:
+            self.first = stamps[0]
         self.calls = sum(1 for r in rows if r.get("type") == "assistant"
                          for b in (r.get("message") or {}).get("content") or []
                          if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") not in HARNESS_TOOLS)
@@ -1242,11 +1281,24 @@ class AgentRun(Run):
     def command(self, cols):
         return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))[:2]]
 
+    def state(self):
+        """(name, colour, icon, how long) for the status pill."""
+        icon, colour = self.status()
+        end = self.ended()
+        stamps = self.stamps or [self.first]
+        if end:
+            return end, colour, icon, f"after {took(stamps[-1] - stamps[0])}"
+        if colour == AMBER_RGB:
+            return "running", colour, icon, f"for {took(time.time() - stamps[0])}"
+        return "idle", MUTED_RGB, icon, f"quiet for {took(time.time() - stamps[-1])}"
+
     def lines(self):
-        return []
+        self.count()
+        name, colour, icon, since = self.state()
+        return status_block(name, colour, icon, since, self.stamps, self.cols)
 
     def plain(self):
-        return []
+        return [ANSI.sub("", l) for l in self.lines()]
 
 
 class MainRun(AgentRun):
@@ -1255,8 +1307,20 @@ class MainRun(AgentRun):
     def __init__(self, path, deck):
         self.path, self.deck, self.id, self.meta = path, deck, "main", {}
         self.tag, self.is_git = "", False
-        self.first, self.calls, self.read_key = os.path.getmtime(path), 0, None
+        self.first, self.calls, self.read_key, self.stamps, self.cols = os.path.getmtime(path), 0, None, [], 60
         self.full = self.cmd = "main agent"
+
+    def count(self):
+        self.stamps = self.deck.stamps  # read with the main transcript (Agents.read_main)
+
+    def state(self):
+        icon, colour = self.status()
+        quiet = f"quiet for {took(time.time() - self.stamps[-1])}" if self.stamps else ""
+        if self.deck.agent_status == "working":
+            return "working", colour, icon, ""
+        if self.deck.agent_status == "blocked":
+            return "waiting for you", RED_RGB, "!", quiet
+        return self.deck.agent_status or "idle", MUTED_RGB, icon, quiet
 
     def status(self):
         state = self.deck.agent_status
@@ -1297,7 +1361,7 @@ class Agents(Runs):
         self.title, self.agent_status = "", ""        # the session's title and state, as herdr has them
         self.results, self.notified = {}, {}          # what the main transcript says about subagents
         self.read_to, self.reading = 0, False
-        self.main = None
+        self.main, self.stamps = None, []             # the main transcript's write times, last hour
 
     def find_session(self):
         """The newest transcript of the Claude session herdr runs in the agent's pane."""
@@ -1321,7 +1385,7 @@ class Agents(Runs):
         found = [f for f in found if os.path.isfile(f)]
         session = max(found, key=os.path.getmtime) if found else ""
         if session != self.session:
-            self.session, self.results, self.notified, self.read_to = session, {}, {}, 0
+            self.session, self.results, self.notified, self.read_to, self.stamps = session, {}, {}, 0, []
 
     def read_main(self):
         """What the main transcript has said since the last read: answers to Agent calls
@@ -1333,6 +1397,15 @@ class Agents(Runs):
         except OSError:
             data = b""
         done = data.rfind(b"\n") + 1  # leave a half-written last line for next time
+        horizon = time.time() - 3600
+        for stamp in STAMP.findall(data[:done]):
+            try:
+                t = datetime_epoch(stamp.decode())
+            except ValueError:
+                continue
+            if t > horizon:
+                self.stamps.append(t)
+        self.stamps = [t for t in self.stamps if t > horizon]
         for raw in data[:done].splitlines():
             if b"tool_result" not in raw and b"task-notification" not in raw:
                 continue
