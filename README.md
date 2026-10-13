@@ -43,7 +43,8 @@ without scrolling back through the conversation.
 - **Dev servers** — ports opened by processes inside the project, or started from any pane of
   its herdr workspace (the agent's `pnpm dev` in a sibling app counts), each with its log: the
   file it writes to, or the herdr pane it prints in. One key opens it in the browser.
-- **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel.
+- **Mouse** — click sections, runs in the list, log lines and servers; scroll with the wheel;
+  drag over a log to select and copy it, as in herdr.
 - **No dependencies** — bash, `jq` and the system `python3`.
 
 ## Quick start
@@ -109,7 +110,7 @@ the keys that apply right now.
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`5` | previous / next section, jump to one |
 | | `q` | close the deck |
-| run list (servers, build, test, git) | `j` `k`, `gg` `G` | pick a run (newest on top) |
+| run list (servers, build, test, git) | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |
 | | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
@@ -118,7 +119,8 @@ the keys that apply right now.
 | | `esc` | cancel the selection, or back to the run list |
 | servers | `j` `k`, `enter` `l`, `o` | pick a server, move into its log (same keys as output), open it in the browser |
 
-Yanks go to `pbcopy`, `wl-copy` or `xclip`, falling back to the terminal clipboard (OSC 52).
+Arrow keys work as `h` `j` `k` `l` everywhere. While the cursor is in the list, the run's command and log
+are drawn faint; moving into the log turns that around. Yanks and drag-selections go to `pbcopy`, `wl-copy` or `xclip`, falling back to the terminal clipboard (OSC 52).
 
 ## Architecture
 

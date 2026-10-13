@@ -50,6 +50,10 @@ DIMMED_RGB = "88;94;105"  # the side without the cursor: list labels or the log'
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
 ACCENT = {"servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
+KEYS = re.compile(r"\x1b\[[0-9;]*[A-Za-z~]|\x1bO.|\x1b|.", re.S)
+# Arrow keys move as h j k l do, in the list and in the log (normal and application cursor mode).
+ARROWS = {"\x1b[A": "k", "\x1b[B": "j", "\x1b[C": "l", "\x1b[D": "h",
+          "\x1bOA": "k", "\x1bOB": "j", "\x1bOC": "l", "\x1bOD": "h"}
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 
 
@@ -86,25 +90,30 @@ def tint(line, rgb):
     def after(m):
         params = m.group(1).split(";") if m.group(1) else ["0"]
         # Back to the default foreground: a reset or 39 with no colour set after it.
-        # A reset or 22 also ends faint, so it goes back on.
-        back, faint, i = False, False, 0
+        # A reset or 22 also ends faint, so it goes back on. Bold would outshine
+        # faint (and in some terminals cancel it), so it is left out.
+        back, faint, kept, i = False, False, [], 0
         while i < len(params):
             p = params[i]
+            if p in ("38", "48"):  # extended colour: 38;5;n or 38;2;r;g;b
+                n = 5 if params[i + 1:i + 2] == ["2"] else 3
+                kept += params[i:i + n]
+                back = back and p != "38"
+                i += n
+                continue
             if p in ("", "0"):
                 back = faint = True
             elif p == "22":
                 faint = True
             elif p == "39":
                 back = True
-            elif p in ("38", "48"):  # extended colour: skip its arguments
-                if p == "38":
-                    back = False
-                i += 4 if params[i + 1:i + 2] == ["2"] else 2
-                continue
             elif p.isdigit() and (30 <= int(p) <= 37 or 90 <= int(p) <= 97):
                 back = False
+            if p != "1":
+                kept.append(p)
             i += 1
-        return m.group(0) + (fg(rgb) if back else "") + ("\033[2m" if faint else "")
+        seq = f"\033[{';'.join(kept)}m" if kept else ""
+        return seq + (fg(rgb) if back else "") + ("\033[2m" if faint else "")
     return fg(rgb) + "\033[2m" + SGR.sub(after, line)
 
 
@@ -754,6 +763,7 @@ class Runs:
         self.raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
         self.plain = run.plain() if loaded is not None else [""]
         head = self.run_list(cols)
+        box = len(head)
         if self.search is not None:
             info = f"{fg(ACCENT[self.kind])}{'?' if self.back else '/'}{RESET}{self.search}▏"
         else:
@@ -764,6 +774,8 @@ class Runs:
         head += [*run.command(cols), info]
         if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
             head.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
+        if self.focus == "list":  # the run's head reads faint with its log while the cursor is in the list
+            head[box:] = [tint(line, DIMMED_RGB) for line in head[box:]]
         head.append(rule(cols))
 
         running = run.status()[1] == AMBER_RGB
@@ -972,9 +984,26 @@ class Runs:
             self.select(listed[row - HEAD_ROW - 1], True)
             self.focus = "list"
         elif row >= getattr(self, "body_row", 99) and self.plain:
-            self.focus = "log"
+            self.focus, self.anchor = "log", None
             self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
             self.clamp()
+            self.dragging = (self.cy, self.cx)
+
+    def drag(self, row, col):
+        """Dragging in the log selects from where the button went down, as in herdr."""
+        if getattr(self, "dragging", None) is None:
+            return
+        self.cy, self.cx = self.offset + row - self.body_row, col - 1
+        self.clamp()
+        self.anchor, self.linewise = self.dragging, False
+
+    def release(self):
+        """Letting go copies what was dragged over (herdr's copy on select); it stays marked."""
+        if getattr(self, "dragging", None) is not None and self.anchor is not None:
+            text = self.selection()
+            copy(text)
+            self.msg = f"copied {len(text)} character{'s' if len(text) != 1 else ''}"
+        self.dragging = None
 
     def wheel(self, down):
         self.focus, self.follow = "log", False
@@ -1135,8 +1164,10 @@ class Deck:
         sys.stdout.flush()
 
     def mouse(self, button, col, row):
-        """SGR mouse report: 0 = left press, 64/65 = wheel up/down."""
-        if button in (64, 65):
+        """SGR mouse report: 0 = left press, 32 = drag with it held, 64/65 = wheel up/down."""
+        if button == 32:
+            getattr(self.views[self.section], "drag", lambda r, c: None)(row, col)
+        elif button in (64, 65):
             self.views[self.section].wheel(button == 65)
         elif button == 0 and row == 1:
             for i, x0, x1 in self.spans:
@@ -1169,12 +1200,12 @@ def main():
 
     def restore():
         termios.tcsetattr(fd, termios.TCSADRAIN, saved)
-        sys.stdout.write("\033[?1006l\033[?1000l\033[?7h\033[?25h\033[?1049l")
+        sys.stdout.write("\033[?1006l\033[?1002l\033[?1000l\033[?7h\033[?25h\033[?1049l")
         sys.stdout.flush()
 
     # Alternate screen, hidden cursor, no autowrap (long lines are cut, not
     # wrapped), and SGR mouse reports so clicks and the wheel reach the deck.
-    sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1006h")
+    sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1002h\033[?1006h")
     try:
         tty.setcbreak(fd)
         while True:
@@ -1187,13 +1218,18 @@ def main():
                 k = os.read(fd, 256).decode("utf-8", "replace")
                 events = MOUSE.findall(k)
                 for button, col, row, kind in events:
-                    if kind == "M":  # press; releases (m) are ignored
+                    if kind == "M":  # press or drag
                         deck.mouse(int(button), int(col), int(row))
+                    elif int(button) == 0:  # left button let go
+                        getattr(deck.views[deck.section], "release", lambda: None)()
                 if events:
                     continue
-                if k == "q":
-                    break
-                deck.key(k)
+                # One read can hold several keys (fast presses, arrows): take them one at a time.
+                for key in KEYS.findall(k):
+                    typing = getattr(deck.views[deck.section], "search", None) is not None
+                    if key == "q" and not typing:
+                        return
+                    deck.key(key if typing else ARROWS.get(key, key))
     except KeyboardInterrupt:
         pass
     finally:
