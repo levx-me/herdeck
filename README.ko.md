@@ -14,187 +14,55 @@
 
 </div>
 
-코딩 에이전트는 빌드, 테스트, git 명령을 계속 실행하고 개발 서버도 띄웁니다.
-Steading은 이 모든 것을 **에이전트 옆 deck 패널 하나**에 모아 보여 줍니다.
-대화를 거슬러 올라가며 찾지 않아도 됩니다.
+코딩 에이전트는 쉬지 않습니다. 테스트, 빌드, git, 배포, 개발 서버, 서브 에이전트, 그리고 3분째
+"실행 중"인 그 명령까지. Steading은 이 모든 것을 **에이전트 옆 deck 하나**에 실시간으로 보여 줍니다.
+무슨 일이 일어나는지 알려고 대화를 거슬러 올라갈 필요가 없습니다.
 
 ![herdr에서 기능을 개발하는 Claude Code와, 그 옆에서 테스트 실행을 실시간으로 보여 주는 Steading deck](docs/demo.svg)
 
-## 기능
+## 탭 일곱 개
 
-- **deck 하나, 섹션 일곱 개** — `agents`, `jobs`, `servers`, `build`, `test`, `git`, `deploy`. 탭마다 최근 상태를
-  표시합니다(`✓` `✗`, 실행 중이면 스피너, 떠 있는 서버는 `●`).
-- **에이전트** — 메인 에이전트를 항상 맨 위에 보여 주고(세션 제목, 작업 중·입력 대기·대기 상태), 그 아래에
-  지금 일하는 Claude Code 서브 에이전트(백그라운드와 워크플로 에이전트 포함)를 보여 줍니다. 각 에이전트의 둘째 줄에는
-  지금 하는 일과 최근 2분의 활동 그래프가 나옵니다.
-  [zoetrope](https://github.com/furkankly/zoetrope)처럼 세션의 대화 기록 파일을 읽습니다.
-- **오래 걸리는 명령(jobs)** — 에이전트의 다른 명령 중 10초 이상 걸리는 것(대기 루프, 설치, timeout이 긴
-  스크립트 등)을 보여 줍니다. 무엇을 하려는지(호출 설명), timeout 대비 얼마나 돌았는지, 출력이 나오는 대로
-  보여 주며, Claude Code가 그 호출의 출력을 쓰는 파일을 읽습니다. 호출 자체는 바꾸지 않습니다.
-- **항상 곁에** — herdr가 알아보는 에이전트(Claude Code, Codex, OpenCode 등)가 시작되면 그 옆에
-  deck이 열리고, `prefix+d`로 어느 패널 옆에서든 열고 닫을 수 있습니다. 셸을 거치지 않고 패널에서
-  바로 시작합니다. Claude Code에는 테스트와 빌드를 단순한 명령으로 실행하라고 알려 주어 deck이
-  출력을 실시간으로 보여 줄 수 있게 합니다(세션 컨텍스트에만 추가하고 파일은 고치지 않습니다).
-- **에이전트를 따라감** — 에이전트가 테스트, 빌드, git 명령을 실행하거나 개발 서버를 띄우면 deck이
-  열려 있는 deck이 해당 섹션과 실행 기록으로 넘어갑니다. 닫아 둔 deck을 실행이 다시 열지는 않습니다.
-  기록은 계속 쌓이고, 다시 열면 보입니다.
-- **실시간 컬러 출력** — 빌드와 테스트는 의사 터미널에서 실행되어 셸에서 보던 색 그대로 보입니다.
-  에이전트는 여전히 일반 텍스트와 실제 종료 코드를 받습니다.
-- **설명 대신 명령** — 실행 기록은 핵심 명령으로 표시됩니다. 에이전트에게 호출 설명을
-  `<kind>: <command>` 형식으로 쓰게 하고, 그 밖의 경우는 셸 토큰을 읽어 명령만 남깁니다.
-- **모든 deck이 같은 섹션** — 어느 deck에서 섹션을 고르면 열린 deck이 모두 그 섹션으로 바뀝니다.
-  스스로 시작된 실행은 자기 deck만 움직입니다.
-- **실행 기록** — 섹션마다 실행 목록을 최신순으로 보여 줍니다(최근 20개, git은 50개). `j` `k`나
-  클릭으로 고릅니다. 세션을 새 패널에서 다시 열면 대화 기록에서 목록을 복원합니다.
-- **저장소 상태** — git 목록 테두리에 현재 브랜치, 푸시하지 않은 커밋(`↑2`)과 받지 않은 커밋(`↓1`),
-  커밋하지 않은 파일 수(없으면 `clean`)를 보여 줍니다.
-- **herdr 복사 모드 키** — 어떤 로그에서든 커서를 움직이고, 선택하고, 클립보드로 복사하고, 검색합니다.
-- **개발 서버** — 프로젝트 안의 프로세스나, 같은 herdr 워크스페이스의 패널에서 시작된 프로세스가 연 포트를
-  보여 줍니다(에이전트가 옆 앱에서 띄운 `pnpm dev`도 포함). 서버마다 로그도 보여 주는데, 서버가 쓰는 파일이나
-  서버가 출력하는 herdr 패널에서 가져옵니다. 키 하나로 브라우저에서 엽니다.
-- **마우스** — 섹션, 실행 목록, 로그 줄, 서버를 클릭하고 휠로 스크롤합니다(실행 목록 위에서는 실행을 차례로 고릅니다). herdr처럼 로그를
-  드래그하면 선택한 부분이 복사됩니다.
-- **의존성 없음** — bash, `jq`, 시스템 `python3`만 씁니다.
+| 탭 | 보이는 것 |
+|---|---|
+| **agents** | 에이전트와 일하는 서브 에이전트 전부. 각자 지금 하는 일, 활동 그래프, 모델·컨텍스트·도구·할 일 |
+| **jobs** | 10초 넘게 걸리는 명령. 무엇을 하려는지, timeout까지 얼마나 남았는지, 나오는 대로의 출력 |
+| **servers** | 프로젝트와 같은 herdr 워크스페이스의 개발 서버와 각 서버의 로그. 키 하나로 브라우저에서 열기 |
+| **build** · **test** | 실시간 컬러 출력. 에이전트는 그대로 일반 텍스트와 실제 종료 코드를 받음 |
+| **git** | 저장소를 바꾸는 명령 전부, 커밋 메시지 전체. 테두리에 브랜치, 푸시하지 않은 커밋, 커밋하지 않은 파일 |
+| **deploy** | `vercel`, `fly deploy`, `terraform apply`, `forge script --broadcast` 외 25개 이상. 상태·목록 조회는 제외 |
+
+## 신경 쓸 게 없습니다
+
+- **에이전트를 따라갑니다.** 테스트를 돌리면 test 탭이, 서버를 띄우면 servers 탭이 보입니다. 닫으면 다시 열 때까지 닫혀 있습니다.
+- **패널에 맞춰 놓입니다.** 에이전트 옆에, 에이전트 패널이 좁으면 위에 열립니다. `L`로 옮깁니다.
+- **기억합니다.** 세션을 새 패널에서 다시 열어도 대화 기록에서 실행 기록을 되살립니다.
+- **배울 게 없습니다.** 설정도, 외울 명령도 없습니다. 맨 아래 줄에 지금 쓸 수 있는 키가 늘 보입니다. bash, `jq`, `python3` 말고는 필요한 것도 없습니다.
 
 ## 빠른 시작
 
-필요한 것: herdr 0.9+, Claude Code, `jq`, `python3`(macOS와 Linux에 기본으로 있음).
+필요한 것: herdr 0.9+, Claude Code, `jq`, `python3`.
+
+| | `python3` | `jq` |
+|---|---|---|
+| macOS | Command Line Tools에 포함(`xcode-select --install`) | macOS 15부터 기본 포함. 그 이전은 `brew install jq` |
+| Linux | 대부분의 배포판에 있음 | `sudo apt install jq`(또는 쓰는 패키지 관리자) |
+| Windows | WSL 안에서 Linux와 같게 | WSL 안에서 Linux와 같게 |
+
+Windows에서는 herdr와 Claude Code를 [WSL](https://learn.microsoft.com/ko-kr/windows/wsl/install) 안에서
+실행하세요. deck이 Unix 터미널과 셸 스크립트를 쓰기 때문에 herdr의 Windows 네이티브 버전에서는 돌아가지 않습니다.
 
 ```sh
 herdr plugin install levx-me/steading --yes
 ```
 
-`claude`가 `PATH`에 있으면 herdr 플러그인을 설치할 때 Claude Code 쪽도 함께 설치됩니다.
-그다음 열려 있는 Claude Code 세션마다 실행하세요.
+`claude`가 `PATH`에 있으면 Claude Code 쪽도 함께 설치됩니다. 이미 열려 있는 세션은 Claude가 쉬고 있을 때
+`/reload-plugins`를 실행하면 되고, 새 세션은 따로 할 일이 없습니다. 세션이 시작되면 에이전트 옆에 deck이 열립니다.
 
-```
-/reload-plugins
-```
+## 더 알아보기
 
-새 세션은 따로 할 일이 없습니다. herdr 설치 도구 없이 설치하려면:
-
-```sh
-claude plugin marketplace add levx-me/steading
-claude plugin install steading@steading
-```
-
-## 사용법
-
-따로 시작할 것은 없습니다. 세션이 시작되면 오른쪽에 deck이 열리고 에이전트를 따라갑니다.
-
-| 에이전트가 실행하는 명령 | 섹션 | 처리 방식 |
-|---|---|---|
-| `npm/pnpm/yarn test[:x]`, `vitest`, `jest`, `pytest`, `go test`, `cargo test`, `bun test`, `deno test`, `forge test`, `make`/`just test`, `./test.sh` 같은 스크립트 | **test** | deck 안에서 실행하고 출력을 돌려줌 |
-| `npm/pnpm/yarn run build[:x]`, `tsc`, `next build`, `vite build`, `go build`, `cargo build`/`check`, `forge build`, `make`/`just build`, `./build.sh` 같은 스크립트 | **build** | deck 안에서 실행하고 출력을 돌려줌 |
-| 체인이나 파이프 안의 테스트와 빌드(`git status; npm test 2>&1 \| grep FAIL`) | **test** / **build** | 실행이 끝난 뒤 기록 |
-| `git …`이 들어 있는 명령 | **git** | 실행이 끝난 뒤 기록(Claude의 권한 확인은 그대로). 커밋은 메시지 전체를 보여 줌 |
-| `vercel`, `railway up`, `netlify deploy`, `fly deploy`, `wrangler deploy`, `firebase deploy`, `gcloud run deploy`, `terraform apply`, `kubectl apply`, `helm upgrade`, `forge script --broadcast` 등([전체 목록](bin/classify)) | **deploy** | 실행이 끝난 뒤 기록(권한 확인은 그대로). 상태·로그·목록 조회 명령은 제외 |
-| `npm run dev`, `next dev`, `vite`, `anvil`, `uvicorn`, `flask run`, … | **servers** | 명령은 그대로 두고 섹션만 앞으로 가져옴 |
-
-deck 안에서 실시간 컬러로 실행되는 것은 단순한 호출뿐입니다:
-`[cd DIR &&] [VAR=val] [time|nice|timeout N|env] [npx|pnpm|…] RUNNER [args]`, 여기에 `2>&1`과
-`| tail/head -n N` 하나까지 붙일 수 있습니다. 다른 명령과 이어지거나, 다른 곳으로 파이프되거나,
-리다이렉트나 치환을 쓰는 명령은 에이전트가 쓴 그대로 실행되고, 끝난 뒤 deck에 나타납니다.
-
-### 열고 닫기
-
-herdr의 `config.toml`에 키를 추가하세요(에이전트가 시작되면 deck은 저절로 열립니다).
-
-```toml
-[[keys.command]]
-key = "prefix+d"
-type = "plugin_action"
-command = "steading.toggle"
-```
-
-`prefix+d`는 포커스된 패널 옆에 deck을 열거나 닫습니다. deck 위에서 누르면 그 deck을 닫습니다.
-deck은 에이전트 오른쪽에 열리고, 에이전트 패널이 옆에 두기엔 좁으면(140칸 미만) 위에 열립니다. deck에서
-`L`을 누르면 반대쪽으로 옮겨집니다. 닫은 deck은 직접 열 때까지 닫혀 있습니다. 에이전트가 시작될 때도 열리지 않게 하려면: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
-
-### 키
-
-deck에 포커스를 두세요(클릭하거나 herdr의 패널 이동 키 사용). 맨 아래 줄에 지금 쓸 수 있는 키가
-항상 표시됩니다.
-
-| 위치 | 키 | 동작 |
-|---|---|---|
-| 어디서나 | `[` `]`(또는 `tab` `shift+tab`), `1`–`7` | 이전/다음 섹션, 해당 섹션으로 이동 |
-| | `q` | deck 닫기 |
-| | `L` | deck을 에이전트의 반대쪽(오른쪽 또는 위)으로 옮기기. 그 에이전트의 deck은 계속 그쪽에 열림 |
-| 실행 목록(agents, jobs, servers, build, test, git) | `j` `k`(또는 `↓` `↑`), `gg` `G` | 실행 고르기(최신이 위) |
-| | `enter` `l` | 출력으로 들어가기 |
-| 출력 | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | 커서 이동(herdr 복사 모드 키) |
-| | `gg` `G`, `ctrl+d` `ctrl+u` | 맨 위/맨 아래(`G`는 실행 중인 출력을 다시 따라감), 반 페이지 |
-| | `v` `V`, `y` | 글자/줄 단위 선택, 복사(선택이 없으면 커서 줄) |
-| | `/` `?`, `n` `N` | 앞/뒤로 검색, 반복 |
-| | `esc` | 선택 취소, 또는 실행 목록으로 돌아가기 |
-| servers | `j` `k`, `enter` `l`, `o` | 서버 고르기, 로그로 들어가기(출력과 같은 키), 브라우저에서 열기 |
-
-방향키는 어디서나 `h` `j` `k` `l`과 같습니다. 커서가 목록에 있으면 실행의 명령과 로그가 흐리게
-보이고, 로그로 들어가면 반대가 됩니다. 복사(드래그 선택 포함)는 `pbcopy`, `wl-copy`, `xclip` 순으로 쓰고, 없으면 터미널 클립보드(OSC 52)를 씁니다.
-
-## 구조
-
-```mermaid
-flowchart LR
-  A[Claude Code<br/>Bash tool] -- PreToolUse --> H[bin/hook]
-  H -- test / build:<br/>rewrite to --> R[bin/run]
-  H -- dev server --> P[bin/pane]
-  A -- PostToolUse(Failure) --> C[bin/record]
-  C -- git runs --> S[(TMPDIR/steading/&lt;agent&gt;/)]
-  R -- bin/ptyrun --> S
-  R --> P
-  C --> P
-  P -- herdr pane split + run --> V[bin/viewer.py<br/>the deck]
-  V -- reads --> S
-  V -- bin/servers --> L[lsof]
-```
-
-- `bin/classify`는 명령줄을 셸 토큰 단위로 읽습니다. 무엇을 실행하는지(test, build, deploy, git 쓰기),
-  보여 줄 핵심 명령(`cd x; env -u A pnpm test | tail` → `pnpm test`), 실시간으로 실행해도 되는지를
-  판단합니다. 두 훅이 모두 이것을 씁니다.
-- `bin/hook`은 Bash 호출이 무엇인지 판단합니다. 테스트와 빌드는 `bin/run`으로 바꿔 실행하고
-  (승인됨, 아래 참고), 개발 서버는 열린 deck을 `servers`로 바꾸기만 합니다. 나머지는 job으로 기록하고,
-  `bin/job`이 명령이 시작되면 Claude Code가 그 출력을 쓰는 파일을 찾아 연결합니다.
-- `bin/run`은 명령을 의사 터미널(`bin/ptyrun`)에서 실행하고, 실행 기록을
-  `$TMPDIR/steading/<agent pane>/<kind>/runs/<n>/`에 쓴 뒤, 일반 텍스트 출력과 종료 코드를 돌려줍니다.
-- `bin/deck`은 herdr 쪽입니다. `toggle`은 단축키용, `auto`는 herdr의 `pane.agent_detected` 이벤트용입니다.
-- `bin/open`은 Claude Code 세션에 단순한 명령으로 실행하라는 안내를 추가합니다.
-  세션이 새 패널에서 다시 열렸거나 `/tmp`가 비워져 deck이 비어 있으면, `bin/restore`가 세션 대화
-  기록을 `bin/record`에 다시 넣어 deck을 채웁니다.
-- `bin/record`는 git 명령, 그리고 `bin/run`을 거치지 않은 테스트와 빌드를 Claude가 실행한 뒤 기록합니다.
-- `bin/pane`은 에이전트마다 deck을 한 번 열고(오른쪽으로 분할) 어느 섹션을 보여 줄지 알려 줍니다.
-  실행에서 부를 때(`--follow`)는 이미 열린 deck의 섹션만 바꿉니다.
-- `bin/viewer.py`는 그 실행 기록 디렉터리로 deck을 그리고, 파일이 수정되면 스스로 다시 시작합니다.
-
-## 설정
-
-| 변수 | 기본값 | 용도 |
-|---|---|---|
-| `STEADING_SOURCE` | `levx-me/steading` | `bin/install-claude`가 Claude Code 마켓플레이스를 추가할 위치(경로 또는 `owner/repo`) |
-| `TMPDIR` | `/tmp` | 실행 기록(`$TMPDIR/steading`)의 상위 디렉터리 |
-
-deck에서 실행되는 명령에는 `CI=1`(watch 모드 끔)과 `FORCE_COLOR=1`, `CLICOLOR_FORCE=1`,
-`PY_COLORS=1`, `CARGO_TERM_COLOR=always`가 설정됩니다.
-
-## 보안 참고
-
-- deck으로 넘긴 테스트와 빌드는 Claude Code에 **승인됨**(`permissionDecision: "allow"`)으로 돌려주므로
-  권한을 묻지 않습니다. deny와 ask 규칙은 그대로 적용됩니다. `npm test`와 `npm run build`는
-  `package.json`에 적힌 것을 그대로 실행합니다. 자동 승인을 원하지 않으면 `bin/hook`의 패턴에서 빼세요.
-- git 명령은 Steading이 바꾸거나 승인하지 않습니다.
-- 실행 로그는 `$TMPDIR`에만 남고 컴퓨터 밖으로 나가지 않습니다.
-
-## 개발
-
-```sh
-git clone git@github.com:levx-me/steading.git && cd steading
-claude plugin marketplace add "$PWD" && claude plugin install steading@steading
-herdr plugin link "$PWD"
-bun test
-```
-
-체크아웃한 저장소로 플러그인을 설치하면 `bun test` 자체도 deck에서 실행됩니다.
+- **[탭](docs/tabs.ko.md)**: 어떤 명령이 어느 탭으로 가는지, 탭마다 무엇을 보여 주는지.
+- **[키와 마우스](docs/keys.ko.md)**: deck 열기·닫기·옮기기, 모든 로그에서 쓰는 herdr 복사 모드 키.
+- **[동작 방식](docs/how-it-works.ko.md)**: 훅, 실행 기록 파일, 설정, 보안, 개발.
 
 ## 라이선스
 
