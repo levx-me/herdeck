@@ -129,7 +129,8 @@ def fit(s, cols):
     for m in ANSI.finditer(s + "\x1b[0m"):
         for ch in s[pos:m.start()]:
             if width >= cols - 1:
-                return "".join(out) + RESET + "…"
+                # The mark keeps the line's background and faintness, in the muted grey.
+                return "".join(out) + fg(MUTED_RGB) + "…" + RESET
             out.append(ch)
             width += 1
         out.append(m.group())
