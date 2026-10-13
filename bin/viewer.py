@@ -35,10 +35,11 @@ import textwrap
 import threading
 import time
 import tty
+import unicodedata
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
-SECTIONS = ["subagents", "servers", "build", "test", "git", "deploy"]
+SECTIONS = ["agents", "servers", "build", "test", "git", "deploy"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
@@ -49,7 +50,7 @@ STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
 MUTED_RGB, BRIGHT_RGB = "120;127;140", "220;223;228"
 DIMMED_RGB = "88;94;105"  # the side without the cursor: list labels or the log's plain text
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
-ACCENT = {"subagents": "143;168;210", "servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
+ACCENT = {"agents": "143;168;210", "servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
 KEYS = re.compile(r"\x1b\[[0-9;]*[A-Za-z~]|\x1bO.|\x1b|.", re.S)
 # Arrow keys move as h j k l do, in the list and in the log (normal and application cursor mode).
@@ -125,6 +126,24 @@ def tint(line, rgb):
 
 def visible_len(s):
     return len(ANSI.sub("", s))
+
+
+def cells(text):
+    """Terminal cells text takes: wide (CJK, Hangul) characters take two."""
+    return sum(2 if unicodedata.east_asian_width(ch) in "WF" else 1 for ch in text)
+
+
+def cut(text, room):
+    """text cut to room cells, with … when cut."""
+    if cells(text) <= room:
+        return text
+    out, used = "", 0
+    for ch in text:
+        w = cells(ch)
+        if used + w > room - 1:
+            break
+        out, used = out + ch, used + w
+    return out + "…"
 
 
 def fit(s, cols):
@@ -625,7 +644,6 @@ class Runs:
     copy-mode cursor, with the same keys as herdr's copy mode."""
 
     noun = "runs"
-    pin_top = False  # a log follows its end; a summary (Subagents) stays at its top
 
     def __init__(self, kind):
         self.kind, self.dir = kind, os.path.join(BASE, kind, "runs")
@@ -787,12 +805,10 @@ class Runs:
             head[box:] = [tint(line, DIMMED_RGB) for line in head[box:]]
         head.append(rule(cols))
 
-        running = run.status()[1] == AMBER_RGB
+        running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
         # While it runs, the last row shows a spinner under the output.
         self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head) - (1 if running else 0))
-        if self.focus == "list" and self.pin_top:  # a summary shows from its top
-            self.cy = 0
-        elif self.follow or self.focus == "list":  # pinned to the end while the run grows
+        if self.follow or self.focus == "list":  # pinned to the end while the run grows
             self.cy = max(0, len(self.plain) - 1)
         self.clamp()
         if self.cy < self.offset:
@@ -878,9 +894,8 @@ class Runs:
             # "➜ ✓ label<gap>right " and "  ✓ label<gap>right " both fill the line.
             fixed = 5
             room = cols - fixed - 1 - len(right)
-            if len(label) > room:
-                label = label[:max(1, room - 1)] + "…"
-            gap = " " * max(1, cols - fixed - len(label) - len(right))
+            label = cut(label, max(2, room))
+            gap = " " * max(1, cols - fixed - cells(label) - len(right))
             if selected:
                 # The arrow only while the list is grey (the cursor in the log): whose output it is.
                 arrow = fg(MUTED_RGB) + ("➜" if first and self.focus == "log" else " ")
@@ -1011,9 +1026,7 @@ class Runs:
         if self.runs and 0 <= row - HEAD_ROW - 1 < len(listed):  # below the box's top border
             # A click opens the run, as enter does: the cursor goes into its output.
             self.select(listed[row - HEAD_ROW - 1])
-            self.focus, self.follow, self.cx = "log", not self.pin_top, 0  # at the end of its output
-            if self.pin_top:  # a summary: at its top
-                self.cy = self.offset = 0
+            self.focus, self.follow, self.cx = "log", True, 0  # at the end of its output
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus, self.anchor = "log", None
             self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
@@ -1117,58 +1130,20 @@ class Servers(Runs):
             super().list_key(k)
 
 
-# Subagents ------------------------------------------------------------------
-# What the agent's Claude Code subagents are doing, read from its session on
-# disk the way zoetrope does (github.com/furkankly/zoetrope):
+# Agents ---------------------------------------------------------------------
+# The agent itself and its Claude Code subagents at work, read from its session
+# on disk the way zoetrope does (github.com/furkankly/zoetrope):
 #   ~/.claude/projects/<project>/<session>.jsonl            the main transcript
 #   ~/.claude/projects/<project>/<session>/subagents/       one transcript per subagent,
 #       agent-<id>.jsonl + agent-<id>.meta.json             (type, description, toolUseId, depth),
 #       workflows/<run>/agent-<id>.jsonl                    the agents of a workflow run.
 # A foreground subagent has ended when the main transcript answers its Agent call
 # (tool_result for its toolUseId; is_error = failed); a background one when a
-# <task-notification> names it. Otherwise it is running while its file moves.
+# <task-notification> names it. Otherwise it is at work while its file moves.
 
-LIVE_SECS = 300  # a subagent unended and silent this long reads as idle
+LIVE_SECS = 300  # a subagent unended and silent this long is no longer at work
 HARNESS_TOOLS = {"SubagentHandback"}  # the harness's own steps, not the agent's work
-TOOL_KINDS = {"Read": "read", "NotebookRead": "read", "Grep": "search", "Glob": "search", "WebSearch": "search",
-              "WebFetch": "search", "ToolSearch": "search", "Edit": "edit", "MultiEdit": "edit", "Write": "edit",
-              "NotebookEdit": "edit", "Bash": "run", "Agent": "agent", "Task": "agent", "Workflow": "agent"}
-
-
-def duration(secs):
-    secs = int(max(0, secs))
-    for unit, size in (("h", 3600), ("m", 60)):
-        if secs >= size:
-            return f"{secs // size}{unit} {secs % size // 60 if unit == 'h' else secs % 60}{'m' if unit == 'h' else 's'}"
-    return f"{secs}s"
 NOTIFICATION = re.compile(r"<task-id>([^<]+)</task-id>.*?<status>([^<]+)</status>", re.S)
-
-
-def short(text, cols=80):
-    line = " ".join((text or "").split())
-    return line if len(line) <= cols else line[:cols - 1] + "…"
-
-
-def tool_summary(name, args, cwd=""):
-    """One line for a tool call, picked as zoetrope does: the field that says what it does."""
-    if not isinstance(args, dict):
-        return ""
-    pick = lambda *keys: next((str(args[k]) for k in keys if isinstance(args.get(k), str) and args[k]), "")
-    if name in ("Read", "Write", "Edit", "NotebookEdit"):
-        path = pick("file_path", "path", "notebook_path")
-        return os.path.relpath(path, cwd) if cwd and path.startswith(cwd + "/") else path
-    if name == "Bash":
-        return pick("command", "description")
-    if name in ("Agent", "Task", "Workflow"):
-        return pick("description", "subagent_type")
-    return pick("pattern", "url", "query", "description", "prompt", "command", "path")
-
-
-def clock(ts):
-    try:
-        return time.strftime("%H:%M:%S", time.localtime(datetime_epoch(ts)))
-    except (TypeError, ValueError):
-        return "        "
 
 
 def datetime_epoch(ts):
@@ -1176,11 +1151,19 @@ def datetime_epoch(ts):
     return datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
 
 
+def ago(secs):
+    secs = int(max(0, secs))
+    for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
+        if secs >= size:
+            return f"{secs // size}{unit} ago"
+    return f"{secs}s ago"
+
+
 class AgentRun(Run):
-    """One subagent: its row in the list and, as its log, what it has done."""
+    """One subagent: its row (description, type, state) and its head. No log."""
 
     def __init__(self, path, deck):
-        self.path, self.deck = path, deck   # the agent's transcript; the Subagents view
+        self.path, self.deck = path, deck   # the agent's transcript; the Agents view
         self.id = os.path.basename(path)[len("agent-"):-len(".jsonl")]
         try:
             with open(path[:-len(".jsonl")] + ".meta.json") as f:
@@ -1189,9 +1172,29 @@ class AgentRun(Run):
             self.meta = {}
         self.tag, self.is_git = "", False
         self.full = self.cmd = self.meta.get("description") or self.id
-        self._log, self._loading, self.prompt, self.cols, self.parsed = (None, None, None, 0), None, "", 80, None
-        self.first = os.path.getmtime(path)  # until the transcript says when it began
-        self.lines()  # read it now: the list orders and dates agents by their first line
+        self.first, self.calls, self.read_key = os.path.getmtime(path), 0, None
+        self.count()
+
+    def count(self):
+        """When it began and how many tool calls it has made, read when its file changes."""
+        try:
+            st = os.stat(self.path)
+            if (st.st_mtime_ns, st.st_size) == self.read_key:
+                return
+            self.read_key = (st.st_mtime_ns, st.st_size)
+            with open(self.path) as f:
+                rows = [json.loads(l) for l in f if l.strip()]
+        except (OSError, ValueError):
+            return
+        stamp = next((r["timestamp"] for r in rows if r.get("timestamp")), None)
+        if stamp:
+            try:
+                self.first = datetime_epoch(stamp)
+            except ValueError:
+                pass
+        self.calls = sum(1 for r in rows if r.get("type") == "assistant"
+                         for b in (r.get("message") or {}).get("content") or []
+                         if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") not in HARNESS_TOOLS)
 
     def ended(self):
         """"done", "failed" or "stopped" once the main transcript says so, else ""."""
@@ -1220,153 +1223,81 @@ class AgentRun(Run):
     def end(self):
         return ""
 
+    def hash(self):
+        return ""
+
     def label(self):
-        depth = int(self.meta.get("spawnDepth") or 1)
-        return "  " * (depth - 1) + short(self.full, 200)
+        return "  " * int(self.meta.get("spawnDepth") or 1) + self.full  # under the main agent
 
     def age(self):
-        kind = self.meta.get("agentType") or "agent"
-        s = int(time.time() - self.first)
-        for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
-            if s >= size:
-                return f"{kind}  {s // size}{unit} ago"
-        return f"{kind}  {s}s ago"
+        return f"{self.meta.get('agentType') or 'agent'}  {ago(time.time() - self.first)}"
 
     def info(self):
-        self.lines()
-        calls = self._log[3]
-        end = self.ended() or ("running" if self.status()[1] == AMBER_RGB else "idle")
-        parts = [self.meta.get("agentType") or "agent", f"{calls} tool call{'s' * (calls != 1)}", end]
+        self.count()
+        parts = [self.meta.get("agentType") or "agent", f"{self.calls} tool call{'s' * (self.calls != 1)}"]
         if self.meta.get("requestShape") == "background":
             parts.insert(1, "background")
         return f"{DIM}  {' · '.join(parts)}{RESET}"
 
-    def hash(self):
-        return ""
-
     def command(self, cols):
-        """The head: the agent's description. (Its prompt opens the log, which scrolls.)"""
-        if cols != self.cols:  # the log's prompt is wrapped to the pane: wrap it again
-            self.cols = cols
         return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))[:2]]
 
     def lines(self):
-        """The log: what the agent is doing now, its latest message, how far it has got,
-        the files it changed, then its whole prompt. Parsed when the transcript changes,
-        laid out on every call so the clocks tick."""
+        return []
+
+    def plain(self):
+        return []
+
+
+class MainRun(AgentRun):
+    """The agent itself, on top of the list: its session's title and herdr's state for it."""
+
+    def __init__(self, path, deck):
+        self.path, self.deck, self.id, self.meta = path, deck, "main", {}
+        self.tag, self.is_git = "", False
+        self.first, self.calls, self.read_key = os.path.getmtime(path), 0, None
+        self.full = self.cmd = "main agent"
+
+    def status(self):
+        state = self.deck.agent_status
+        if state == "working":
+            return (spinner(), AMBER_RGB)
+        return ("!", AMBER_RGB) if state == "blocked" else ("·", MUTED_RGB)
+
+    def ended(self):
+        return ""
+
+    def label(self):
+        return self.deck.title or "main agent"
+
+    def age(self):
         try:
-            st = os.stat(self.path)
-            key = (st.st_mtime_ns, st.st_size)
+            return f"main  {ago(time.time() - os.path.getmtime(self.path))}"
         except OSError:
-            return []
-        if key != self._log[0] and self._loading != key:
-            self._loading = key
-            background(self._load, self.path, key)
-        if self.parsed is None:
-            return None
-        shown = self.summary(self.parsed)
-        self._log = (self._log[0], shown, [ANSI.sub("", l) for l in shown], self.parsed["calls"])
-        return shown
+            return "main"
 
-    def summary(self, p):
-        width = max(20, self.cols)
-        label = lambda name: f"{fg(MUTED_RGB)}{name:<10}{RESET}"
-        pad = " " * 10
-        out = []
-        tool = p["last_tool"]
-        if tool:
-            name, what, ts, done = tool
-            since = duration(time.time() - ts) if ts else ""
-            if done is None and self.status()[1] == AMBER_RGB:
-                mark, when = f"{fg(AMBER_RGB)}{spinner()}", f"{since}"
-            else:
-                mark = f"{fg(RED_RGB)}✗" if done else f"{fg(GREEN_RGB)}✓"
-                when = f"{since} ago" if since else ""
-            line = f"{mark} {fg(ACCENT['subagents'])}{name}{RESET} {what}"
-            out.append(label("now") + fit(line, width - 10 - len(when) - 3) + f"{fg(MUTED_RGB)} · {when}{RESET}")
-        else:
-            out.append(label("now") + f"{DIM}starting{RESET}")
-        says = textwrap.wrap(" ".join(p["says"].split()), width - 10)[:4] if p["says"] else []
-        for n, part in enumerate(says or [f"{DIM}—{RESET}"]):
-            out.append((label("says") if n == 0 else pad) + part)
-        end = time.time() if not self.ended() and p["first"] else (p["last"] or time.time())
-        took = duration(end - p["first"]) if p["first"] else ""
-        counts = " · ".join(f"{kind} {n}" for kind, n in sorted(p["kinds"].items(), key=lambda kv: -kv[1]))
-        out.append(label("progress") + " · ".join(x for x in (took, counts) if x))
-        for n, path in enumerate(p["changed"] or ["—"]):
-            out.append((label("changed") if n == 0 else pad) + (f"{fg(AMBER_RGB)}✎ {RESET}{path}" if p["changed"] else f"{DIM}{path}{RESET}"))
-        out.append(rule(width))
-        bar = f"{fg(ACCENT['subagents'])}│ {RESET}"
-        out += [bar + part for line in p["prompt"].strip().splitlines()
-                for part in (textwrap.wrap(line, width - 2) or [""])]
-        return out
+    def info(self):
+        at_work = len(self.deck.runs) - 1
+        state = self.deck.agent_status or "idle"
+        return f"{DIM}  main agent · {state} · {at_work} subagent{'s' * (at_work != 1)} at work{RESET}"
 
-    def _load(self, path, key):
-        """Read the agent's transcript into what the summary needs."""
-        prompt, says, last_tool, results, kinds, changed, calls = "", "", None, {}, {}, [], 0
-        try:
-            with open(path) as f:
-                rows = [json.loads(l) for l in f if l.strip()]
-        except (OSError, ValueError):
-            rows = []
-        cwd = next((r.get("cwd") for r in rows if r.get("cwd")), "")
-        stamps = [r["timestamp"] for r in rows if r.get("timestamp")]
-        for r in rows:
-            content = (r.get("message") or {}).get("content")
-            if r.get("type") == "user":
-                if isinstance(content, str) and not prompt:
-                    prompt = content
-                elif isinstance(content, list):
-                    for b in content:
-                        if isinstance(b, dict) and b.get("type") == "tool_result":
-                            results[b.get("tool_use_id")] = bool(b.get("is_error"))
-            elif r.get("type") == "assistant" and isinstance(content, list):
-                for b in content:
-                    if b.get("type") == "text" and b.get("text", "").strip():
-                        says = b["text"]
-                    elif b.get("type") == "tool_use" and b.get("name") not in HARNESS_TOOLS:
-                        name = b.get("name", "")
-                        what = tool_summary(name, b.get("input"), cwd)
-                        last_tool = (name, what, r.get("timestamp"), b.get("id"))
-                        kind = TOOL_KINDS.get(name, "other")
-                        kinds[kind] = kinds.get(kind, 0) + 1
-                        calls += 1
-                        if kind == "edit" and what and what not in changed:
-                            changed.append(what)
-        if last_tool:
-            name, what, ts, call = last_tool
-            try:
-                ts = datetime_epoch(ts) if ts else None
-            except ValueError:
-                ts = None
-            last_tool = (name, what, ts, results.get(call))
-        epoch = lambda t: datetime_epoch(t) if t else None
-        try:
-            first, last = (epoch(stamps[0]), epoch(stamps[-1])) if stamps else (None, None)
-        except ValueError:
-            first = last = None
-        if first:
-            self.first = first
-        self.prompt = prompt
-        self.parsed = {"prompt": prompt, "says": says, "last_tool": last_tool, "kinds": kinds,
-                       "changed": changed, "calls": calls, "first": first, "last": last}
-        self._log = (key, None, None, calls)
-        if self._loading == key:
-            self._loading = None
+    def command(self, cols):
+        return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.label(), max(10, cols))[:2]]
 
 
-class Subagents(Runs):
-    """The agent's Claude Code subagents: what each is doing, and how it ended."""
+class Agents(Runs):
+    """The agent on top, then its Claude Code subagents at work."""
 
-    noun = "subagents"
-    pin_top = True  # its log is a summary, read from the top
+    noun = "agents"
 
     def __init__(self):
-        super().__init__("subagents")
-        self.empty = "no subagents at work"
-        self.session, self.looked = "", 0.0          # the main transcript, found through herdr
-        self.results, self.notified = {}, {}          # what the main transcript says about them
+        super().__init__("agents")
+        self.empty = "no Claude Code session in this pane"
+        self.session, self.looked = "", 0.0           # the main transcript, found through herdr
+        self.title, self.agent_status = "", ""        # the session's title and state, as herdr has them
+        self.results, self.notified = {}, {}          # what the main transcript says about subagents
         self.read_to, self.reading = 0, False
+        self.main = None
 
     def find_session(self):
         """The newest transcript of the Claude session herdr runs in the agent's pane."""
@@ -1374,9 +1305,12 @@ class Subagents(Runs):
         try:
             out = subprocess.run([os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "get", agent],
                                  capture_output=True, text=True, timeout=3).stdout
-            ref = json.loads(out)["result"]["pane"].get("agent_session") or {}
+            pane = json.loads(out)["result"]["pane"]
         except (OSError, subprocess.SubprocessError, ValueError, KeyError):
-            ref = {}
+            pane = {}
+        ref = pane.get("agent_session") or {}
+        self.title = pane.get("label") or pane.get("terminal_title_stripped") or ""
+        self.agent_status = pane.get("agent_status") or ""
         found = []
         if ref.get("agent") == "claude" and ref.get("value"):
             root = os.path.expanduser("~/.claude/projects")
@@ -1426,7 +1360,7 @@ class Subagents(Runs):
         self.reading = False
 
     def refresh(self):
-        if time.time() - self.looked >= 5:
+        if time.time() - self.looked >= 2:
             self.looked = time.time()
             background(self.find_session)
         if self.session and not self.reading:
@@ -1436,26 +1370,34 @@ class Subagents(Runs):
         paths = glob.glob(f"{folder}/agent-*.jsonl") + glob.glob(f"{folder}/workflows/*/agent-*.jsonl") if folder else []
         keep = {r.path: r for r in getattr(self, "every", [])}
         self.every = [keep.get(p) or AgentRun(p, self) for p in paths]
-        # Only the subagents at work now: an ended or long-quiet one leaves the list.
+        if self.session and (self.main is None or self.main.path != self.session):
+            self.main = MainRun(self.session, self)
+        # The subagents at work, oldest first, and the main agent last: the list draws
+        # the last on top, so the main agent is always there.
         runs = sorted((r for r in self.every if r.status()[1] == AMBER_RGB), key=lambda r: r.first)
+        runs += [self.main] if self.session else []
         new = self.known is not None and any(r.path not in self.known for r in runs)
         picked = self.runs[self.tab].path if self.runs else None
         self.runs = runs
         paths = [r.path for r in runs]
-        if self.known is None or new or picked not in paths:
-            self.select(len(runs) - 1)  # the newest subagent, on top
+        if new:
+            self.select(max(0, len(runs) - 2))  # a new subagent: the newest, just under the main agent
+        elif self.known is None or picked not in paths:
+            self.select(len(runs) - 1)  # the main agent
         else:
             self.tab = paths.index(picked)
         self.known = set(paths)
         return new
 
     def badge(self):
-        return (spinner(), AMBER_RGB) if self.runs else ("·", MUTED_RGB)
+        if any(r.status()[1] == AMBER_RGB for r in self.runs):
+            return (spinner(), AMBER_RGB)
+        return ("·", MUTED_RGB)
 
 
 class Deck:
     def __init__(self):
-        self.views = [Subagents(), Servers()] + [Runs(k) for k in SECTIONS[2:]]
+        self.views = [Agents(), Servers()] + [Runs(k) for k in SECTIONS[2:]]
         self.section = 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")

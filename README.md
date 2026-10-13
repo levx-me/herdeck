@@ -22,11 +22,12 @@ without scrolling back through the conversation.
 
 ## Features
 
-- **One deck, six sections** — `subagents`, `servers`, `build`, `test`, `git`, `deploy`, each tab
+- **One deck, six sections** — `agents`, `servers`, `build`, `test`, `git`, `deploy`, each tab
   showing the latest status (`✓` `✗`, a spinner while running, `●` for live servers).
-- **Subagents** — each of the agent's Claude Code subagents (background ones and workflow agents
-  too) with its state, and as its log the prompt it got and every tool call and message since,
-  read from the session's transcripts as [zoetrope](https://github.com/furkankly/zoetrope) does.
+- **Agents** — the agent itself, always on top (its session title and whether it is working,
+  waiting on you or idle), and under it each Claude Code subagent at work, background and
+  workflow agents too, read from the session's transcripts as
+  [zoetrope](https://github.com/furkankly/zoetrope) does.
 - **Always there** — the deck opens beside any agent herdr recognises (Claude Code, Codex,
   OpenCode, ...) as it starts, and `prefix+d` opens or closes it beside any pane. It starts
   straight in its pane, no shell first. Claude Code is also told to run tests and builds as
@@ -113,7 +114,7 @@ the keys that apply right now.
 |---|---|---|
 | anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`6` | previous / next section, jump to one |
 | | `q` | close the deck |
-| run list (subagents, servers, build, test, git) | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
+| run list (agents, servers, build, test, git) | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top) |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |
 | | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
