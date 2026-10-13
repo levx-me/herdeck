@@ -403,8 +403,6 @@ class Run:
 
 
 _panes = (0.0, [])
-
-
 def herdr_panes():
     """Every herdr pane as (pane id, workspace id, shell pid, tty), looked up
     at most every 10s. Call it from a thread: it asks herdr once per pane."""
@@ -585,6 +583,7 @@ class Runs:
         self.msg = ""
         self.raw, self.plain, self.height = [], [], 1
         self.focus = "list"                # "list": j/k pick runs; "log": copy-mode cursor
+        self.picked = False                # a run chosen by hand (shows the arrow)
 
     def refresh(self):
         """Reload the runs; True when a new one appeared since the last look."""
@@ -604,8 +603,9 @@ class Runs:
         self.tab = max(0, min(self.tab, len(self.runs) - 1))
         return new
 
-    def select(self, tab):
-        self.tab, self.follow, self.anchor, self.msg = tab, True, None, ""
+    def select(self, tab, picked=False):
+        """Show run `tab`; picked when the user chose it (j/k, a click), not a new run."""
+        self.tab, self.follow, self.anchor, self.msg, self.picked = tab, True, None, "", picked
 
     def badge(self):
         return self.runs[-1].status() if self.runs else ("·", MUTED_RGB)
@@ -804,7 +804,9 @@ class Runs:
                 label = label[:max(1, room - 1)] + "…"
             gap = " " * max(1, cols - fixed - len(label) - len(right))
             if selected:
-                arrow = (fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)) + ("➜" if first else " ")
+                # The arrow only on a run picked by hand, not on the newest one shown by default.
+                arrow = (fg(ACCENT[self.kind]) if self.focus == "list" else fg(MUTED_RGB)) + \
+                    ("➜" if first and self.picked else " ")
                 lines.append(f"{bg(ACTIVE_RGB)}{arrow}{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
                              f"\033[22m{gap}{fg(MUTED_RGB)}{shown} {RESET}")
             else:
@@ -911,16 +913,16 @@ class Runs:
         if self.pending == "g":
             self.pending = ""
             if k == "g":
-                self.select(len(self.runs) - 1)
+                self.select(len(self.runs) - 1, True)
             return
         if k == "j":  # down the list: an older run
-            self.select(max(0, self.tab - 1))
+            self.select(max(0, self.tab - 1), True)
         elif k == "k":  # up the list: a newer run
-            self.select(min(len(self.runs) - 1, self.tab + 1))
+            self.select(min(len(self.runs) - 1, self.tab + 1), True)
         elif k == "g":
             self.pending = "g"
         elif k == "G":
-            self.select(0)
+            self.select(0, True)
         elif k in ("\r", "\n", "l"):  # into the output, cursor on its last line
             self.focus, self.follow, self.cx = "log", False, 0
 
@@ -928,7 +930,7 @@ class Runs:
         """A click on the run list shows that run; in the log it moves the cursor."""
         listed = getattr(self, "listed", [])
         if self.runs and 0 <= row - HEAD_ROW - 1 < len(listed):  # below the box's top border
-            self.select(listed[row - HEAD_ROW - 1])
+            self.select(listed[row - HEAD_ROW - 1], True)
             self.focus = "list"
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus = "log"
