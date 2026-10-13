@@ -80,14 +80,21 @@ SGR = re.compile(r"\x1b\[([0-9;]*)m")
 
 
 def tint(line, rgb):
-    """The line with its default-coloured text in rgb; text the program coloured keeps its colour."""
+    """The line faint, its default-coloured text in rgb: text the program
+    coloured keeps its hue but loses its brightness, so none of it outshines
+    the list."""
     def after(m):
         params = m.group(1).split(";") if m.group(1) else ["0"]
         # Back to the default foreground: a reset or 39 with no colour set after it.
-        back, i = False, 0
+        # A reset or 22 also ends faint, so it goes back on.
+        back, faint, i = False, False, 0
         while i < len(params):
             p = params[i]
-            if p in ("", "0", "39"):
+            if p in ("", "0"):
+                back = faint = True
+            elif p == "22":
+                faint = True
+            elif p == "39":
                 back = True
             elif p in ("38", "48"):  # extended colour: skip its arguments
                 if p == "38":
@@ -97,8 +104,8 @@ def tint(line, rgb):
             elif p.isdigit() and (30 <= int(p) <= 37 or 90 <= int(p) <= 97):
                 back = False
             i += 1
-        return m.group(0) + (fg(rgb) if back else "")
-    return fg(rgb) + SGR.sub(after, line)
+        return m.group(0) + (fg(rgb) if back else "") + ("\033[2m" if faint else "")
+    return fg(rgb) + "\033[2m" + SGR.sub(after, line)
 
 
 def visible_len(s):
