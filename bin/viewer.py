@@ -897,6 +897,9 @@ class Runs:
             steps = git_steps(run.full) if self.kind == "git" else []
             for n, text in enumerate(steps or [run.label()]):
                 entries.append((i, n == 0, text))
+            # A second row (agents: what it is doing), when the list has the room.
+            if hasattr(run, "subline") and getattr(self, "list_rows", LIST_ROWS) >= 6:
+                entries.append((i, False, run.subline()))
         at = next(n for n, (i, first, _) in enumerate(entries) if i == self.tab)
         span = sum(1 for i, _, _ in entries if i == self.tab)
         most = getattr(self, "list_rows", LIST_ROWS)
@@ -918,8 +921,11 @@ class Runs:
                 right = f"{branch}  {age}  {sha:7}" if branch else f"{age}  {sha:7}" if self.kind == "git" else age
                 shown = (f"{fg(DIMMED_RGB)}{branch}{fg(MUTED_RGB)}  " if branch else "") + \
                     (f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age)
+            elif isinstance(label, tuple):  # a run's second row: its own text and right-hand side
+                (label, right, shown), icon, colour = label, " ", MUTED_RGB
             else:
                 icon, colour, right, shown = " ", MUTED_RGB, "", ""
+            sub = not first and bool(right)
             # "➜ ✓ label<gap>right " and "  ✓ label<gap>right " both fill the line.
             fixed = 5
             room = cols - fixed - 1 - len(right)
@@ -933,11 +939,14 @@ class Runs:
                 arrow = fg(MUTED_RGB) + ("➜" if first and self.focus == "log" else " ")
                 back = blend(ACCENT[self.kind], ACTIVE_RGB, fade) if fade < 1 else ACTIVE_RGB
                 ink = STRIP_RGB if fade < 0.5 else BRIGHT_RGB  # dark on the bright start, then light
-                lines.append(f"{bg(back)}{arrow}{fg(ink if fade < 0.5 else colour)} {icon} {fg(ink)}{BOLD}{label}"
+                weight = "" if sub else BOLD
+                ink = MUTED_RGB if sub and fade >= 0.5 else ink
+                lines.append(f"{bg(back)}{arrow}{fg(ink if fade < 0.5 else colour)} {icon} {fg(ink)}{weight}{label}"
                              f"\033[22m{gap}{fg(ink if fade < 0.5 else MUTED_RGB)}{ANSI.sub('', shown) if fade < 0.5 else shown} {RESET}")
             else:
                 # Labels bright while the cursor is in the list, dim while it is in the log.
                 text = BRIGHT_RGB if self.focus == "list" else DIMMED_RGB
+                text = MUTED_RGB if sub and self.focus == "list" else text
                 lines.append(f"  {fg(colour)}{icon} {fg(text)}{label}{fg(MUTED_RGB)}{gap}{shown} {RESET}")
         return lines
 
@@ -1320,6 +1329,18 @@ def took(secs):
     return f"{secs // 60}m {secs % 60}s" if secs >= 60 else f"{secs}s"
 
 
+def heartbeat(stamps, width):
+    """Transcript writes over the last width × BEAT_SECS seconds, a column each, newest on the right."""
+    now = time.time()
+    beats = [0] * width
+    for t in stamps:
+        col = width - 1 - int((now - t) // BEAT_SECS)
+        if 0 <= col < width:
+            beats[col] += 1
+    top = max(beats) or 1
+    return "".join(SPARK[min(8, -(-n * 8 // top))] if n else SPARK[0] for n in beats)
+
+
 def status_block(state, colour, icon, since, stamps, cols):
     """An agent's state at a glance: a coloured pill, how long, and a heartbeat of
     its transcript writes over the last minutes (one column per BEAT_SECS)."""
@@ -1327,13 +1348,7 @@ def status_block(state, colour, icon, since, stamps, cols):
     pill = f"{bg(colour)}{fg(STRIP_RGB)}{BOLD} {icon} {state.upper()} {RESET}"
     lines = [f" {pill}{fg(MUTED_RGB)}  {since}{RESET}", ""]
     width = max(10, cols - 2)
-    beats = [0] * width
-    for t in stamps:
-        col = width - 1 - int((now - t) // BEAT_SECS)
-        if 0 <= col < width:
-            beats[col] += 1
-    top = max(beats) or 1
-    spark = "".join(SPARK[min(8, -(-n * 8 // top))] if n else SPARK[0] for n in beats)
+    spark = heartbeat(stamps, width)
     span = f"{width * BEAT_SECS // 60}m ago"
     lines += [f" {fg(colour)}{spark}{RESET}",
               f" {fg(MUTED_RGB)}{span}{' ' * max(1, width - len(span) - 3)}now{RESET}"]
@@ -1650,6 +1665,27 @@ class AgentRun(Run):
 
     def label(self):
         return "  " * int(self.meta.get("spawnDepth") or 1) + self.full  # under the main agent
+
+    SUB_BEATS = 12  # the list's heartbeat: the last two minutes
+
+    def subline(self):
+        """The row under its name in the list: what it is doing (the call running, else
+        its latest words, else its last call) and its heartbeat, as (text, plain, shown)."""
+        self.count()
+        d = self.digest
+        if isinstance(self, MainRun) and self.deck.agent_status == "blocked":
+            doing = "waiting for you"
+        elif d.open or (d.last_tool and not d.says):
+            name, what, _ = list(d.open.values())[-1] if d.open else d.last_tool
+            doing = f"{name} {what.splitlines()[0] if what else ''}".rstrip()
+        else:
+            # Its first line of words, without markdown marks.
+            lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
+            doing = next((l for l in lines if l), "")
+        indent = " " * (len(self.label()) - len(self.label().lstrip(" ")) + 2)
+        beat = heartbeat(self.stamps, self.SUB_BEATS)
+        colour = self.status()[1]
+        return indent + doing, beat, f"{fg(colour if colour != MUTED_RGB else DIMMED_RGB)}{beat}"
 
     def age(self):
         """How long it has been at work (the list shows only those at work)."""

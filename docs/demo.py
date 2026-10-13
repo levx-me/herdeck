@@ -243,11 +243,12 @@ def run_box(rows, accent, noun, picked=0, fade=None, state=None):
                    f'height="{span * LH:.1f}" fill="{accent}"/>')
     for i, (icon, colour, label, right) in enumerate(rows):
         on = at <= i < at + span
+        sub = not icon and right  # an agent's second row: what it does, its heartbeat in its colour
         mark = [(SPIN, colour), (" ", colour)] if icon == SPIN else [(f"{icon} " if icon else "  ", colour)]
-        left = [("   ", MUTED), *mark, (label, BRIGHT if on else TEXT, on)]
+        left = [("   ", MUTED), *mark, (label, MUTED) if sub else (label, BRIGHT if on else TEXT, on)]
         room = D - 2 - (3 + 2 + len(label)) - 1
         tail = (lambda n: lambda t: right(t).rjust(n))(room) if callable(right) else right.rjust(room)
-        text(d0, first + i, left + [(tail, MUTED)], end)
+        text(d0, first + i, left + [(tail, colour if sub else MUTED)], end)
     return first + len(rows) + 1
 
 
@@ -321,11 +322,15 @@ def bar(parts, width):
 
 def scene_agents():
     section_bar(0)
-    row = run_box([(SPIN, AMBER, "add refresh tokens to the auth middleware", lambda t: took(134 + t)),
-                   (SPIN, AMBER, "  Map the auth tests", lambda t: took(38 + t))], ACCENT["AGENTS"], "agents")
-    rect(d0 + 1, row, 11, AMBER)  # the WORKING pill
     # The heartbeat scrolls left a column a second, new beats coming in at the right.
     beats, rates = heartbeat(CYCLE + D - 2)
+    theirs, _ = heartbeat(CYCLE + 12, seed=11)
+    row = run_box([(SPIN, AMBER, "add refresh tokens to the auth middleware", lambda t: took(134 + t)),
+                   ("", AMBER, "  Bash npm test", lambda t: beats[t + D - 14:t + D - 2]),
+                   (SPIN, AMBER, "  Map the auth tests", lambda t: took(38 + t)),
+                   ("", AMBER, "    Read src/auth/refresh.test.ts", lambda t: theirs[t:t + 12])],
+                  ACCENT["AGENTS"], "agents")
+    rect(d0 + 1, row, 11, AMBER)  # the WORKING pill
     body(row, [
         [("  ", STRIP, True), (SPIN, STRIP, True), (" WORKING ", STRIP, True), ("   ", MUTED), ("↑", GREEN),
          (lambda t: f" {rates[t % len(rates)]} tok/min", MUTED)],

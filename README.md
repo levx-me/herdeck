@@ -26,7 +26,7 @@ without scrolling back through the conversation.
   showing the latest status (`✓` `✗`, a spinner while running, `●` for live servers).
 - **Agents** — the agent itself, always on top (its session title and whether it is working,
   waiting on you or idle), and under it each Claude Code subagent at work, background and
-  workflow agents too, read from the session's transcripts as
+  workflow agents too, each with a second row: what it is doing now and a two-minute heartbeat. Read from the session's transcripts as
   [zoetrope](https://github.com/furkankly/zoetrope) does.
 - **Jobs** — any other command of the agent that takes 10s or more (a wait loop, an install, a
   script with a long timeout) shows up with what it is for (the call's description), how long it
