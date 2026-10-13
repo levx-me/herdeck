@@ -464,3 +464,55 @@ describe("servers lists the project's dev servers", () => {
     }
   });
 });
+
+describe("the subagents section reads the session's subagents", () => {
+  const { mkdtempSync, mkdirSync, writeFileSync } = require("node:fs");
+  const { tmpdir } = require("node:os");
+
+  test("states come from the main transcript, activity from each subagent's own", () => {
+    const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
+    const main = join(dir, "s1.jsonl");
+    const subs = join(dir, "s1", "subagents");
+    mkdirSync(join(subs, "workflows", "wf_1"), { recursive: true });
+    const line = (o: object) => JSON.stringify(o);
+    const agent = (folder: string, id: string, meta: object, rows: object[]) => {
+      writeFileSync(join(folder, `agent-${id}.meta.json`), JSON.stringify(meta));
+      writeFileSync(join(folder, `agent-${id}.jsonl`), rows.map(line).join("\n") + "\n");
+    };
+    const at = "2026-01-01T00:00:00Z";
+    agent(subs, "aaa", { agentType: "Explore", description: "Map the repo", toolUseId: "t1" }, [
+      { type: "user", timestamp: at, cwd: "/repo", message: { content: "List the files" } },
+      { type: "assistant", timestamp: at, message: { content: [{ type: "tool_use", id: "x1", name: "Read", input: { file_path: "/repo/src/a.ts" } }] } },
+      { type: "user", timestamp: at, message: { content: [{ type: "tool_result", tool_use_id: "x1" }] } },
+      { type: "assistant", timestamp: at, message: { content: [{ type: "text", text: "Done mapping." }] } },
+    ]);
+    agent(subs, "bbb", { agentType: "general-purpose", description: "Fix it", toolUseId: "t2" }, [
+      { type: "user", timestamp: at, message: { content: "Fix" } },
+    ]);
+    agent(join(subs, "workflows", "wf_1"), "ccc", { agentType: "Plan", description: "Plan it", toolUseId: "t3", requestShape: "background" }, [
+      { type: "user", timestamp: at, message: { content: "Plan" } },
+    ]);
+    writeFileSync(main, [
+      { type: "user", message: { content: [{ type: "tool_result", tool_use_id: "t1" }, { type: "tool_result", tool_use_id: "t2", is_error: true }] } },
+      { type: "queue-operation", content: "<task-notification>\n<task-id>ccc</task-id>\n<status>completed</status>\n</task-notification>" },
+    ].map(line).join("\n") + "\n");
+    const check = `
+import os, sys, time
+from importlib.machinery import SourceFileLoader
+v = SourceFileLoader("v", sys.argv[1]).load_module()
+v.background = lambda fn, *a: fn(*a)  # inline, for the test
+s = v.Subagents(); s.session, s.looked = sys.argv[2], time.time()
+s.read_main(); s.refresh()
+for r in s.runs:
+    print(r.id, r.ended(), r.meta.get("agentType"), r._log[3], *(l for l in r._log[2] if "Read" in l or "Done" in l))
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
+      env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
+    });
+    expect(r.stderr.toString()).toBe("");
+    const out = r.stdout.toString().trim().split("\n").sort();
+    expect(out[0]).toMatch(/^aaa done Explore 1 .*✓ Read\s+src\/a\.ts.*Done mapping\.$/); // cwd-relative path, its message
+    expect(out[1]).toBe("bbb failed general-purpose 0");
+    expect(out[2]).toBe("ccc done Plan 0"); // background, ended by its notification
+  });
+});

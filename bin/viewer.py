@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Steading deck: one read-only pane beside the agent with five sections.
+"""Steading deck: one read-only pane beside the agent with six sections.
 
     viewer.py <base>
 
@@ -9,7 +9,7 @@ end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, brings
 that section forward; a new run is also followed live.
 
-Keys: [ ] (or tab/shift-tab) and 1-5 switch sections,
+Keys: [ ] (or tab/shift-tab) and 1-6 switch sections,
 q close the pane. In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
@@ -22,6 +22,7 @@ Standard library only, so it runs on the python3 that macOS and Linux ship.
 Editing this file restarts every open deck with the new code.
 """
 import functools
+import glob
 import json
 import os
 import re
@@ -37,7 +38,7 @@ import tty
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
-SECTIONS = ["servers", "build", "test", "git", "deploy"]
+SECTIONS = ["subagents", "servers", "build", "test", "git", "deploy"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
@@ -48,13 +49,18 @@ STRIP_RGB, TAB_RGB, ACTIVE_RGB = "33;37;43", "44;49;58", "62;68;81"
 MUTED_RGB, BRIGHT_RGB = "120;127;140", "220;223;228"
 DIMMED_RGB = "88;94;105"  # the side without the cursor: list labels or the log's plain text
 GREEN_RGB, RED_RGB, AMBER_RGB, CYAN_RGB = "152;177;125", "208;134;141", "216;180;106", "127;180;180"
-ACCENT = {"servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
+ACCENT = {"subagents": "143;168;210", "servers": GREEN_RGB, "build": AMBER_RGB, "test": "122;162;200", "git": "180;142;173", "deploy": "209;154;102"}
 MOUSE = re.compile(r"\x1b\[<(\d+);(\d+);(\d+)([Mm])")
 KEYS = re.compile(r"\x1b\[[0-9;]*[A-Za-z~]|\x1bO.|\x1b|.", re.S)
 # Arrow keys move as h j k l do, in the list and in the log (normal and application cursor mode).
 ARROWS = {"\x1b[A": "k", "\x1b[B": "j", "\x1b[C": "l", "\x1b[D": "h",
           "\x1bOA": "k", "\x1bOB": "j", "\x1bOC": "l", "\x1bOD": "h"}
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+
+def background(fn, *args):
+    """Run fn in a thread, so the deck never waits on it."""
+    threading.Thread(target=fn, args=args, daemon=True).start()
 
 
 def spinner():
@@ -1106,9 +1112,283 @@ class Servers(Runs):
             super().list_key(k)
 
 
+# Subagents ------------------------------------------------------------------
+# What the agent's Claude Code subagents are doing, read from its session on
+# disk the way zoetrope does (github.com/furkankly/zoetrope):
+#   ~/.claude/projects/<project>/<session>.jsonl            the main transcript
+#   ~/.claude/projects/<project>/<session>/subagents/       one transcript per subagent,
+#       agent-<id>.jsonl + agent-<id>.meta.json             (type, description, toolUseId, depth),
+#       workflows/<run>/agent-<id>.jsonl                    the agents of a workflow run.
+# A foreground subagent has ended when the main transcript answers its Agent call
+# (tool_result for its toolUseId; is_error = failed); a background one when a
+# <task-notification> names it. Otherwise it is running while its file moves.
+
+LIVE_SECS = 300  # a subagent unended and silent this long reads as idle
+NOTIFICATION = re.compile(r"<task-id>([^<]+)</task-id>.*?<status>([^<]+)</status>", re.S)
+
+
+def short(text, cols=80):
+    line = " ".join((text or "").split())
+    return line if len(line) <= cols else line[:cols - 1] + "…"
+
+
+def tool_summary(name, args, cwd=""):
+    """One line for a tool call, picked as zoetrope does: the field that says what it does."""
+    if not isinstance(args, dict):
+        return ""
+    pick = lambda *keys: next((str(args[k]) for k in keys if isinstance(args.get(k), str) and args[k]), "")
+    if name in ("Read", "Write", "Edit", "NotebookEdit"):
+        path = pick("file_path", "path", "notebook_path")
+        return os.path.relpath(path, cwd) if cwd and path.startswith(cwd + "/") else path
+    if name == "Bash":
+        return pick("command", "description")
+    if name in ("Agent", "Task", "Workflow"):
+        return pick("description", "subagent_type")
+    return pick("pattern", "url", "query", "description", "prompt", "command", "path")
+
+
+def clock(ts):
+    try:
+        return time.strftime("%H:%M:%S", time.localtime(datetime_epoch(ts)))
+    except (TypeError, ValueError):
+        return "        "
+
+
+def datetime_epoch(ts):
+    from datetime import datetime
+    return datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
+
+
+class AgentRun(Run):
+    """One subagent: its row in the list and, as its log, what it has done."""
+
+    def __init__(self, path, deck):
+        self.path, self.deck = path, deck   # the agent's transcript; the Subagents view
+        self.id = os.path.basename(path)[len("agent-"):-len(".jsonl")]
+        try:
+            with open(path[:-len(".jsonl")] + ".meta.json") as f:
+                self.meta = json.load(f)
+        except (OSError, ValueError):
+            self.meta = {}
+        self.tag, self.is_git = "", False
+        self.full = self.cmd = self.meta.get("description") or self.id
+        self._log, self._loading = (None, None, None, ""), None
+        self.first = os.path.getmtime(path)  # until the transcript says when it began
+        self.lines()  # read it now: the list orders and dates agents by their first line
+
+    def ended(self):
+        """"done", "failed" or "stopped" once the main transcript says so, else ""."""
+        if self.meta.get("requestShape") != "background":
+            hit = self.deck.results.get(self.meta.get("toolUseId", ""))
+            if hit is not None:
+                return "failed" if hit else "done"
+        return self.deck.notified.get(self.id, "")
+
+    def status(self):
+        end = self.ended()
+        if end:
+            return {"done": ("✓", GREEN_RGB), "failed": ("✗", RED_RGB)}.get(end, ("⊘", MUTED_RGB))
+        try:
+            quiet = time.time() - os.path.getmtime(self.path)
+        except OSError:
+            quiet = LIVE_SECS
+        return (spinner(), AMBER_RGB) if quiet < LIVE_SECS else ("·", MUTED_RGB)
+
+    def rc(self):
+        return {"done": "0", "failed": "1"}.get(self.ended(), "")
+
+    def source(self):
+        return ""
+
+    def end(self):
+        return ""
+
+    def label(self):
+        depth = int(self.meta.get("spawnDepth") or 1)
+        return "  " * (depth - 1) + short(self.full, 200)
+
+    def age(self):
+        kind = self.meta.get("agentType") or "agent"
+        s = int(time.time() - self.first)
+        for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
+            if s >= size:
+                return f"{kind}  {s // size}{unit} ago"
+        return f"{kind}  {s}s ago"
+
+    def info(self):
+        self.lines()
+        calls = self._log[3]
+        end = self.ended() or ("running" if self.status()[1] == AMBER_RGB else "idle")
+        parts = [self.meta.get("agentType") or "agent", f"{calls} tool call{'s' * (calls != 1)}", end]
+        if self.meta.get("requestShape") == "background":
+            parts.insert(1, "background")
+        return f"{DIM}  {' · '.join(parts)}{RESET}"
+
+    def hash(self):
+        return ""
+
+    def command(self, cols):
+        """The head: what the agent was asked to do, as its spawn described it."""
+        return [f"{BOLD}{line}{RESET}" for line in textwrap.wrap(self.full, max(10, cols))[:3]]
+
+    def lines(self):
+        try:
+            st = os.stat(self.path)
+            key = (st.st_mtime_ns, st.st_size)
+        except OSError:
+            return []
+        if key != self._log[0] and self._loading != key:
+            self._loading = key
+            background(self._load, self.path, key)
+        return self._log[1]
+
+    def _load(self, path, key):
+        """The agent's prompt, then each tool call and message, one line each, as they came."""
+        prompt, events, results = "", [], {}
+        try:
+            with open(path) as f:
+                rows = [json.loads(l) for l in f if l.strip()]
+        except (OSError, ValueError):
+            rows = []
+        cwd = next((r.get("cwd") for r in rows if r.get("cwd")), "")
+        for r in rows:
+            content = (r.get("message") or {}).get("content")
+            if r.get("type") == "user":
+                if isinstance(content, str) and not prompt:
+                    prompt = content
+                elif isinstance(content, list):
+                    for b in content:
+                        if b.get("type") == "tool_result":
+                            results[b.get("tool_use_id")] = bool(b.get("is_error"))
+            elif r.get("type") == "assistant" and isinstance(content, list):
+                for b in content:
+                    if b.get("type") == "text" and b.get("text", "").strip():
+                        events.append((r.get("timestamp"), "text", "", b["text"], None))
+                    elif b.get("type") == "tool_use":
+                        events.append((r.get("timestamp"), "tool", b.get("name", ""),
+                                       tool_summary(b.get("name", ""), b.get("input"), cwd), b.get("id")))
+        if rows and rows[0].get("timestamp"):
+            try:
+                self.first = datetime_epoch(rows[0]["timestamp"])
+            except ValueError:
+                pass
+        shown = [f"{fg(MUTED_RGB)}prompt{RESET}"]
+        shown += [f"  {l}" for l in (prompt.strip().splitlines() or [""])[:12]]
+        shown.append("")
+        for ts, what, name, text, call in events:
+            if what == "text":
+                shown.append(f"{fg(MUTED_RGB)}{clock(ts)}   {RESET}{short(text, 400)}")
+                continue
+            done = results.get(call)
+            mark = (f"{fg(RED_RGB)}✗" if done else f"{fg(GREEN_RGB)}✓") if done is not None else f"{fg(AMBER_RGB)}…"
+            shown.append(f"{fg(MUTED_RGB)}{clock(ts)} {mark} {fg(ACCENT['subagents'])}{name:<8}{RESET} {text}")
+        calls = sum(1 for e in events if e[1] == "tool")
+        self._log = (key, shown, [ANSI.sub("", l) for l in shown], calls)
+        if self._loading == key:
+            self._loading = None
+
+
+class Subagents(Runs):
+    """The agent's Claude Code subagents: what each is doing, and how it ended."""
+
+    noun = "subagents"
+
+    def __init__(self):
+        super().__init__("subagents")
+        self.empty = "no subagents in this session yet"
+        self.session, self.looked = "", 0.0          # the main transcript, found through herdr
+        self.results, self.notified = {}, {}          # what the main transcript says about them
+        self.read_to, self.reading = 0, False
+
+    def find_session(self):
+        """The newest transcript of the Claude session herdr runs in the agent's pane."""
+        agent = os.path.basename(BASE).replace("_", ":")
+        try:
+            out = subprocess.run([os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "get", agent],
+                                 capture_output=True, text=True, timeout=3).stdout
+            ref = json.loads(out)["result"]["pane"].get("agent_session") or {}
+        except (OSError, subprocess.SubprocessError, ValueError, KeyError):
+            ref = {}
+        found = []
+        if ref.get("agent") == "claude" and ref.get("value"):
+            root = os.path.expanduser("~/.claude/projects")
+            try:
+                found = [os.path.join(root, d, ref["value"] + ".jsonl") for d in os.listdir(root)]
+            except OSError:
+                pass
+        found = [f for f in found if os.path.isfile(f)]
+        session = max(found, key=os.path.getmtime) if found else ""
+        if session != self.session:
+            self.session, self.results, self.notified, self.read_to = session, {}, {}, 0
+
+    def read_main(self):
+        """What the main transcript has said since the last read: answers to Agent calls
+        and task notifications (a big transcript is read once, then only its new lines)."""
+        try:
+            with open(self.session, "rb") as f:
+                f.seek(self.read_to)
+                data = f.read()
+        except OSError:
+            data = b""
+        done = data.rfind(b"\n") + 1  # leave a half-written last line for next time
+        for raw in data[:done].splitlines():
+            if b"tool_result" not in raw and b"task-notification" not in raw:
+                continue
+            try:
+                row = json.loads(raw)
+            except ValueError:
+                continue
+            content = (row.get("message") or {}).get("content")
+            blocks = content if isinstance(content, list) else [{"type": "text", "text": content or ""}]
+            # A notification for a busy session waits in the queue first (a top-level
+            # "content", type queue-operation) and reaches the messages only later.
+            if isinstance(row.get("content"), str):
+                blocks.append({"type": "text", "text": row["content"]})
+            for b in blocks:
+                if not isinstance(b, dict):
+                    continue
+                if b.get("type") == "tool_result":
+                    self.results[b.get("tool_use_id")] = bool(b.get("is_error"))
+                text = b.get("text") if b.get("type") == "text" else None
+                if isinstance(text, str) and "<task-notification>" in text:
+                    for agent, status in NOTIFICATION.findall(text):
+                        self.notified[agent.strip()] = {"completed": "done", "failed": "failed"}.get(
+                            status.strip(), "stopped" if status.strip() in ("stopped", "killed") else "")
+        self.read_to += done
+        self.reading = False
+
+    def refresh(self):
+        if time.time() - self.looked >= 5:
+            self.looked = time.time()
+            background(self.find_session)
+        if self.session and not self.reading:
+            self.reading = True
+            background(self.read_main)
+        folder = self.session[:-len(".jsonl")] + "/subagents" if self.session else ""
+        paths = glob.glob(f"{folder}/agent-*.jsonl") + glob.glob(f"{folder}/workflows/*/agent-*.jsonl") if folder else []
+        keep = {r.path: r for r in self.runs}
+        runs = sorted((keep.get(p) or AgentRun(p, self) for p in paths), key=lambda r: r.first)
+        new = self.known is not None and any(r.path not in self.known for r in runs)
+        picked = self.runs[self.tab].path if self.runs else None
+        self.runs = runs
+        paths = [r.path for r in runs]
+        if self.known is None or new or picked not in paths:
+            self.select(len(runs) - 1)  # the newest subagent, on top
+        else:
+            self.tab = paths.index(picked)
+        self.known = set(paths)
+        return new
+
+    def badge(self):
+        running = [r for r in self.runs if r.status()[1] == AMBER_RGB]
+        if running:
+            return (spinner(), AMBER_RGB)
+        return self.runs[-1].status() if self.runs else ("·", MUTED_RGB)
+
+
 class Deck:
     def __init__(self):
-        self.views = [Servers()] + [Runs(k) for k in SECTIONS[1:]]
+        self.views = [Subagents(), Servers()] + [Runs(k) for k in SECTIONS[2:]]
         self.section = 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
@@ -1159,7 +1439,7 @@ class Deck:
         for i, view in enumerate(self.views):
             icon, colour = view.badge()
             name = view.kind.upper()
-            # No number on the tab (1-5 still jump there): five fit a narrow pane.
+            # No number on the tab (1-6 still jump there): more fit a narrow pane.
             if i == self.section:
                 text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {name} {icon} \033[22m"
             else:
