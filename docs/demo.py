@@ -3,7 +3,7 @@
 
     python3 docs/demo.py > docs/demo.svg
 
-The deck side cycles through four sections (agents, test, git, servers), each a
+The deck side cycles through its six sections in tab order, each a
 layer of the SVG that CSS shows in turn; viewers who ask for reduced motion see
 the first one still. Every run of text sits on a character grid at its own x,
 so the columns line up whatever monospace font the viewer has. Colours are the
@@ -325,7 +325,50 @@ def scene_servers():
     hints([("j/k", "select"), ("enter", "log"), ("o", "browser"), ("[ ]", "tabs"), ("q", "close")])
 
 
-scenes = [scene_agents, scene_test, scene_git, scene_servers]
+def scene_build():
+    section_bar(2)
+    row = run_box([("◐", AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
+                   ("✗", RED, "npm run build", "21m ago")], ACCENT["BUILD"], "runs")
+    body(row, [
+        [("$ ", MUTED), ("npm run build", BRIGHT, True)],
+        [("  ~/app · 9s · running", MUTED)],
+        RULE,
+        [("> app@0.1.0 build", MUTED)],
+        [("> next build", MUTED)],
+        [],
+        [("   ▲ Next.js 15.4.1", TEXT)],
+        [],
+        [("   Creating an optimized production build ...", TEXT)],
+        [(" ✓ ", GREEN), ("Compiled successfully in 6.2s", TEXT)],
+        [(" ✓ ", GREEN), ("Linting and checking validity of types", TEXT)],
+        [("   Collecting page data ", TEXT), ("...", MUTED)],
+        [],
+        [("◐ running 9s", AMBER)],
+    ])
+    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
+
+
+def scene_deploy():
+    section_bar(5)
+    row = run_box([("✓", GREEN, "vercel --prod", "2m ago"), ("✓", GREEN, "vercel", "18m ago")],
+                  ACCENT["DEPLOY"], "runs")
+    body(row, [
+        [("$ ", MUTED), ("vercel --prod", BRIGHT, True)],
+        [("  ~/app · 41s · exit 0", MUTED)],
+        RULE,
+        [("Vercel CLI 44.2.0", MUTED)],
+        [("Inspect: ", TEXT), ("https://vercel.com/acme/app/9Ft2", CYAN)],
+        [("Production: ", TEXT), ("https://app.vercel.app", CYAN), (" [41s]", MUTED)],
+        [],
+        [("Building", TEXT), ("  ✓ Compiled successfully", GREEN)],
+        [("Deploying outputs ...", TEXT)],
+        [("Aliased ", TEXT), ("https://app.example.com", CYAN)],
+    ])
+    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
+
+
+# In the order of the tabs.
+scenes = [scene_agents, scene_servers, scene_build, scene_test, scene_git, scene_deploy]
 for i, draw in enumerate(scenes):
     out.append(f'<g class="scene s{i}">')
     draw()

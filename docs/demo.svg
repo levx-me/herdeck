@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1296 807" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
-<style>.scene{opacity:0;animation-duration:16s;animation-iteration-count:infinite;animation-timing-function:step-end}.s0{opacity:1}@keyframes k0{0%{opacity:1}25%{opacity:0}100%{opacity:0}}.s0{animation-name:k0}@keyframes k1{0%{opacity:0}25%{opacity:1}50%{opacity:0}100%{opacity:0}}.s1{animation-name:k1}@keyframes k2{0%{opacity:0}50%{opacity:1}75%{opacity:0}100%{opacity:0}}.s2{animation-name:k2}@keyframes k3{0%{opacity:0}75%{opacity:1}100%{opacity:0}100%{opacity:0}}.s3{animation-name:k3}@media (prefers-reduced-motion:reduce){.scene{animation:none}}</style>
+<style>.scene{opacity:0;animation-duration:24s;animation-iteration-count:infinite;animation-timing-function:step-end}.s0{opacity:1}@keyframes k0{0%{opacity:1}16%{opacity:0}100%{opacity:0}}.s0{animation-name:k0}@keyframes k1{0%{opacity:0}16%{opacity:1}33%{opacity:0}100%{opacity:0}}.s1{animation-name:k1}@keyframes k2{0%{opacity:0}33%{opacity:1}50%{opacity:0}100%{opacity:0}}.s2{animation-name:k2}@keyframes k3{0%{opacity:0}50%{opacity:1}66%{opacity:0}100%{opacity:0}}.s3{animation-name:k3}@keyframes k4{0%{opacity:0}66%{opacity:1}83%{opacity:0}100%{opacity:0}}.s4{animation-name:k4}@keyframes k5{0%{opacity:0}83%{opacity:1}100%{opacity:0}100%{opacity:0}}.s5{animation-name:k5}@media (prefers-reduced-motion:reduce){.scene{animation:none}}</style>
 <rect width="1296" height="807" rx="10" fill="#1b1e23"/>
 <path d="M10 0H1286a10 10 0 0 1 10 10V38H0V10a10 10 0 0 1 10-10z" fill="#21252b"/>
 <circle cx="20" cy="19.0" r="6" fill="#ff5f57"/>
@@ -191,6 +191,131 @@
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
 <text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
+<rect x="879.2" y="52.0" width="92.4" height="19.0" rx="0" fill="#98b17d"/>
+<text x="887.6" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">SERVERS</text>
+<text x="954.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">●</text>
+<rect x="980.0" y="52.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
+<text x="988.4" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">BUILD</text>
+<text x="1038.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
+<rect x="1064.0" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
+<rect x="1139.6" y="52.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1148.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">GIT</text>
+<text x="1181.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
+<text x="1206.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<rect x="782.6" y="80.5" width="495.6" height="57.0" rx="5" fill="none" stroke="#98b17d"/>
+<rect x="791.0" y="72.9" width="109.2" height="15.2" fill="#1b1e23"/>
+<text x="803.6" y="84.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">servers · 2</text>
+<rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
+<text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
+<text x="1215.2" y="103.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:3000</text>
+<text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">anvil --block-time 2</text>
+<text x="1215.2" y="122.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8545</text>
+<text x="778.4" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
+<text x="795.2" y="160.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
+<text x="795.2" y="179.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">http://localhost:3000</text>
+<text x="980.0" y="179.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· pid 41233 · log file</text>
+<line x1="778.4" y1="194.5" x2="1282.4" y2="194.5" stroke="#3e4451" stroke-width="1"/>
+<text x="803.6" y="217.7" textLength="235.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">▲ Next.js 15.4.1 (Turbopack)</text>
+<text x="803.6" y="236.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">- Local:</text>
+<text x="938.0" y="236.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">http://localhost:3000</text>
+<text x="803.6" y="255.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">- Environments: .env.local</text>
+<text x="786.8" y="293.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="803.6" y="293.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Starting...</text>
+<text x="786.8" y="312.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="803.6" y="312.7" textLength="117.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Ready in 812ms</text>
+<text x="786.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">○</text>
+<text x="803.6" y="331.7" textLength="260.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Compiling /api/auth/refresh ...</text>
+<text x="786.8" y="350.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="803.6" y="350.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Compiled /api/auth/refresh in 214ms</text>
+<text x="786.8" y="369.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">POST</text>
+<text x="828.8" y="369.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">/api/auth/refresh</text>
+<text x="980.0" y="369.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#98b17d">200</text>
+<text x="1013.6" y="369.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">in 38ms</text>
+<text x="786.8" y="388.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">POST</text>
+<text x="828.8" y="388.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">/api/auth/refresh</text>
+<text x="980.0" y="388.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#d0868d">401</text>
+<text x="1013.6" y="388.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">in 12ms</text>
+<text x="786.8" y="407.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">GET</text>
+<text x="828.8" y="407.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">/api/health</text>
+<text x="929.6" y="407.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#98b17d">200</text>
+<text x="963.2" y="407.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">in 4ms</text>
+<rect x="778.4" y="774.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
+<text x="786.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
+<text x="820.4" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
+<text x="887.6" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
+<text x="938.0" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">log</text>
+<text x="980.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">o</text>
+<text x="996.8" y="787.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">browser</text>
+<text x="1072.4" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1106.0" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tabs</text>
+<text x="1156.4" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
+<text x="1173.2" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+</g>
+<g class="scene s2">
+<rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
+<rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
+<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
+<rect x="879.2" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="887.6" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
+<text x="954.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<rect x="980.0" y="52.0" width="75.6" height="19.0" rx="0" fill="#d8b46a"/>
+<text x="988.4" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">BUILD</text>
+<text x="1038.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">✓</text>
+<rect x="1064.0" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
+<rect x="1139.6" y="52.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1148.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">GIT</text>
+<text x="1181.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
+<text x="1206.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<rect x="782.6" y="80.5" width="495.6" height="76.0" rx="5" fill="none" stroke="#d8b46a"/>
+<rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
+<text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 3</text>
+<rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
+<text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">◐</text>
+<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
+<text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
+<text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="820.4" y="122.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">6m ago</text>
+<text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
+<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="1198.4" y="141.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">21m ago</text>
+<text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
+<text x="795.2" y="179.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
+<text x="795.2" y="198.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 9s · running</text>
+<line x1="778.4" y1="213.5" x2="1282.4" y2="213.5" stroke="#3e4451" stroke-width="1"/>
+<text x="778.4" y="236.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">&gt; app@0.1.0 build</text>
+<text x="778.4" y="255.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">&gt; next build</text>
+<text x="803.6" y="293.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">▲ Next.js 15.4.1</text>
+<text x="803.6" y="331.7" textLength="352.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Creating an optimized production build ...</text>
+<text x="786.8" y="350.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="803.6" y="350.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Compiled successfully in 6.2s</text>
+<text x="786.8" y="369.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="803.6" y="369.7" textLength="319.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Linting and checking validity of types</text>
+<text x="803.6" y="388.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Collecting page data</text>
+<text x="980.0" y="388.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">...</text>
+<text x="778.4" y="426.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">◐ running 9s</text>
+<rect x="778.4" y="774.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
+<text x="786.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
+<text x="820.4" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
+<text x="887.6" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
+<text x="938.0" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
+<text x="988.4" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1022.0" y="787.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
+<text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+</g>
+<g class="scene s3">
+<rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
+<rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
+<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
 <rect x="879.2" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
 <text x="887.6" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
 <text x="954.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
@@ -270,7 +395,7 @@
 <text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s2">
+<g class="scene s4">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
@@ -334,73 +459,57 @@
 <text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s3">
+<g class="scene s5">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
-<rect x="879.2" y="52.0" width="92.4" height="19.0" rx="0" fill="#98b17d"/>
-<text x="887.6" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">SERVERS</text>
-<text x="954.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">●</text>
-<rect x="980.0" y="52.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="988.4" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">BUILD</text>
-<text x="1038.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
-<rect x="1064.0" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
-<rect x="1139.6" y="52.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1148.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">GIT</text>
-<text x="1181.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
-<text x="1206.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
-<rect x="782.6" y="80.5" width="495.6" height="57.0" rx="5" fill="none" stroke="#98b17d"/>
-<rect x="791.0" y="72.9" width="109.2" height="15.2" fill="#1b1e23"/>
-<text x="803.6" y="84.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">servers · 2</text>
+<text x="778.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
+<rect x="786.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="795.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
+<text x="862.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<rect x="887.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
+<text x="896.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">BUILD</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
+<rect x="971.6" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="980.0" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">◐</text>
+<rect x="1047.2" y="52.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1055.6" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">GIT</text>
+<text x="1089.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
+<rect x="1114.4" y="52.0" width="84.0" height="19.0" rx="0" fill="#d19a66"/>
+<text x="1122.8" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">DEPLOY</text>
+<text x="1181.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">·</text>
+<rect x="782.6" y="80.5" width="495.6" height="57.0" rx="5" fill="none" stroke="#d19a66"/>
+<rect x="791.0" y="72.9" width="84.0" height="15.2" fill="#1b1e23"/>
+<text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 2</text>
 <rect x="786.8" y="90.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
-<text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
-<text x="1215.2" y="103.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:3000</text>
-<text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">anvil --block-time 2</text>
-<text x="1215.2" y="122.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8545</text>
+<text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
+<text x="1206.8" y="103.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">2m ago</text>
+<text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<text x="820.4" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel</text>
+<text x="1198.4" y="122.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">18m ago</text>
 <text x="778.4" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
-<text x="795.2" y="160.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
-<text x="795.2" y="179.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">http://localhost:3000</text>
-<text x="980.0" y="179.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· pid 41233 · log file</text>
+<text x="795.2" y="160.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
+<text x="795.2" y="179.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · 41s · exit 0</text>
 <line x1="778.4" y1="194.5" x2="1282.4" y2="194.5" stroke="#3e4451" stroke-width="1"/>
-<text x="803.6" y="217.7" textLength="235.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">▲ Next.js 15.4.1 (Turbopack)</text>
-<text x="803.6" y="236.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">- Local:</text>
-<text x="938.0" y="236.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">http://localhost:3000</text>
-<text x="803.6" y="255.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">- Environments: .env.local</text>
-<text x="786.8" y="293.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="803.6" y="293.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Starting...</text>
-<text x="786.8" y="312.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="803.6" y="312.7" textLength="117.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Ready in 812ms</text>
-<text x="786.8" y="331.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">○</text>
-<text x="803.6" y="331.7" textLength="260.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Compiling /api/auth/refresh ...</text>
-<text x="786.8" y="350.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="803.6" y="350.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Compiled /api/auth/refresh in 214ms</text>
-<text x="786.8" y="369.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">POST</text>
-<text x="828.8" y="369.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">/api/auth/refresh</text>
-<text x="980.0" y="369.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#98b17d">200</text>
-<text x="1013.6" y="369.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">in 38ms</text>
-<text x="786.8" y="388.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">POST</text>
-<text x="828.8" y="388.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">/api/auth/refresh</text>
-<text x="980.0" y="388.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#d0868d">401</text>
-<text x="1013.6" y="388.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">in 12ms</text>
-<text x="786.8" y="407.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">GET</text>
-<text x="828.8" y="407.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">/api/health</text>
-<text x="929.6" y="407.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#98b17d">200</text>
-<text x="963.2" y="407.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">in 4ms</text>
+<text x="778.4" y="217.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">Vercel CLI 44.2.0</text>
+<text x="778.4" y="236.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Inspect:</text>
+<text x="854.0" y="236.7" textLength="268.8" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">https://vercel.com/acme/app/9Ft2</text>
+<text x="778.4" y="255.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Production:</text>
+<text x="879.2" y="255.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">https://app.vercel.app</text>
+<text x="1072.4" y="255.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">[41s]</text>
+<text x="778.4" y="293.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Building</text>
+<text x="862.4" y="293.7" textLength="193.2" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓ Compiled successfully</text>
+<text x="778.4" y="312.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Deploying outputs ...</text>
+<text x="778.4" y="331.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Aliased</text>
+<text x="845.6" y="331.7" textLength="193.2" lengthAdjust="spacingAndGlyphs" fill="#7fb4b4">https://app.example.com</text>
 <rect x="778.4" y="774.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="786.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
 <text x="820.4" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
 <text x="887.6" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="938.0" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">log</text>
-<text x="980.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">o</text>
-<text x="996.8" y="787.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">browser</text>
-<text x="1072.4" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1106.0" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tabs</text>
-<text x="1156.4" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
-<text x="1173.2" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="938.0" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
+<text x="988.4" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1022.0" y="787.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
+<text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 </svg>
