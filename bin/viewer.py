@@ -802,6 +802,8 @@ class Runs:
 
     def frame(self, cols, rows):
         """Head lines (run list, info, rule) and the visible log lines."""
+        # A short pane (a deck on top of its agent) keeps a shorter list, so the log still shows.
+        self.list_rows = max(3, min(LIST_ROWS, (rows - 8) // 2))
         if not self.runs:
             return [f"{DIM} {self.empty}{RESET}{self.title_right()}", rule(cols)], []
         run = self.runs[self.tab]
@@ -897,8 +899,9 @@ class Runs:
                 entries.append((i, n == 0, text))
         at = next(n for n, (i, first, _) in enumerate(entries) if i == self.tab)
         span = sum(1 for i, _, _ in entries if i == self.tab)
-        top = max(0, min(at - max(0, (LIST_ROWS - span) // 2), len(entries) - LIST_ROWS))
-        shown_entries = entries[top:top + LIST_ROWS]
+        most = getattr(self, "list_rows", LIST_ROWS)
+        top = max(0, min(at - max(0, (most - span) // 2), len(entries) - most))
+        shown_entries = entries[top:top + most]
         self.listed = [i for i, _, _ in shown_entries]
 
         lines = []
@@ -1937,7 +1940,8 @@ class Deck:
         # Overwrite in place (each line clears its own tail, \033[J the rest)
         # instead of clearing the screen, so nothing flashes between frames.
         out = [self.section_bar(cols), "\033[K"]
-        for line in head + body:
+        # Never past the hints row: a taller frame would scroll the tabs off the top.
+        for line in (head + body)[:rows - 2]:
             out += ["\r\n", fit(line, cols), RESET, "\033[K"]
         out.append("\033[J")
         hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints())
