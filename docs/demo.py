@@ -15,6 +15,9 @@ CW, LH, FS = 8.4, 19, 14          # cell width, line height, font size (px)
 PAD, TOP = 14, 38                 # inner padding, title bar height
 A, D = 90, 60                     # agent and deck columns: 60:40
 SCENE_SECS = 4                    # how long each section shows
+SPINNER = "·✢✳✶✻✽✻✶✳✢"            # Claude Code's spinner, forward and back
+SPIN_SECS = 0.12                  # one spinner frame
+TIMER_FROM = 12                   # the "Testing..." timer's first second
 
 BG, STRIP, TAB, ACTIVE = "#1b1e23", "#21252b", "#2c313a", "#3e4451"
 MUTED, BRIGHT, TEXT, DIMMED = "#787f8c", "#dcdfe4", "#abb2bf", "#585e69"
@@ -73,7 +76,7 @@ agent = [
     tool(MUTED, "Bash", "npm test"),
     result(("Running...", MUTED)),
     [],
-    [("✻ ", CLAUDE), ("Testing...", CLAUDE), (" (12s · esc to interrupt)", MUTED)],
+    "TESTING",  # the spinner and the timer: animated layers, drawn below
     [],
     RULE,
     [("> ", BRIGHT)],
@@ -133,10 +136,41 @@ for i, c in enumerate(("#ff5f57", "#febc2e", "#28c840")):
 out.append(f'<text x="{W / 2:.0f}" y="{TOP / 2 + 5}" fill="{MUTED}" text-anchor="middle">herdr</text>')
 line(A + 0.5, 0, A + 0.5, ROWS, ACTIVE)
 
-# Agent pane.
+css = []
+
+
+def layers(prefix, n, secs):
+    """CSS showing layers {prefix}0..{prefix}{n-1} one at a time over a secs-long
+    loop, each for its slot, switching at once (step-end)."""
+    css.append(f".{prefix}{{opacity:0;animation-duration:{secs}s;animation-iteration-count:infinite;"
+               "animation-timing-function:step-end}" f".{prefix}0{{opacity:1}}")
+    for i in range(n):
+        a, b = 100 * i / n, 100 * (i + 1) / n
+        frames = f"0%{{opacity:{1 if i == 0 else 0}}}" + (f"{a:.3f}%{{opacity:1}}" if i else "")
+        frames += f"{b:.3f}%{{opacity:0}}100%{{opacity:0}}"
+        css.append(f"@keyframes {prefix}k{i}{{{frames}}}.{prefix}{i}{{animation-name:{prefix}k{i}}}")
+
+
+def layer(prefix, i, draw):
+    out.append(f'<g class="{prefix} {prefix}{i}">')
+    draw()
+    out.append("</g>")
+
+
+# Agent pane. "Testing..." spins and counts up as Claude Code's does.
 for row, runs_ in enumerate(agent):
     if runs_ == RULE:
         line(0, row + 0.5, A, row + 0.5, MUTED)
+    elif runs_ == "TESTING":
+        for i, glyph in enumerate(SPINNER):
+            layer("p", i, lambda: text(1, row, [(glyph, CLAUDE)], A))
+        text(3, row, [("Testing...", CLAUDE), (" (", MUTED)], A)
+        cycle = 6 * SCENE_SECS  # the timer counts through one loop of the deck
+        for i in range(cycle):
+            layer("t", i, lambda: text(15, row, [(f"{TIMER_FROM + i}s", MUTED)], A))
+        text(18, row, [(" · esc to interrupt)", MUTED)], A)
+        layers("p", len(SPINNER), round(len(SPINNER) * SPIN_SECS, 2))
+        layers("t", cycle, cycle)
     else:
         text(1, row, runs_, A)
 
@@ -370,22 +404,9 @@ def scene_deploy():
 # In the order of the tabs.
 scenes = [scene_agents, scene_servers, scene_build, scene_test, scene_git, scene_deploy]
 for i, draw in enumerate(scenes):
-    out.append(f'<g class="scene s{i}">')
-    draw()
-    out.append("</g>")
-
-# One scene at a time: each holds its slot of the cycle, switching at once (step-end).
-n = len(scenes)
-css = [".scene{opacity:0;animation-duration:%ds;animation-iteration-count:infinite;"
-       "animation-timing-function:step-end}" % (n * SCENE_SECS), ".s0{opacity:1}"]
-for i in range(n):
-    a, b = 100 * i // n, 100 * (i + 1) // n
-    frames = f"0%{{opacity:{1 if i == 0 else 0}}}"
-    if i:
-        frames += f"{a}%{{opacity:1}}"
-    frames += f"{b}%{{opacity:0}}100%{{opacity:0}}"
-    css.append(f"@keyframes k{i}{{{frames}}}.s{i}{{animation-name:k{i}}}")
-css.append("@media (prefers-reduced-motion:reduce){.scene{animation:none}}")
+    layer("s", i, draw)
+layers("s", len(scenes), len(scenes) * SCENE_SECS)
+css.append("@media (prefers-reduced-motion:reduce){.s,.p,.t{animation:none}}")
 
 print(f'<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 {W:.0f} {H:.0f}" '
       f'font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, \'Liberation Mono\', monospace" '

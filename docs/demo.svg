@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1296 807" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
-<style>.scene{opacity:0;animation-duration:24s;animation-iteration-count:infinite;animation-timing-function:step-end}.s0{opacity:1}@keyframes k0{0%{opacity:1}16%{opacity:0}100%{opacity:0}}.s0{animation-name:k0}@keyframes k1{0%{opacity:0}16%{opacity:1}33%{opacity:0}100%{opacity:0}}.s1{animation-name:k1}@keyframes k2{0%{opacity:0}33%{opacity:1}50%{opacity:0}100%{opacity:0}}.s2{animation-name:k2}@keyframes k3{0%{opacity:0}50%{opacity:1}66%{opacity:0}100%{opacity:0}}.s3{animation-name:k3}@keyframes k4{0%{opacity:0}66%{opacity:1}83%{opacity:0}100%{opacity:0}}.s4{animation-name:k4}@keyframes k5{0%{opacity:0}83%{opacity:1}100%{opacity:0}100%{opacity:0}}.s5{animation-name:k5}@media (prefers-reduced-motion:reduce){.scene{animation:none}}</style>
+<style>.p{opacity:0;animation-duration:1.2s;animation-iteration-count:infinite;animation-timing-function:step-end}.p0{opacity:1}@keyframes pk0{0%{opacity:1}10.000%{opacity:0}100%{opacity:0}}.p0{animation-name:pk0}@keyframes pk1{0%{opacity:0}10.000%{opacity:1}20.000%{opacity:0}100%{opacity:0}}.p1{animation-name:pk1}@keyframes pk2{0%{opacity:0}20.000%{opacity:1}30.000%{opacity:0}100%{opacity:0}}.p2{animation-name:pk2}@keyframes pk3{0%{opacity:0}30.000%{opacity:1}40.000%{opacity:0}100%{opacity:0}}.p3{animation-name:pk3}@keyframes pk4{0%{opacity:0}40.000%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.p4{animation-name:pk4}@keyframes pk5{0%{opacity:0}50.000%{opacity:1}60.000%{opacity:0}100%{opacity:0}}.p5{animation-name:pk5}@keyframes pk6{0%{opacity:0}60.000%{opacity:1}70.000%{opacity:0}100%{opacity:0}}.p6{animation-name:pk6}@keyframes pk7{0%{opacity:0}70.000%{opacity:1}80.000%{opacity:0}100%{opacity:0}}.p7{animation-name:pk7}@keyframes pk8{0%{opacity:0}80.000%{opacity:1}90.000%{opacity:0}100%{opacity:0}}.p8{animation-name:pk8}@keyframes pk9{0%{opacity:0}90.000%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.p9{animation-name:pk9}.t{opacity:0;animation-duration:24s;animation-iteration-count:infinite;animation-timing-function:step-end}.t0{opacity:1}@keyframes tk0{0%{opacity:1}4.167%{opacity:0}100%{opacity:0}}.t0{animation-name:tk0}@keyframes tk1{0%{opacity:0}4.167%{opacity:1}8.333%{opacity:0}100%{opacity:0}}.t1{animation-name:tk1}@keyframes tk2{0%{opacity:0}8.333%{opacity:1}12.500%{opacity:0}100%{opacity:0}}.t2{animation-name:tk2}@keyframes tk3{0%{opacity:0}12.500%{opacity:1}16.667%{opacity:0}100%{opacity:0}}.t3{animation-name:tk3}@keyframes tk4{0%{opacity:0}16.667%{opacity:1}20.833%{opacity:0}100%{opacity:0}}.t4{animation-name:tk4}@keyframes tk5{0%{opacity:0}20.833%{opacity:1}25.000%{opacity:0}100%{opacity:0}}.t5{animation-name:tk5}@keyframes tk6{0%{opacity:0}25.000%{opacity:1}29.167%{opacity:0}100%{opacity:0}}.t6{animation-name:tk6}@keyframes tk7{0%{opacity:0}29.167%{opacity:1}33.333%{opacity:0}100%{opacity:0}}.t7{animation-name:tk7}@keyframes tk8{0%{opacity:0}33.333%{opacity:1}37.500%{opacity:0}100%{opacity:0}}.t8{animation-name:tk8}@keyframes tk9{0%{opacity:0}37.500%{opacity:1}41.667%{opacity:0}100%{opacity:0}}.t9{animation-name:tk9}@keyframes tk10{0%{opacity:0}41.667%{opacity:1}45.833%{opacity:0}100%{opacity:0}}.t10{animation-name:tk10}@keyframes tk11{0%{opacity:0}45.833%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.t11{animation-name:tk11}@keyframes tk12{0%{opacity:0}50.000%{opacity:1}54.167%{opacity:0}100%{opacity:0}}.t12{animation-name:tk12}@keyframes tk13{0%{opacity:0}54.167%{opacity:1}58.333%{opacity:0}100%{opacity:0}}.t13{animation-name:tk13}@keyframes tk14{0%{opacity:0}58.333%{opacity:1}62.500%{opacity:0}100%{opacity:0}}.t14{animation-name:tk14}@keyframes tk15{0%{opacity:0}62.500%{opacity:1}66.667%{opacity:0}100%{opacity:0}}.t15{animation-name:tk15}@keyframes tk16{0%{opacity:0}66.667%{opacity:1}70.833%{opacity:0}100%{opacity:0}}.t16{animation-name:tk16}@keyframes tk17{0%{opacity:0}70.833%{opacity:1}75.000%{opacity:0}100%{opacity:0}}.t17{animation-name:tk17}@keyframes tk18{0%{opacity:0}75.000%{opacity:1}79.167%{opacity:0}100%{opacity:0}}.t18{animation-name:tk18}@keyframes tk19{0%{opacity:0}79.167%{opacity:1}83.333%{opacity:0}100%{opacity:0}}.t19{animation-name:tk19}@keyframes tk20{0%{opacity:0}83.333%{opacity:1}87.500%{opacity:0}100%{opacity:0}}.t20{animation-name:tk20}@keyframes tk21{0%{opacity:0}87.500%{opacity:1}91.667%{opacity:0}100%{opacity:0}}.t21{animation-name:tk21}@keyframes tk22{0%{opacity:0}91.667%{opacity:1}95.833%{opacity:0}100%{opacity:0}}.t22{animation-name:tk22}@keyframes tk23{0%{opacity:0}95.833%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.t23{animation-name:tk23}.s{opacity:0;animation-duration:24s;animation-iteration-count:infinite;animation-timing-function:step-end}.s0{opacity:1}@keyframes sk0{0%{opacity:1}16.667%{opacity:0}100%{opacity:0}}.s0{animation-name:sk0}@keyframes sk1{0%{opacity:0}16.667%{opacity:1}33.333%{opacity:0}100%{opacity:0}}.s1{animation-name:sk1}@keyframes sk2{0%{opacity:0}33.333%{opacity:1}50.000%{opacity:0}100%{opacity:0}}.s2{animation-name:sk2}@keyframes sk3{0%{opacity:0}50.000%{opacity:1}66.667%{opacity:0}100%{opacity:0}}.s3{animation-name:sk3}@keyframes sk4{0%{opacity:0}66.667%{opacity:1}83.333%{opacity:0}100%{opacity:0}}.s4{animation-name:sk4}@keyframes sk5{0%{opacity:0}83.333%{opacity:1}100.000%{opacity:0}100%{opacity:0}}.s5{animation-name:sk5}@media (prefers-reduced-motion:reduce){.s,.p,.t{animation:none}}</style>
 <rect width="1296" height="807" rx="10" fill="#1b1e23"/>
 <path d="M10 0H1286a10 10 0 0 1 10 10V38H0V10a10 10 0 0 1 10-10z" fill="#21252b"/>
 <circle cx="20" cy="19.0" r="6" fill="#ff5f57"/>
@@ -71,16 +71,118 @@
 <text x="72.8" y="635.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">(npm test)</text>
 <text x="39.2" y="654.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">└</text>
 <text x="56.0" y="654.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">Running...</text>
+<g class="p p0">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">·</text>
+</g>
+<g class="p p1">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✢</text>
+</g>
+<g class="p p2">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✳</text>
+</g>
+<g class="p p3">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✶</text>
+</g>
+<g class="p p4">
 <text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✻</text>
+</g>
+<g class="p p5">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✽</text>
+</g>
+<g class="p p6">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✻</text>
+</g>
+<g class="p p7">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✶</text>
+</g>
+<g class="p p8">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✳</text>
+</g>
+<g class="p p9">
+<text x="22.4" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d77757">✢</text>
+</g>
 <text x="39.2" y="692.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#d77757">Testing...</text>
-<text x="131.6" y="692.7" textLength="201.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">(12s · esc to interrupt)</text>
+<text x="131.6" y="692.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">(</text>
+<g class="t t0">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">12s</text>
+</g>
+<g class="t t1">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">13s</text>
+</g>
+<g class="t t2">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">14s</text>
+</g>
+<g class="t t3">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">15s</text>
+</g>
+<g class="t t4">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">16s</text>
+</g>
+<g class="t t5">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">17s</text>
+</g>
+<g class="t t6">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">18s</text>
+</g>
+<g class="t t7">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">19s</text>
+</g>
+<g class="t t8">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">20s</text>
+</g>
+<g class="t t9">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">21s</text>
+</g>
+<g class="t t10">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">22s</text>
+</g>
+<g class="t t11">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">23s</text>
+</g>
+<g class="t t12">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">24s</text>
+</g>
+<g class="t t13">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">25s</text>
+</g>
+<g class="t t14">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">26s</text>
+</g>
+<g class="t t15">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">27s</text>
+</g>
+<g class="t t16">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">28s</text>
+</g>
+<g class="t t17">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">29s</text>
+</g>
+<g class="t t18">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">30s</text>
+</g>
+<g class="t t19">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">31s</text>
+</g>
+<g class="t t20">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">32s</text>
+</g>
+<g class="t t21">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">33s</text>
+</g>
+<g class="t t22">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">34s</text>
+</g>
+<g class="t t23">
+<text x="140.0" y="692.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">35s</text>
+</g>
+<text x="173.6" y="692.7" textLength="159.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· esc to interrupt)</text>
 <line x1="14.0" y1="726.5" x2="770.0" y2="726.5" stroke="#787f8c" stroke-width="1"/>
 <text x="22.4" y="749.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">&gt;</text>
 <line x1="14.0" y1="764.5" x2="770.0" y2="764.5" stroke="#787f8c" stroke-width="1"/>
 <text x="39.2" y="787.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#d77757">▸▸</text>
 <text x="64.4" y="787.7" textLength="126.0" lengthAdjust="spacingAndGlyphs" fill="#d77757">accept edits on</text>
 <text x="198.8" y="787.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">(shift+tab to cycle)</text>
-<g class="scene s0">
+<g class="s s0">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#8fa8d2"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">AGENTS</text>
@@ -186,7 +288,7 @@
 <text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s1">
+<g class="s s1">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
@@ -255,7 +357,7 @@
 <text x="1156.4" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1173.2" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s2">
+<g class="s s2">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
@@ -311,7 +413,7 @@
 <text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s3">
+<g class="s s3">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
@@ -395,7 +497,7 @@
 <text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s4">
+<g class="s s4">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
 <text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
@@ -459,7 +561,7 @@
 <text x="1106.0" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
 <text x="1122.8" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
-<g class="scene s5">
+<g class="s s5">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="778.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
 <rect x="786.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
