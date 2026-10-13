@@ -124,6 +124,15 @@ def tint(line, rgb):
     return fg(rgb) + "\033[2m" + SGR.sub(after, line)
 
 
+FADE_SECS = 2.5  # a run just added starts in its section's colour and fades to the usual over this
+
+
+def blend(a, b, f):
+    """The colour f of the way from rgb a to rgb b ("r;g;b" each)."""
+    pa, pb = [int(n) for n in a.split(";")], [int(n) for n in b.split(";")]
+    return ";".join(str(round(x + (y - x) * min(1.0, max(0.0, f)))) for x, y in zip(pa, pb))
+
+
 def visible_len(s):
     return len(ANSI.sub("", s))
 
@@ -673,6 +682,8 @@ class Runs:
         self.runs = [cache.get(n) or Run(os.path.join(self.dir, str(n))) for n in ns]
         for n, r in zip(ns, self.runs):
             r.n = n
+        if new:
+            self.fresh = (self.runs[-1], time.time())
         self.tab = max(0, min(self.tab, len(self.runs) - 1))
         return new
 
@@ -899,11 +910,16 @@ class Runs:
             room = cols - fixed - 1 - len(right)
             label = cut(label, max(2, room))
             gap = " " * max(1, cols - fixed - cells(label) - len(right))
-            if selected:
+            # A run just added: its row starts in the section's colour and fades to the usual.
+            fresh, at = getattr(self, "fresh", (None, 0))
+            fade = (time.time() - at) / FADE_SECS if run is fresh else 1
+            if selected or fade < 1:
                 # The arrow only while the list is grey (the cursor in the log): whose output it is.
                 arrow = fg(MUTED_RGB) + ("➜" if first and self.focus == "log" else " ")
-                lines.append(f"{bg(ACTIVE_RGB)}{arrow}{fg(colour)} {icon} {fg(BRIGHT_RGB)}{BOLD}{label}"
-                             f"\033[22m{gap}{fg(MUTED_RGB)}{shown} {RESET}")
+                back = blend(ACCENT[self.kind], ACTIVE_RGB, fade) if fade < 1 else ACTIVE_RGB
+                ink = STRIP_RGB if fade < 0.5 else BRIGHT_RGB  # dark on the bright start, then light
+                lines.append(f"{bg(back)}{arrow}{fg(ink if fade < 0.5 else colour)} {icon} {fg(ink)}{BOLD}{label}"
+                             f"\033[22m{gap}{fg(ink if fade < 0.5 else MUTED_RGB)}{ANSI.sub('', shown) if fade < 0.5 else shown} {RESET}")
             else:
                 # Labels bright while the cursor is in the list, dim while it is in the log.
                 text = BRIGHT_RGB if self.focus == "list" else DIMMED_RGB
@@ -1093,10 +1109,19 @@ class Servers(Runs):
         self.runs = [keep.get((port, pid)) or ServerRun(port, pid, cmd)
                      for port, pid, cmd in sorted(self.found, key=lambda s: -int(s[0]))]
         keys = [(r.port, r.pid) for r in self.runs]
-        if picked in keys:
+        # A server that came up since the last scan: picked, and fresh (its row fades in).
+        # The ones already up when the deck first looks are not new.
+        seen = getattr(self, "seen", None)
+        born = [k for k in keys if seen is not None and k not in seen]
+        if born:
+            self.select(keys.index(born[-1]))
+            self.fresh = (self.runs[keys.index(born[-1])], time.time())
+        elif picked in keys:
             self.tab = keys.index(picked)
         elif self.runs:
             self.select(len(self.runs) - 1)
+        if self.at:  # once a scan has answered
+            self.seen = set(keys)
         return False
 
     def scan(self):
@@ -1369,6 +1394,31 @@ def dashboard(d, cols, main, expanded=False):
                               f"{fg(MUTED_RGB)} {tokens(d.context)}/{tokens(limit)}{RESET}"))
     out.append(row("tokens", f"{fg(MUTED_RGB)}in{RESET} {tokens(d.usage['in'])}  {fg(MUTED_RGB)}cache{RESET} "
                              f"{tokens(d.usage['cache'])}  {fg(MUTED_RGB)}out{RESET} {tokens(d.usage['out'])}"))
+    # time · tools · turns
+    if d.first:
+        started = time.strftime("%H:%M", time.localtime(d.first))
+        out.append(row("time", f"started {started} {fg(MUTED_RGB)}·{RESET} {took((d.last or time.time()) - d.first)}"))
+    if d.kinds:
+        kinds = sorted(d.kinds.items(), key=lambda kv: -kv[1])
+        out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
+        # The legend wraps item by item rather than being cut.
+        line, used = "", 0
+        for k, n in kinds:
+            item, size = f"{fg(KIND_RGB[k])}■{RESET} {k} {n}", len(f"■ {k} {n}")
+            if used and used + 2 + size > w:
+                out.append(row("", line))
+                line, used = "", 0
+            line, used = (f"{line}  {item}", used + 2 + size) if used else (item, size)
+        if used:
+            out.append(row("", line))
+    # tasks
+    if d.tasks:
+        done = sum(1 for _, st in d.tasks.values() if st == "completed")
+        out.append(row("tasks", f"{bar([(done, GREEN_RGB), (len(d.tasks) - done, TAB_RGB)], min(24, w - 8))} "
+                                f"{done}/{len(d.tasks)}"))
+        for subject, st in list(d.tasks.values())[:8]:
+            mark = {"completed": f"{fg(GREEN_RGB)}✓", "in_progress": f"{fg(AMBER_RGB)}◐"}.get(st, f"{fg(MUTED_RGB)}○")
+            out.append(row("", f"{mark}{RESET} {cut(subject, w - 2)}"))
     out.append("")
     # now · says
     # The current (or last) call, its whole input wrapped under itself rather than cut.
@@ -1392,36 +1442,9 @@ def dashboard(d, cols, main, expanded=False):
             out[-1] += since
     for n, part in enumerate(wrap(d.says)[:3] if d.says else []):
         out.append(row("says" if n == 0 else "", f"{fg(MUTED_RGB)}“{RESET}{part}" if n == 0 else part))
-    # tasks
-    if d.tasks:
-        done = sum(1 for _, st in d.tasks.values() if st == "completed")
-        out.append(row("tasks", f"{bar([(done, GREEN_RGB), (len(d.tasks) - done, TAB_RGB)], min(24, w - 8))} "
-                                f"{done}/{len(d.tasks)}"))
-        for subject, st in list(d.tasks.values())[:8]:
-            mark = {"completed": f"{fg(GREEN_RGB)}✓", "in_progress": f"{fg(AMBER_RGB)}◐"}.get(st, f"{fg(MUTED_RGB)}○")
-            out.append(row("", f"{mark}{RESET} {cut(subject, w - 2)}"))
-    out.append("")
-    # time · tools · turns
-    if d.first:
-        started = time.strftime("%H:%M", time.localtime(d.first))
-        out.append(row("time", f"started {started} {fg(MUTED_RGB)}·{RESET} {took((d.last or time.time()) - d.first)}"))
-    if d.kinds:
-        kinds = sorted(d.kinds.items(), key=lambda kv: -kv[1])
-        out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
-        # The legend wraps item by item rather than being cut.
-        line, used = "", 0
-        for k, n in kinds:
-            item, size = f"{fg(KIND_RGB[k])}■{RESET} {k} {n}", len(f"■ {k} {n}")
-            if used and used + 2 + size > w:
-                out.append(row("", line))
-                line, used = "", 0
-            line, used = (f"{line}  {item}", used + 2 + size) if used else (item, size)
-        if used:
-            out.append(row("", line))
     if d.report:
         for n, part in enumerate(wrap(d.report)[:4]):
             out.append(row("report" if n == 0 else "", part))
-    out.append("")
     asked = d.request if main else d.prompt
     lines = [part for line in asked.strip().splitlines() for part in wrap(line, w - 2)]  # room for the bar
     shown = lines if expanded else lines[:PROMPT_LINES]
@@ -1708,6 +1731,7 @@ class Agents(Runs):
         paths = [r.path for r in runs]
         if new:
             self.select(max(0, len(runs) - 2))  # a new subagent: the newest, just under the main agent
+            self.fresh = (runs[self.tab], time.time())
         elif self.known is None or picked not in paths:
             self.select(len(runs) - 1)  # the main agent
         else:
@@ -1861,7 +1885,8 @@ def main():
                 os.execv(sys.executable, [sys.executable, me] + sys.argv[1:])
             deck.refresh()
             deck.draw()
-            if select.select([fd], [], [], 0.3)[0]:
+            fading = any(time.time() - getattr(v, "fresh", (None, 0))[1] < FADE_SECS for v in deck.views)
+            if select.select([fd], [], [], 0.05 if fading else 0.3)[0]:
                 k = os.read(fd, 256).decode("utf-8", "replace")
                 events = MOUSE.findall(k)
                 for button, col, row, kind in events:
