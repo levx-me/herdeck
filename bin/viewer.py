@@ -1503,7 +1503,7 @@ class AgentRun(Run):
         return "  " * int(self.meta.get("spawnDepth") or 1) + self.full  # under the main agent
 
     def age(self):
-        return f"{self.meta.get('agentType') or 'agent'}  {ago(time.time() - self.first)}"
+        return ""  # an agent's row is its name alone
 
     def info(self):
         self.count()
@@ -1569,11 +1569,6 @@ class MainRun(AgentRun):
     def label(self):
         return self.deck.title or "main agent"
 
-    def age(self):
-        try:
-            return f"main  {ago(time.time() - os.path.getmtime(self.path))}"
-        except OSError:
-            return "main"
 
     def info(self):
         at_work = len(self.deck.runs) - 1
