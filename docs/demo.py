@@ -218,22 +218,37 @@ def section_bar(active):
         text(col, 0, [("›", MUTED)], end)
 
 
-def run_box(rows, accent, noun):
-    """The run list: a rounded box, its count in the border, the first row picked."""
+def run_box(rows, accent, noun, picked=0):
+    """The run list: a rounded box, its count in the border, run `picked` raised.
+    A row with no icon continues the run above (a git run's steps)."""
     first = 2
     rect(d0 + 0.5, first - 0.5, D - 1, None, rows=len(rows) + 1, rx=5, stroke=accent)
-    title = f" {noun} · {sum(1 for r in rows if r[0])} "  # rows without an icon continue the one above
+    title = f" {noun} · {sum(1 for r in rows if r[0])} "
     out.append(f'<rect x="{x(d0 + 1.5):.1f}" y="{top(first - 1) + LH * 0.1:.1f}" width="{len(title) * CW:.1f}" '
                f'height="{LH * 0.8:.1f}" fill="{BG}"/>')
     text(d0 + 2, first - 1, [(title, MUTED)], end)
-    rect(d0 + 1, first, D - 2, ACTIVE, rows=next((n for n, r in enumerate(rows[1:], 1) if r[0]), len(rows)))
+    starts = [n for n, r in enumerate(rows) if r[0]]
+    at = starts[picked]
+    span = (starts[picked + 1] if picked + 1 < len(starts) else len(rows)) - at
+    rect(d0 + 1, first + at, D - 2, ACTIVE, rows=span)
     for i, (icon, colour, label, right) in enumerate(rows):
+        on = at <= i < at + span
         mark = [(SPIN, colour), (" ", colour)] if icon == SPIN else [(f"{icon} " if icon else "  ", colour)]
-        left = [("   ", MUTED), *mark, (label, BRIGHT if i == 0 else TEXT, i == 0)]
+        left = [("   ", MUTED), *mark, (label, BRIGHT if on else TEXT, on)]
         room = D - 2 - (3 + 2 + len(label)) - 1
         tail = (lambda n: lambda t: right(t).rjust(n))(room) if callable(right) else right.rjust(room)
         text(d0, first + i, left + [(tail, MUTED)], end)
     return first + len(rows) + 1
+
+
+def browse(section, rows, accent, noun, contents, keys):
+    """A run section whose selection walks down a run a second through its slot of
+    the loop, the head and output below following it."""
+    section_bar(section)
+    start = sum(SCENE_TIMES[:section])
+    for picked, content in enumerate(contents):
+        layer("t", start + picked, lambda: body(run_box(rows, accent, noun, picked), content))
+    hints(keys)
 
 
 def hints(pairs):
@@ -329,122 +344,154 @@ def scene_agents():
     hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
 
 
-def scene_test():
-    section_bar(3)
-    row = run_box([(SPIN, AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
-                   ("✓", GREEN, "npm test -- auth", "9m ago"), ("✓", GREEN, "npm test", "24m ago"),
-                   ("✓", GREEN, "npm test", "1h ago")], ACCENT["TEST"], "runs")
-    body(row, [
-        [("$ ", MUTED), ("npm test", BRIGHT, True)],
-        [("  ~/app · ", MUTED), (lambda t: f"{12 + t}s", MUTED), (" · running", MUTED)],
-        RULE,
-        [(" RUN ", BLUE, True), (" v3.2.4 ", TEXT), ("~/app", MUTED)],
-        [],
-        [(" ✓ ", GREEN), ("src/db/pool.test.ts ", TEXT), ("(4 tests) 62ms", MUTED)],
-        [(" ✓ ", GREEN), ("src/routes/health.test.ts ", TEXT), ("(2 tests) 9ms", MUTED)],
-        [(" ✓ ", GREEN), ("src/routes/users.test.ts ", TEXT), ("(9 tests) 120ms", MUTED)],
-        [(" ✓ ", GREEN), ("src/utils.test.ts ", TEXT), ("(12 tests) 18ms", MUTED)],
-        [(" ✓ ", GREEN), ("src/session.test.ts ", TEXT), ("(5 tests) 41ms", MUTED)],
-        [(" ✓ ", GREEN), ("src/auth/refresh.test.ts ", TEXT), ("(6 tests) 33ms", MUTED)],
-        [(" > ", AMBER), ("src/middleware/auth.test.ts ", TEXT), ("(7 tests) 4/7", MUTED)],
-        [("   ✓ ", GREEN), ("issues an access and refresh token pair", TEXT)],
-        [("   ✓ ", GREEN), ("refreshes an access token before expiry", TEXT)],
-        [("   ✓ ", GREEN), ("rotates the refresh token on every use", TEXT)],
-        [("   ✓ ", GREEN), ("accepts a token in its last second", TEXT)],
-        [],
-        [(SPIN, AMBER), (" running ", AMBER), (lambda t: f"{12 + t}s", AMBER)],
-    ])
-    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
-
-
-def scene_git():
-    section_bar(4)
-    row = run_box([("✓", GREEN, "git add", "feat/refresh  1m ago  a41c9e2"),
-                   ("", MUTED, 'git commit "Refresh-token rotation"', ""),
-                   ("✓", GREEN, "git push", "feat/refresh  9m ago  7d03b18"),
-                   ("✓", GREEN, "git switch -c feat/refresh", "feat/refresh  14m ago"),
-                   ("✓", GREEN, "git pull", "main  32m ago  51e2a90")], ACCENT["GIT"], "runs")
-    bar_ = ("  │ ", ACCENT["GIT"])
-    body(row, [
-        [("$ git add", BRIGHT, True)],
-        [("$ git commit", BRIGHT, True)],
-        [bar_, ("Refresh-token rotation", TEXT)],
-        [bar_],
-        [bar_, ("Each refresh issues a new token and retires the old", TEXT)],
-        [bar_, ("one; a retired token coming back revokes the family.", TEXT)],
-        [("  ~/app · on feat/refresh · 1s · exit 0", MUTED)],
-        [("  commit ", MUTED), ("a41c9e2b7f0d5c18e9a3", ACCENT["GIT"])],
-        RULE,
-        [("[feat/refresh a41c9e2] Refresh-token rotation", TEXT)],
-        [(" 3 files changed, ", TEXT), ("82 insertions(+)", GREEN), (", ", TEXT), ("5 deletions(-)", RED)],
-        [(" create mode 100644 src/auth/refresh.ts", MUTED)],
-    ])
-    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
+RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")]
 
 
 def scene_servers():
-    section_bar(1)
-    row = run_box([("●", GREEN, "next dev --turbopack", ":3000"),
-                   ("●", GREEN, "anvil --block-time 2", ":8545")], ACCENT["SERVERS"], "servers")
-    body(row, [
-        [("$ ", MUTED), ("next dev --turbopack", BRIGHT, True)],
-        [("  ", MUTED), ("http://localhost:3000", CYAN), (" · pid 41233 · log file", MUTED)],
-        RULE,
-        [("   ▲ Next.js 15.4.1 (Turbopack)", TEXT)],
-        [("   - Local:        ", MUTED), ("http://localhost:3000", CYAN)],
-        [("   - Environments: .env.local", MUTED)],
-        [],
-        [(" ✓ ", GREEN), ("Starting...", TEXT)],
-        [(" ✓ ", GREEN), ("Ready in 812ms", TEXT)],
-        [(" ○ ", MUTED), ("Compiling /api/auth/refresh ...", TEXT)],
-        [(" ✓ ", GREEN), ("Compiled /api/auth/refresh in 214ms", TEXT)],
-        [(" POST ", TEXT), ("/api/auth/refresh ", TEXT), ("200", GREEN), (" in 38ms", MUTED)],
-        [(" POST ", TEXT), ("/api/auth/refresh ", TEXT), ("401", RED), (" in 12ms", MUTED)],
-        [(" GET  ", TEXT), ("/api/health ", TEXT), ("200", GREEN), (" in 4ms", MUTED)],
-    ])
-    hints([("j/k", "select"), ("enter", "log"), ("o", "browser"), ("[ ]", "tabs"), ("q", "close")])
+    log = lambda *lines: [*lines]
+    browse(1, [("●", GREEN, "next dev --turbopack", ":3000"), ("●", GREEN, "anvil --block-time 2", ":8545"),
+               ("●", GREEN, "wrangler dev", ":8787")], ACCENT["SERVERS"], "servers", [
+        log([("$ ", MUTED), ("next dev --turbopack", BRIGHT, True)],
+            [("  ", MUTED), ("http://localhost:3000", CYAN), (" · pid 41233 · log file", MUTED)], RULE,
+            [("   ▲ Next.js 15.4.1 (Turbopack)", TEXT)],
+            [("   - Local:        ", MUTED), ("http://localhost:3000", CYAN)], [],
+            [(" ✓ ", GREEN), ("Ready in 812ms", TEXT)],
+            [(" ✓ ", GREEN), ("Compiled /api/auth/refresh in 214ms", TEXT)],
+            [(" POST ", TEXT), ("/api/auth/refresh ", TEXT), ("200", GREEN), (" in 38ms", MUTED)],
+            [(" POST ", TEXT), ("/api/auth/refresh ", TEXT), ("401", RED), (" in 12ms", MUTED)]),
+        log([("$ ", MUTED), ("anvil --block-time 2", BRIGHT, True)],
+            [("  ", MUTED), ("http://localhost:8545", CYAN), (" · pid 41250 · pane w1:p4", MUTED)], RULE,
+            [("Listening on 127.0.0.1:8545", TEXT)], [],
+            [("    Block Number: ", MUTED), ("1842", TEXT)],
+            [("    Block Hash: ", MUTED), ("0x9c1f…a07e", TEXT)],
+            [("    eth_sendRawTransaction", CYAN)],
+            [("    Transaction: ", MUTED), ("0x4b2d…91c3", TEXT)],
+            [("    Gas used: ", MUTED), ("46109", TEXT)]),
+        log([("$ ", MUTED), ("wrangler dev", BRIGHT, True)],
+            [("  ", MUTED), ("http://localhost:8787", CYAN), (" · pid 41302 · log file", MUTED)], RULE,
+            [(" wrangler 4.20.0", TEXT)],
+            [("Your Worker has access to the following bindings:", MUTED)],
+            [("- KV Namespaces: SESSIONS", TEXT)], [],
+            [("[wrangler:info] Ready on ", TEXT), ("http://localhost:8787", CYAN)],
+            [("[wrangler:info] GET /health ", TEXT), ("200", GREEN), (" OK (3ms)", MUTED)]),
+    ], [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("[ ]", "tabs"), ("q", "close")])
 
 
 def scene_build():
-    section_bar(2)
-    row = run_box([(SPIN, AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
-                   ("✗", RED, "npm run build", "21m ago")], ACCENT["BUILD"], "runs")
-    body(row, [
-        [("$ ", MUTED), ("npm run build", BRIGHT, True)],
-        [("  ~/app · ", MUTED), (lambda t: f"{9 + t}s", MUTED), (" · running", MUTED)],
-        RULE,
-        [("> app@0.1.0 build", MUTED)],
-        [("> next build", MUTED)],
-        [],
-        [("   ▲ Next.js 15.4.1", TEXT)],
-        [],
-        [("   Creating an optimized production build ...", TEXT)],
-        [(" ✓ ", GREEN), ("Compiled successfully in 6.2s", TEXT)],
-        [(" ✓ ", GREEN), ("Linting and checking validity of types", TEXT)],
-        [("   Collecting page data ", TEXT), ("...", MUTED)],
-        [],
-        [(SPIN, AMBER), (" running ", AMBER), (lambda t: f"{9 + t}s", AMBER)],
-    ])
-    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
+    browse(2, [(SPIN, AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
+               ("✗", RED, "npm run build", "21m ago")], ACCENT["BUILD"], "runs", [
+        [[("$ ", MUTED), ("npm run build", BRIGHT, True)],
+         [("  ~/app · ", MUTED), (lambda t: f"{9 + t}s", MUTED), (" · running", MUTED)], RULE,
+         [("> next build", MUTED)], [], [("   ▲ Next.js 15.4.1", TEXT)], [],
+         [("   Creating an optimized production build ...", TEXT)],
+         [(" ✓ ", GREEN), ("Compiled successfully in 6.2s", TEXT)],
+         [(" ✓ ", GREEN), ("Linting and checking validity of types", TEXT)],
+         [("   Collecting page data ", TEXT), ("...", MUTED)], [],
+         [(SPIN, AMBER), (" running ", AMBER), (lambda t: f"{9 + t}s", AMBER)]],
+        [[("$ ", MUTED), ("npm run build", BRIGHT, True)],
+         [("  ~/app · 14s · exit 0", MUTED)], RULE,
+         [("> next build", MUTED)], [],
+         [(" ✓ ", GREEN), ("Compiled successfully in 5.8s", TEXT)],
+         [(" ✓ ", GREEN), ("Generating static pages (12/12)", TEXT)], [],
+         [("Route (app)            Size  First Load JS", MUTED)],
+         [("┌ ○ /                  5.2 kB       108 kB", TEXT)],
+         [("└ ƒ /api/auth/refresh    0 B            0 B", TEXT)]],
+        [[("$ ", MUTED), ("npm run build", BRIGHT, True)],
+         [("  ~/app · 7s · exit 1", MUTED)], RULE,
+         [("> next build", MUTED)], [],
+         [("Failed to compile.", RED)], [],
+         [("./src/auth/refresh.ts:41:7", CYAN)],
+         [("Type error: Property 'family' does not exist", TEXT)],
+         [("on type 'TokenRecord'.", TEXT)], [],
+         [("  40 |   const record = await store.get(id)", MUTED)],
+         [("> 41 |   if (record.family !== family) {", TEXT)],
+         [("     |       ", MUTED), ("^", RED)]],
+    ], RUN_KEYS)
+
+
+def scene_test():
+    browse(3, [(SPIN, AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
+               ("✓", GREEN, "npm test -- auth", "9m ago"), ("✓", GREEN, "npm test", "24m ago"),
+               ("✓", GREEN, "npm test", "1h ago")], ACCENT["TEST"], "runs", [
+        [[("$ ", MUTED), ("npm test", BRIGHT, True)],
+         [("  ~/app · ", MUTED), (lambda t: f"{12 + t}s", MUTED), (" · running", MUTED)], RULE,
+         [(" RUN ", BLUE, True), (" v3.2.4 ", TEXT), ("~/app", MUTED)], [],
+         [(" ✓ ", GREEN), ("src/routes/users.test.ts ", TEXT), ("(9 tests) 120ms", MUTED)],
+         [(" ✓ ", GREEN), ("src/session.test.ts ", TEXT), ("(5 tests) 41ms", MUTED)],
+         [(" ✓ ", GREEN), ("src/auth/refresh.test.ts ", TEXT), ("(6 tests) 33ms", MUTED)],
+         [(" > ", AMBER), ("src/middleware/auth.test.ts ", TEXT), ("(7 tests) 4/7", MUTED)],
+         [("   ✓ ", GREEN), ("rotates the refresh token on every use", TEXT)],
+         [("   ✓ ", GREEN), ("accepts a token in its last second", TEXT)], [],
+         [(SPIN, AMBER), (" running ", AMBER), (lambda t: f"{12 + t}s", AMBER)]],
+        [[("$ ", MUTED), ("npm test", BRIGHT, True)],
+         [("  ~/app · 11s · exit 1", MUTED)], RULE,
+         [(" ✗ ", RED), ("src/middleware/auth.test.ts ", TEXT), ("(7 tests | 1 failed)", MUTED)],
+         [("   ✗ ", RED), ("accepts a token in its last second", TEXT)], [],
+         [(" FAIL ", RED, True), (" src/middleware/auth.test.ts", TEXT)],
+         [("AssertionError: expected 401 to be 200", TEXT)], [],
+         [("- Expected  ", GREEN), ("+ Received", RED)],
+         [("- 200", GREEN)], [("+ 401", RED)], [],
+         [(" Tests  ", TEXT), ("1 failed", RED), (" | ", MUTED), ("44 passed", GREEN), (" (45)", MUTED)]],
+        [[("$ ", MUTED), ("npm test -- auth", BRIGHT, True)],
+         [("  ~/app · 3s · exit 0", MUTED)], RULE,
+         [(" ✓ ", GREEN), ("src/auth/refresh.test.ts ", TEXT), ("(6 tests) 33ms", MUTED)],
+         [(" ✓ ", GREEN), ("src/middleware/auth.test.ts ", TEXT), ("(6 tests) 52ms", MUTED)], [],
+         [(" Test Files  ", TEXT), ("2 passed", GREEN), (" (2)", MUTED)],
+         [("      Tests  ", TEXT), ("12 passed", GREEN), (" (12)", MUTED)],
+         [("   Duration  ", TEXT), ("1.94s", MUTED)]],
+    ], RUN_KEYS)
+
+
+def scene_git():
+    bar_ = ("  │ ", ACCENT["GIT"])
+    browse(4, [("✓", GREEN, "git add", "feat/refresh  1m ago  a41c9e2"),
+               ("", MUTED, 'git commit "Refresh-token rotation"', ""),
+               ("✓", GREEN, "git push", "feat/refresh  9m ago  7d03b18"),
+               ("✓", GREEN, "git switch -c feat/refresh", "feat/refresh  14m ago"),
+               ("✓", GREEN, "git pull", "main  32m ago  51e2a90")], ACCENT["GIT"], "runs", [
+        [[("$ git add", BRIGHT, True)], [("$ git commit", BRIGHT, True)],
+         [bar_, ("Refresh-token rotation", TEXT)], [bar_],
+         [bar_, ("Each refresh issues a new token and retires the old", TEXT)],
+         [bar_, ("one; a retired token coming back revokes the family.", TEXT)],
+         [("  ~/app · on feat/refresh · 1s · exit 0", MUTED)],
+         [("  commit ", MUTED), ("a41c9e2b7f0d5c18e9a3", ACCENT["GIT"])], RULE,
+         [("[feat/refresh a41c9e2] Refresh-token rotation", TEXT)],
+         [(" 3 files changed, ", TEXT), ("82 insertions(+)", GREEN), (", ", TEXT), ("5 deletions(-)", RED)]],
+        [[("$ git push", BRIGHT, True)],
+         [("  ~/app · on feat/refresh · 2s · exit 0", MUTED)],
+         [("  commit ", MUTED), ("7d03b18e4c2a9f1065bd", ACCENT["GIT"])], RULE,
+         [("To github.com:acme/app.git", TEXT)],
+         [(" * [new branch]      feat/refresh -> feat/refresh", GREEN)],
+         [("branch 'feat/refresh' set up to track", MUTED)],
+         [("'origin/feat/refresh'.", MUTED)]],
+        [[("$ git switch -c feat/refresh", BRIGHT, True)],
+         [("  ~/app · on feat/refresh · 0s · exit 0", MUTED)], RULE,
+         [("Switched to a new branch 'feat/refresh'", TEXT)]],
+    ], RUN_KEYS)
 
 
 def scene_deploy():
-    section_bar(5)
-    row = run_box([("✓", GREEN, "vercel --prod", "2m ago"), ("✓", GREEN, "vercel", "18m ago")],
-                  ACCENT["DEPLOY"], "runs")
-    body(row, [
-        [("$ ", MUTED), ("vercel --prod", BRIGHT, True)],
-        [("  ~/app · 41s · exit 0", MUTED)],
-        RULE,
-        [("Vercel CLI 44.2.0", MUTED)],
-        [("Inspect: ", TEXT), ("https://vercel.com/acme/app/9Ft2", CYAN)],
-        [("Production: ", TEXT), ("https://app.vercel.app", CYAN), (" [41s]", MUTED)],
-        [],
-        [("Building", TEXT), ("  ✓ Compiled successfully", GREEN)],
-        [("Deploying outputs ...", TEXT)],
-        [("Aliased ", TEXT), ("https://app.example.com", CYAN)],
-    ])
-    hints([("j/k", "select"), ("enter", "open"), ("[ ]", "sections"), ("q", "close")])
+    browse(5, [("✓", GREEN, "vercel --prod", "2m ago"), ("✓", GREEN, "vercel", "18m ago"),
+               ("✗", RED, "vercel --prod", "1h ago")], ACCENT["DEPLOY"], "runs", [
+        [[("$ ", MUTED), ("vercel --prod", BRIGHT, True)],
+         [("  ~/app · 41s · exit 0", MUTED)], RULE,
+         [("Vercel CLI 44.2.0", MUTED)],
+         [("Inspect: ", TEXT), ("https://vercel.com/acme/app/9Ft2", CYAN)],
+         [("Production: ", TEXT), ("https://app.vercel.app", CYAN), (" [41s]", MUTED)], [],
+         [("Aliased ", TEXT), ("https://app.example.com", CYAN)]],
+        [[("$ ", MUTED), ("vercel", BRIGHT, True)],
+         [("  ~/app · 37s · exit 0", MUTED)], RULE,
+         [("Vercel CLI 44.2.0", MUTED)],
+         [("Inspect: ", TEXT), ("https://vercel.com/acme/app/4kQw", CYAN)],
+         [("Preview: ", TEXT), ("https://app-git-feat-refresh.vercel.app", CYAN)], [],
+         [("To deploy to production, run ", MUTED), ("vercel --prod", TEXT)]],
+        [[("$ ", MUTED), ("vercel --prod", BRIGHT, True)],
+         [("  ~/app · 22s · exit 1", MUTED)], RULE,
+         [("Vercel CLI 44.2.0", MUTED)],
+         [("Error: ", RED), ("Command \"npm run build\" exited with 1", TEXT)], [],
+         [("Type error: Property 'family' does not exist", TEXT)],
+         [("on type 'TokenRecord'.", TEXT)]],
+    ], RUN_KEYS)
 
 
 # In the order of the tabs.
