@@ -794,8 +794,13 @@ class Runs:
         cursor = self.focus == "log"
 
         body = []
+        tip = self.tooltip_at(cols)
         for y in range(self.offset, min(len(self.raw), self.offset + height)):
-            if (cursor and y == self.cy) or self.selected(y, 0) or self.selected(y, len(self.plain[y]) - 1):
+            if tip and y == tip[0]:  # the tooltip sits on this row, over its text
+                _, x, label = tip
+                line = self.plain[y].ljust(x)
+                body.append(f"{line[:x]}{bg(ACCENT[self.kind])}{fg(STRIP_RGB)}{BOLD}{label}{RESET}{line[x + len(label):]}")
+            elif (cursor and y == self.cy) or self.selected(y, 0) or self.selected(y, len(self.plain[y]) - 1):
                 body.append(self.marked(y))
             else:
                 # The log reads dim while the cursor is in the list.
@@ -805,6 +810,17 @@ class Runs:
             secs = f" {int(time.time()) - start}s" if start else ""
             body.append(f"{fg(AMBER_RGB)}{spinner()} running{secs}{RESET}")
         return head, body
+
+    def tooltip_at(self, cols):
+        """(log line, column, label) of a live copy tooltip: on the line above the
+        selection, from its first column, or below it when that line is off screen."""
+        text, until = getattr(self, "tooltip", None) or ("", 0)
+        if until < time.time() or self.anchor is None:
+            return None
+        (y0, x0), (y1, _) = sorted([self.anchor, (self.cy, self.cx)])
+        label = f" {text} "
+        row = y0 - 1 if y0 - 1 >= self.offset else y1 + 1
+        return row, max(0, min(x0, cols - len(label))), label
 
     def run_list(self, cols):
         """The runs in a rounded box, newest on top, the one on show raised;
@@ -1003,7 +1019,8 @@ class Runs:
         if getattr(self, "dragging", None) is not None and self.anchor is not None:
             text = self.selection()
             copy(text)
-            self.msg = f"copied {len(text)} character{'s' if len(text) != 1 else ''}"
+            # A tooltip over the selection for a moment, not a note in the info line.
+            self.tooltip = (f"copied {len(text)} character{'s' if len(text) != 1 else ''}", time.time() + 1.5)
         self.dragging = None
 
     def wheel(self, down):
