@@ -397,6 +397,9 @@ class Run:
         end = self.end()
         rc = self.rc()
         parts = [read(os.path.join(self.path, "cwd")).replace(os.path.expanduser("~"), "~", 1)]
+        branch = read(os.path.join(self.path, "branch"))
+        if branch:
+            parts.append(f"on {branch}")
         if start:
             parts.append(f"{(int(end) if end else int(time.time())) - start}s")
         parts.append(f"exit {rc}" if rc else "running in the background" if self.source() else "running")
@@ -857,8 +860,10 @@ class Runs:
                 # git rows keep a fixed 7-column hash at the far right (blank when
                 # there is none), so the variable-width age lines up before it.
                 sha = run.hash()
-                right = f"{age}  {sha:7}" if self.kind == "git" else age
-                shown = f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age
+                branch = read(os.path.join(run.path, "branch")) if self.kind == "git" else ""  # the branch it ran on
+                right = f"{branch}  {age}  {sha:7}" if branch else f"{age}  {sha:7}" if self.kind == "git" else age
+                shown = (f"{fg(DIMMED_RGB)}{branch}{fg(MUTED_RGB)}  " if branch else "") + \
+                    (f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age)
             else:
                 icon, colour, right, shown = " ", MUTED_RGB, "", ""
             # "➜ ✓ label<gap>right " and "  ✓ label<gap>right " both fill the line.

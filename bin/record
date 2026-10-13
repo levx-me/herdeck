@@ -44,6 +44,17 @@ mkdir -p "$r"
 printf '%s\n' "$cmd" > "$r/cmd"
 [ -n "$label" ] && printf '%s\n' "$label" > "$r/label"
 printf '%s' "$input" | jq -r '.cwd // empty' > "$r/cwd"
+# The branch a git command ran on: in the repo it cd's into last, else its cwd.
+# Not for runs replayed from a transcript, whose branch then is unknown.
+if [ "$kind" = git ] && [ -z "${STEADING_RESTORE_END:-}" ]; then
+  repo=$(cat "$r/cwd")
+  cd_to=$(printf '%s\n' "$cmd" | grep -oE '(^|[;&|(])[[:space:]]*cd[[:space:]]+[^;&|)[:space:]]+' | tail -n 1 | sed -E 's/.*cd[[:space:]]+//; s/^["'"'"']//; s/["'"'"']$//')
+  if [ -n "$cd_to" ]; then
+    case $cd_to in "~"*) cd_to="$HOME${cd_to#\~}" ;; /*) ;; *) cd_to="$repo/$cd_to" ;; esac
+    repo=$cd_to
+  fi
+  git -C "$repo" symbolic-ref --short -q HEAD > "$r/branch" 2>/dev/null || rm -f "$r/branch"
+fi
 end=${STEADING_RESTORE_END:-$(date +%s)} # bin/restore passes the end from the transcript
 ms=$(printf '%s' "$input" | jq -r '.duration_ms // 0 | floor')
 printf '%s\n' "$(( end - ms / 1000 ))" > "$r/start"

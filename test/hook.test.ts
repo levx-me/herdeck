@@ -162,7 +162,8 @@ describe("record keeps finished runs for the deck", () => {
       if (!existsSync(runs)) continue;
       const [n] = readdirSync(runs);
       const f = (name: string) => readFileSync(join(runs, n, name), "utf8").trim();
-      return { kind, cmd: f("cmd"), log: f("log"), rc: f("rc"), cwd: f("cwd") };
+      const branch = existsSync(join(runs, n, "branch")) ? { branch: f("branch") } : {};
+      return { kind, cmd: f("cmd"), log: f("log"), rc: f("rc"), cwd: f("cwd"), ...branch } as Record<string, string>;
     }
     return null;
   }
@@ -233,6 +234,16 @@ describe("record keeps finished runs for the deck", () => {
 
   test("a successful git command", () => {
     expect(ok("git add -A", "")).toEqual({ kind: "git", cmd: "git add -A", log: "", rc: "0", cwd: "/tmp" });
+  });
+
+  test("a git run notes its branch: in the repo it cd's into, else its cwd", () => {
+    const repo = mkdtempSync(join(tmpdir(), "steading-repo-"));
+    Bun.spawnSync(["git", "init", "-q", "-b", "feature/x", repo]);
+    const commit = (command: string, cwd: string) =>
+      record({ hook_event_name: "PostToolUse", cwd, tool_input: { command }, tool_response: { stdout: "" } });
+    expect(commit(`cd ${repo} && git commit -m "Fix"`, "/tmp")?.branch).toBe("feature/x");
+    expect(commit('git commit -m "Fix"', repo)?.branch).toBe("feature/x");
+    expect(commit('git commit -m "Fix"', "/tmp")?.branch).toBeUndefined(); // not a repo: no branch
   });
 
   test("read-only git is not recorded", () => {
