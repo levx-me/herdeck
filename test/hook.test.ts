@@ -415,6 +415,8 @@ print(m.${fn}(sys.stdin.read()), end="")`;
     expect(summary("cd repo && python3 - <<'PY'\nprint('x')\nPY\nbash -n bin/x && git rm -q bin/a bin/b")).toBe("git rm"));
   test("reads dropped when there are writes", () =>
     expect(summary("git status -sb | head -1; git add -A && git diff --cached --stat && git commit -m 'x'")).toBe('git add · git commit "x"'));
+  test("ls-remote and other reads are not steps next to a push", () =>
+    expect(summary("git remote -v; git ls-remote --heads origin main && git stash list && git push")).toBe("git push"));
   test("heredoc commit message", () =>
     expect(summary("git commit -m \"$(cat <<'EOF'\nFix the flicker\n\nbody\nEOF\n)\"")).toBe('git commit "Fix the flicker"'));
 });

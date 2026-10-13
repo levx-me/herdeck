@@ -201,11 +201,6 @@ def strip(cells, cols, active):
     return "".join(out), spans
 
 
-GIT_READS = {"status", "diff", "log", "show", "blame", "fetch", "rev-parse", "ls-files", "ls-tree", "grep",
-             "describe", "shortlog", "reflog", "cat-file", "show-ref", "for-each-ref", "rev-list", "name-rev",
-             "merge-base", "check-ignore", "count-objects", "help", "version"}
-
-
 def git_summary(cmd):
     """`cd x && git add -A && git commit -q -m "Fix it\n\nbody" && git push`
     -> 'git add · git commit "Fix it" · git push', for the run list."""
@@ -228,7 +223,7 @@ def git_steps(cmd, messages=True):
     commit carries its message's first line."""
     c = _classify()
     heredoc = re.search(r"""<<-?\s*['"]?\w+['"]?\n\s*([^\n]*)""", cmd)  # first line of a heredoc message
-    steps = []
+    steps, writes = [], []
     for words, _ in c.simple_commands(cmd):
         w = c.unwrap(words)
         if not w or w[0] != "git":
@@ -246,8 +241,9 @@ def git_steps(cmd, messages=True):
             step += f' "{msg[:40]}…"' if len(msg) > 40 else f' "{msg}"'
         if step not in steps:
             steps.append(step)
-    # Only the steps that change something, when there are any.
-    writes = [st for st in steps if st.split()[1:2] and st.split()[1] not in GIT_READS]
+        # The steps that change something, by the rule that decides what is recorded.
+        if c.git_write(w) and step not in writes:
+            writes.append(step)
     return writes or steps
 
 
