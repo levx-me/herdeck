@@ -16,6 +16,7 @@ from xml.sax.saxutils import escape
 CW, LH, FS = 8.4, 19, 14          # cell width, line height, font size (px)
 PAD, TOP = 14, 38                 # inner padding, title bar height
 A, D = 90, 60                     # agent and deck columns: 60:40
+SB = 27                           # herdr's sidebar (spaces, agents) left of them, with a column's gap
 SCENE_SECS = 3                    # how long each section shows
 SPINNER = "·✢✳✶✻✽✻✶✳✢"            # Claude Code's spinner, forward and back
 SPIN_SECS = 0.12                  # one spinner frame
@@ -100,11 +101,11 @@ out = []
 
 
 def x(col):
-    return PAD + col * CW
+    return PAD + (col + SB) * CW  # column 0 is the agent pane's first; the sidebar sits at -SB..-2
 
 
 def top(row):
-    return TOP + PAD + row * LH
+    return TOP + PAD + (row + 1) * LH  # row -1: herdr's tab bar
 
 
 def rect(col, row, cols, fill, rows=1, rx=0, stroke=None):
@@ -149,7 +150,7 @@ def text(col, row, runs, limit):
 
 
 W = x(A + 1 + D) + PAD
-H = TOP + PAD * 2 + ROWS * LH
+H = TOP + PAD * 2 + (ROWS + 1) * LH
 d0, end = A + 1, A + 1 + D
 
 # Window, title bar, pane divider.
@@ -158,7 +159,41 @@ out.append(f'<path d="M10 0H{W - 10:.0f}a10 10 0 0 1 10 10V{TOP}H0V10a10 10 0 0 
 for i, c in enumerate(("#ff5f57", "#febc2e", "#28c840")):
     out.append(f'<circle cx="{20 + i * 20}" cy="{TOP / 2}" r="6" fill="{c}"/>')
 out.append(f'<text x="{W / 2:.0f}" y="{TOP / 2 + 5}" fill="{MUTED}" text-anchor="middle">herdr</text>')
-line(A + 0.5, 0, A + 0.5, ROWS, ACTIVE)
+# herdr around the panes (no pane borders, as configured): its tab bar over them, and the
+# sidebar of spaces and agents on the left. Example workspaces, not real ones.
+side = -SB
+text(side, -1, [("spaces", MUTED)], -1)
+spaces = [("◐", AMBER, "app", "feat/refresh", True), ("○", MUTED, "api", "main", False),
+          ("○", MUTED, "web", "dev", False), ("○", MUTED, "docs", "main", False)]
+for i, (icon, colour, name, branch, on) in enumerate(spaces):
+    if on:
+        rect(side, 1 + 2 * i, SB - 1, ACTIVE, rows=2)
+    text(side, 1 + 2 * i, [(icon + " ", colour), (name, BRIGHT if on else TEXT)], -1)
+    text(side, 2 + 2 * i, [("  " + branch, BLUE)], -1)
+text(side, 12, [("new", DIMMED), ("● ".rjust(SB - 8), BLUE), ("menu", DIMMED)], -1)
+line(side, 13.5, -1, 13.5, ACTIVE)
+text(side, 14, [("agents", MUTED), ("priority".rjust(SB - 7), MUTED)], -1)
+crew = [("app", "◐", AMBER, "working", "add refresh tokens to…", True),
+        ("api", "○", GREEN, "idle", "Paginate the users API", False),
+        ("web", "○", GREEN, "idle", "Dark mode for settings", False),
+        ("docs", "○", GREEN, "idle", "Document the auth flow", False)]
+for i, (name, icon, colour, state, title, on) in enumerate(crew):
+    if on:
+        rect(side, 16 + 2 * i, SB - 1, ACTIVE, rows=2)
+    text(side, 16 + 2 * i, [(name, BRIGHT, True), (" · ", MUTED), (icon + " ", colour), (state, colour)], -1)
+    text(side, 17 + 2 * i, [("  " + title, DIMMED)], -1)
+text(-3, ROWS - 1, [("«", MUTED)], -1)
+# The tab bar: this space's tabs, then the usage figures herdr's tab_bar_right shows.
+rect(0, -1, A + 1 + D, STRIP)
+tabs = [("1 · feature", True), ("2 · nvim", False), ("3 · server", False)]
+col = 0
+for name, on in tabs:
+    if on:
+        rect(col, -1, len(name) + 4, BLUE)
+    text(col, -1, [(f"  {name}  ", STRIP if on else MUTED, on)], A + 1 + D)
+    col += len(name) + 5
+text(col, -1, [("+", MUTED)], A + 1 + D)
+text(A + 1 + D - 24, -1, [("claude ", MUTED), ("24%/40%", TEXT), (" │ @19:51", MUTED)], A + 1 + D)
 
 css = []
 
