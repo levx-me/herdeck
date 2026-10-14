@@ -26,7 +26,7 @@ agents too), two rows each:
 
 The first row is its name and model; the second, what it is doing now (the call running, else its
 latest words, or `waiting for you`), its tasks done when it keeps a list, and how long it has been at it. Pick one
-for the whole picture: state, tokens per minute and a heartbeat of its activity, model and effort, context used, tokens, tools by
+for the whole picture: state, tokens per minute and a heartbeat of its activity, its full title, model and effort, context used, tokens, tools by
 kind, task list, the call running now, what it last said and the request it was given.
 
 **Comes in when** a session starts in the pane, and when the agent hands work to a subagent. Read

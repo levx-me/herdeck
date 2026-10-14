@@ -1517,12 +1517,15 @@ FOLD = re.compile(r"\[… \d+ more lines?\]|\[less\]")
 PROMPT_LINES = 4  # a prompt (request) folded to this many lines
 
 
-def dashboard(d, cols, main, expanded=False):
+def dashboard(d, cols, main, expanded=False, title=""):
     """Everything known about an agent, a row each, for trimming down later."""
     w = max(20, cols - 11)
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<10}{RESET} {value}"
     wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
     out = [""]
+    # The list cuts a long title (the session's, or the subagent's task): here it is whole.
+    for n, part in enumerate(wrap(title) if title else []):
+        out.append(row("title" if n == 0 else "", f"{BOLD}{part}{RESET}"))
     # model · effort · thinking
     model = (d.model or d.requested or "?").replace("claude-", "")
     chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]
@@ -1734,7 +1737,7 @@ class AgentRun(Run):
         name, colour, icon, since = self.state()
         since = "  ".join(x for x in (since, rate(self.digest)) if x)
         return status_block(name, colour, icon, since, self.stamps, self.cols) + \
-            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded)
+            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded, self.label().strip())
 
     def activate(self, line):
         """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it."""

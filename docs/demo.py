@@ -342,6 +342,8 @@ def scene_agents():
         [(" ", AMBER), (lambda t: beats[t:t + D - 2], AMBER)],
         [(" 8m ago", MUTED), ("now".rjust(D - 9), MUTED)],
         [],
+        label("title", ("add refresh tokens to the auth", BRIGHT, True)),
+        label("", ("middleware", BRIGHT, True)),
         label("model", (" opus-5-5 ", BRIGHT), ("  ", MUTED), (" medium ", AMBER), ("  ✻ thought 1.3s", MUTED)),
         label("context", *bar([(8, GREEN)], 24), (" 34%", GREEN), (" 68k/200k", MUTED)),
         label("tokens", ("in ", MUTED), ("2k  ", TEXT), ("cache ", MUTED), ("1.4M  ", TEXT), ("out ", MUTED), ("18k", TEXT)),
