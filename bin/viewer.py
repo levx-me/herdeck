@@ -912,6 +912,9 @@ class Runs:
         shown_entries = entries[top:top + most]
         self.listed = [i for i, _, _ in shown_entries]
 
+        # Agents: model and time make one right-hand column, the text on both rows kept clear of it.
+        column = max((len(t[1]) if isinstance(t, tuple) else len(self.runs[i].top_right()))
+                     for i, _, t in shown_entries) if self.kind == "agents" else 0
         lines = []
         for i, first, label in shown_entries:
             run = self.runs[i]
@@ -933,7 +936,7 @@ class Runs:
             sub = not first and bool(right)
             # "➜ ✓ label<gap>right " and "  ✓ label<gap>right " both fill the line.
             fixed = 5
-            room = cols - fixed - 1 - len(right)
+            room = cols - fixed - 1 - max(len(right), column + 2 if column else 0)
             label = cut(label, max(2, room))
             gap = " " * max(1, cols - fixed - cells(label) - len(right))
             # A run just added: its row starts in the section's colour and fades to the usual.
