@@ -1170,12 +1170,13 @@ class Jobs(Runs):
         super().__init__("jobs")
         self.empty = "no command has taken 10s or more yet"
 
-    def shows(self, path):
+    @staticmethod
+    def shows(path):
         start = read(os.path.join(path, "start"))
         if not start:
             return False  # not started yet (or waiting on a permission prompt)
         end = read(os.path.join(path, "end"))
-        return (int(end) if end else time.time()) - int(start) >= self.LONG
+        return (int(end) if end else time.time()) - int(start) >= Jobs.LONG
 
 
 class Git(Runs):
@@ -1520,7 +1521,7 @@ FOLD = re.compile(r"\[… \d+ more lines?\]|\[less\]")
 PROMPT_LINES = 4  # a prompt (request) folded to this many lines
 
 
-def dashboard(d, cols, main, expanded=False, title=""):
+def dashboard(d, cols, main, expanded=False, title="", jobs=()):
     """Everything known about an agent, a row each, for trimming down later."""
     w = max(20, cols - 11)
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<10}{RESET} {value}"
@@ -1530,6 +1531,9 @@ def dashboard(d, cols, main, expanded=False, title=""):
     # (herdr's pane label), a subagent's the task it was given (the Agent call's description).
     for n, part in enumerate(wrap(title) if title else []):
         out.append(row(("session" if main else "task") if n == 0 else "", f"{BOLD}{part}{RESET}"))
+    # Its calls that show in the jobs tab, as they read there; enter or a click goes to them.
+    for n, job in enumerate(jobs):
+        out.append(row("job" if n == 0 else "", job))
     # model · effort · thinking
     model = (d.model or d.requested or "?").replace("claude-", "")
     chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]
@@ -1577,26 +1581,7 @@ def dashboard(d, cols, main, expanded=False, title=""):
             for n, part in enumerate(wrap(subject, w - 2)):  # wrapped under itself, not cut
                 out.append(row("", f"{mark if n == 0 else ' '}{RESET} {part}"))
     out.append("")
-    # now · says
-    # The current (or last) call, its whole input wrapped under itself rather than cut.
-    call = list(d.open.values())[-1] if d.open else d.last_tool
-    if call:
-        name, what, t = call
-        mark = f"{fg(AMBER_RGB)}{spinner()}" if d.open else f"{fg(GREEN_RGB)}✓"
-        since = f" {fg(MUTED_RGB)}· {took(time.time() - t)}{RESET}" if d.open and t else ""
-        indent = " " * (len(name) + 3)
-        width = w - len(name) - 3
-        parts = wrap(what, width)
-        if len(parts) > 3:  # three lines at most, … where it goes on
-            last = parts[2] if cells(parts[2]) < width else cut(parts[2], width - 1)
-            parts = parts[:2] + [last if last.endswith("…") else last + "…"]
-        for n, part in enumerate(parts):
-            lead = f"{mark} {fg(ACCENT['agents'])}{name}{RESET} " if n == 0 else indent
-            out.append(row(("now" if d.open else "last") if n == 0 else "", lead + part))
-        if since and cells(ANSI.sub("", out[-1] + since)) > cols:  # no room left on the last line
-            out.append(row("", indent + since.lstrip()))
-        else:
-            out[-1] += since
+    # says
     for n, part in enumerate(wrap(d.says)[:3] if d.says else []):
         out.append(row("says" if n == 0 else "", f"{fg(MUTED_RGB)}“{RESET}{part}" if n == 0 else part))
     if d.report:
@@ -1750,17 +1735,40 @@ class AgentRun(Run):
             return "running", colour, icon, f"for {took(time.time() - stamps[0])}"
         return "idle", MUTED_RGB, icon, ""
 
+    def jobs(self):
+        """(row text, run path) for its calls running now that the jobs tab shows."""
+        out = []
+        for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
+            path = os.path.dirname(idfile)
+            if read(idfile) in self.digest.open and Jobs.shows(path):
+                job = JobRun(path)
+                icon, colour = job.status()
+                # The time and the way to the tab stay whole; a long label gives way.
+                right = f"{job.age()}  ↗ jobs"
+                label = cut(job.label(), max(4, max(20, self.cols - 11) - 2 - len(right) - 2))
+                out.append((job.label(), f"{fg(colour)}{icon}{RESET} \033[4m{label}\033[24m"
+                                         f"{fg(MUTED_RGB)}  {job.age()}  {fg(ACCENT['jobs'])}↗ jobs{RESET}", path))
+        return out
+
     def lines(self):
         self.count()
         name, colour, icon, since = self.state()
         since = "  ".join(x for x in (since, rate(self.digest)) if x)
+        jobs = self.jobs()
+        self.job_rows = {label: path for label, _, path in jobs}  # by label: the spinner turns between frames
         return status_block(name, colour, icon, since, self.stamps, self.cols) + \
-            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded, self.label().strip())
+            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded, self.label().strip(),
+                      [text for _, text, _ in jobs])
 
     def activate(self, line):
-        """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it."""
+        """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it.
+        On a job, it goes to that job in the jobs tab."""
         if FOLD.search(line):
             self.expanded = not self.expanded
+            return True
+        job = next((p for label, p in getattr(self, "job_rows", {}).items() if label and label[:24] in line), None)
+        if job and getattr(self.deck, "jump", None):
+            self.deck.jump("jobs", job)
             return True
         return False
 
@@ -1953,6 +1961,7 @@ class Agents(Runs):
 class Deck:
     def __init__(self):
         self.views = [Agents(), Jobs(), Servers()] + [Git() if k == "git" else Runs(k) for k in SECTIONS[3:]]
+        self.views[0].jump = self.jump  # a job in an agent's detail leads to the jobs tab
         self.section = 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
@@ -1972,6 +1981,17 @@ class Deck:
             return os.path.getmtime(path)
         except OSError:
             return 0
+
+    def jump(self, kind, path):
+        """Show the run in path in its section, picked in the list."""
+        i = SECTIONS.index(kind)
+        view = self.views[i]
+        view.refresh()
+        paths = [r.path for r in view.runs]
+        if path in paths:
+            view.select(paths.index(path))
+            view.focus = "list"
+        self.section = i
 
     def choose(self, i):
         """A section picked by hand: show it here and in every other deck."""

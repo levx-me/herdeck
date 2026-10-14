@@ -743,119 +743,17 @@
 <text x="887.6" y="502.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fix the last-second expiry</text>
 <text x="870.8" y="521.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">○</text>
 <text x="887.6" y="521.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Document the flow</text>
-<text x="778.4" y="559.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
-<g class="b b0">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
-</g>
-<g class="b b1">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
-</g>
-<g class="b b2">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
-</g>
-<g class="b b3">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
-</g>
-<g class="b b4">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
-</g>
-<g class="b b5">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
-</g>
-<g class="b b6">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
-</g>
-<g class="b b7">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
-</g>
-<g class="b b8">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
-</g>
-<g class="b b9">
-<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
-</g>
-<text x="887.6" y="559.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">Bash</text>
-<text x="929.6" y="559.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
-<g class="t t0">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 12s</text>
-</g>
-<g class="t t1">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 13s</text>
-</g>
-<g class="t t2">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 14s</text>
-</g>
-<g class="t t3">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 15s</text>
-</g>
-<g class="t t4">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 16s</text>
-</g>
-<g class="t t5">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 17s</text>
-</g>
-<g class="t t6">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 18s</text>
-</g>
-<g class="t t7">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 19s</text>
-</g>
-<g class="t t8">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 20s</text>
-</g>
-<g class="t t9">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 21s</text>
-</g>
-<g class="t t10">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 22s</text>
-</g>
-<g class="t t11">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 23s</text>
-</g>
-<g class="t t12">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 24s</text>
-</g>
-<g class="t t13">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 25s</text>
-</g>
-<g class="t t14">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 26s</text>
-</g>
-<g class="t t15">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 27s</text>
-</g>
-<g class="t t16">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 28s</text>
-</g>
-<g class="t t17">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 29s</text>
-</g>
-<g class="t t18">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 30s</text>
-</g>
-<g class="t t19">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 31s</text>
-</g>
-<g class="t t20">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 32s</text>
-</g>
-<g class="t t21">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 33s</text>
-</g>
-<g class="t t22">
-<text x="1005.2" y="559.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· 34s</text>
-</g>
-<text x="778.4" y="578.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">says</text>
-<text x="870.8" y="578.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">“</text>
-<text x="879.2" y="578.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fixing the expiry check and running</text>
-<text x="870.8" y="597.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">the tests again.</text>
-<text x="778.4" y="616.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">request</text>
+<text x="778.4" y="559.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">says</text>
+<text x="870.8" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">“</text>
+<text x="879.2" y="559.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Fixing the expiry check and running</text>
+<text x="870.8" y="578.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">the tests again.</text>
+<text x="778.4" y="597.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">request</text>
+<text x="870.8" y="597.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
+<text x="887.6" y="597.7" textLength="252.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">add refresh tokens to the auth</text>
 <text x="870.8" y="616.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
-<text x="887.6" y="616.7" textLength="252.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">add refresh tokens to the auth</text>
+<text x="887.6" y="616.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">middleware, with rotation and reuse</text>
 <text x="870.8" y="635.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
-<text x="887.6" y="635.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">middleware, with rotation and reuse</text>
-<text x="870.8" y="654.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#8fa8d2">│</text>
-<text x="887.6" y="654.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">detection</text>
+<text x="887.6" y="635.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">detection</text>
 <rect x="778.4" y="774.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="786.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
 <text x="820.4" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>

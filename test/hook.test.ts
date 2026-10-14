@@ -571,6 +571,39 @@ print(*(r.id for r in reversed(s.runs)))  # top down, as drawn
     expect(r.stderr.toString()).toBe("");
     expect(r.stdout.toString().trim()).toBe("main p2 p1 k1 g1");
   });
+
+  test("the agent's detail shows its running job, and enter on it goes to the jobs tab", () => {
+    const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
+    const main = join(dir, "s1.jsonl");
+    const job = join(dir, "base", "jobs", "runs", "1");
+    mkdirSync(job, { recursive: true });
+    const now = Math.floor(Date.now() / 1000);
+    for (const [f, v] of [["id", "tj"], ["start", String(now - 20)], ["label", "Wait for the API to answer"], ["cmd", "sleep 60"], ["timeout", "120000"]])
+      writeFileSync(join(job, f), v + "\n");
+    writeFileSync(join(job, "source"), main + "\n"); // any file that exists: the call's output
+    writeFileSync(main, JSON.stringify({ type: "assistant", timestamp: new Date().toISOString(),
+      message: { content: [{ type: "tool_use", id: "tj", name: "Bash", input: { command: "sleep 60" } }] } }) + "\n");
+    const check = `
+import sys, time
+from importlib.machinery import SourceFileLoader
+args = sys.argv[1:]; sys.argv = sys.argv[:1]  # the viewer takes its base from argv, else STEADING_BASE
+v = SourceFileLoader("v", args[0]).load_module()
+v.background = lambda fn, *a: fn(*a)
+s = v.Agents(); s.session, s.looked = args[1], time.time()
+s.read_main(); s.refresh()
+went = []
+s.jump = lambda kind, path: went.append((kind, path))
+m = s.runs[-1]
+row = next(l for l in m.plain() if l.startswith("job"))
+print(row.split(None, 2)[2].split("  ")[0])
+print(m.activate(row), went[0][0], went[0][1] == args[2])
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main, job], {
+      env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
+    });
+    expect(r.stderr.toString()).toBe("");
+    expect(r.stdout.toString().trim().split("\n")).toEqual(["Wait for the API to answer", "True jobs True"]);
+  });
 });
 
 describe("jobs: other commands followed while they run", () => {

@@ -357,8 +357,6 @@ def scene_agents():
         label("", ("◐ ", AMBER), ("Fix the last-second expiry", TEXT)),
         label("", ("○ ", MUTED), ("Document the flow", TEXT)),
         [],
-        label("now", (SPIN, AMBER), (" Bash ", ACCENT["AGENTS"]), ("npm test", TEXT),
-              (lambda t: f" · {12 + t}s", MUTED)),
         label("says", ("“", MUTED), ("Fixing the expiry check and running", TEXT)),
         label("", ("the tests again.", TEXT)),
         label("request", ("│ ", ACCENT["AGENTS"]), ("add refresh tokens to the auth", TEXT)),
