@@ -18,15 +18,15 @@ Runs are listed by their core command, not by prose: the agent is asked to descr
 agents too), two rows each:
 
 ```
-⠼ add refresh tokens to the auth middleware      2m 16s
-    Bash npm test                           ▂▃▇▅  ▁▃
-⠼ Map the auth tests                               40s
-    Read src/auth/refresh.test.ts            ▁▂  ▁▅▅▆
+⠼ add refresh tokens to the auth middleware    opus-5-5
+    Bash npm test                         ▰▰▰▱▱ 3/5  2m 16s
+⠼ Map the auth tests                            haiku-5-5
+    Read src/auth/refresh.test.ts                      40s
 ```
 
-The first row is its name and how long it has been at it; the second, what it is doing now (the call
-running, else its latest words, or `waiting for you`) and its last two minutes of activity. Pick one
-for the whole picture: state and tokens per minute, model and effort, context used, tokens, tools by
+The first row is its name and model; the second, what it is doing now (the call running, else its
+latest words, or `waiting for you`), its tasks done when it keeps a list, and how long it has been at it. Pick one
+for the whole picture: state, tokens per minute and a heartbeat of its activity, model and effort, context used, tokens, tools by
 kind, task list, the call running now, what it last said and the request it was given.
 
 **Comes in when** a session starts in the pane, and when the agent hands work to a subagent. Read

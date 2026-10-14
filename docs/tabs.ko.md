@@ -17,14 +17,14 @@
 워크플로 에이전트 포함). 에이전트마다 두 줄입니다.
 
 ```
-⠼ add refresh tokens to the auth middleware      2m 16s
-    Bash npm test                           ▂▃▇▅  ▁▃
-⠼ Map the auth tests                               40s
-    Read src/auth/refresh.test.ts            ▁▂  ▁▅▅▆
+⠼ add refresh tokens to the auth middleware    opus-5-5
+    Bash npm test                         ▰▰▰▱▱ 3/5  2m 16s
+⠼ Map the auth tests                            haiku-5-5
+    Read src/auth/refresh.test.ts                      40s
 ```
 
-첫 줄은 이름과 일한 시간, 둘째 줄은 지금 하는 일(실행 중인 도구, 없으면 마지막으로 한 말, 또는
-`waiting for you`)과 최근 2분의 활동 그래프입니다. 하나를 고르면 전체가 보입니다. 상태와 분당 토큰 수,
+첫 줄은 이름과 모델, 둘째 줄은 지금 하는 일(실행 중인 도구, 없으면 마지막으로 한 말, 또는
+`waiting for you`), 할 일 진행(할 일 목록이 있을 때), 일한 시간입니다. 하나를 고르면 전체가 보입니다. 상태와 분당 토큰 수,
 모델과 effort, 컨텍스트 사용량, 토큰, 종류별 도구 사용, 할 일 목록, 지금 실행 중인 도구, 마지막으로 한 말,
 받은 요청입니다.
 

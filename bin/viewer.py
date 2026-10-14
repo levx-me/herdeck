@@ -918,7 +918,7 @@ class Runs:
             selected = i == self.tab
             if first:
                 icon, colour = run.status()
-                age = run.age()
+                age = getattr(run, "top_right", run.age)()  # agents: their model
                 # git rows keep a fixed 7-column hash at the far right (blank when
                 # there is none), so the variable-width age lines up before it.
                 sha = run.hash()
@@ -1671,11 +1671,10 @@ class AgentRun(Run):
     def label(self):
         return "  " * int(self.meta.get("spawnDepth") or 1) + self.full  # under the main agent
 
-    SUB_BEATS = 12  # the list's heartbeat: the last two minutes
-
     def subline(self):
         """The row under its name in the list: what it is doing (the call running, else
-        its latest words, else its last call) and its heartbeat, as (text, plain, shown)."""
+        its latest words, else its last call), then its tasks done (when it keeps a list)
+        and how long it has been at it, as (text, plain, shown)."""
         self.count()
         d = self.digest
         if isinstance(self, MainRun) and self.deck.agent_status == "blocked":
@@ -1688,9 +1687,19 @@ class AgentRun(Run):
             lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
             doing = next((l for l in lines if l), "")
         indent = " " * (len(self.label()) - len(self.label().lstrip(" ")) + 2)
-        beat = heartbeat(self.stamps, self.SUB_BEATS)
-        colour = self.status()[1]
-        return indent + doing, beat, f"{fg(colour if colour != MUTED_RGB else DIMMED_RGB)}{beat}"
+        plain = shown = ""
+        if d.tasks:
+            done, total = sum(1 for _, st in d.tasks.values() if st == "completed"), len(d.tasks)
+            filled = round(5 * done / total)
+            plain = f"{'▰' * filled}{'▱' * (5 - filled)} {done}/{total}  "
+            shown = f"{fg(GREEN_RGB)}{'▰' * filled}{fg(DIMMED_RGB)}{'▱' * (5 - filled)} {fg(MUTED_RGB)}{done}/{total}  "
+        age = self.age()
+        return indent + doing, plain + age, shown + f"{fg(MUTED_RGB)}{age}"
+
+    def top_right(self):
+        """Its model, at the right of its first row in the list."""
+        self.count()
+        return re.sub(r"-\d{8}$", "", (self.digest.model or self.digest.requested or "").replace("claude-", ""))
 
     def age(self):
         """How long it has been at work (the list shows only those at work)."""
