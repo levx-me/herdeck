@@ -1565,9 +1565,15 @@ def dashboard(d, cols, main, expanded=False, title=""):
         done = sum(1 for _, st in d.tasks.values() if st == "completed")
         out.append(row("tasks", f"{bar([(done, GREEN_RGB), (len(d.tasks) - done, TAB_RGB)], min(24, w - 8))} "
                                 f"{done}/{len(d.tasks)}"))
-        for subject, st in list(d.tasks.values())[:8]:
+        items = list(d.tasks.values())
+        # A long list keeps what is left in full; the done ones fold into a count.
+        if len(items) > 8 and done:
+            out.append(row("", f"{fg(GREEN_RGB)}✓{RESET} {fg(MUTED_RGB)}{done} done{RESET}"))
+            items = [t for t in items if t[1] != "completed"]
+        for subject, st in items:
             mark = {"completed": f"{fg(GREEN_RGB)}✓", "in_progress": f"{fg(AMBER_RGB)}◐"}.get(st, f"{fg(MUTED_RGB)}○")
-            out.append(row("", f"{mark}{RESET} {cut(subject, w - 2)}"))
+            for n, part in enumerate(wrap(subject, w - 2)):  # wrapped under itself, not cut
+                out.append(row("", f"{mark if n == 0 else ' '}{RESET} {part}"))
     out.append("")
     # now · says
     # The current (or last) call, its whole input wrapped under itself rather than cut.
