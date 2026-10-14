@@ -1404,6 +1404,7 @@ class Digest:
         self.request_at = None                 # when the latest request came: the main agent's turn
         self.cwd = ""
         self.task_calls = {}                   # TaskCreate call id -> its order
+        self.results = {}                      # tool call id -> failed?, for the calls it got answers to
 
     def feed(self, row):
         try:
@@ -1425,6 +1426,7 @@ class Digest:
             for b in content if isinstance(content, list) else []:
                 if isinstance(b, dict) and b.get("type") == "tool_result":
                     self.open.pop(b.get("tool_use_id"), None)
+                    self.results[b.get("tool_use_id")] = bool(b.get("is_error"))
             return
         if row.get("type") != "assistant":
             return
@@ -1652,10 +1654,18 @@ class AgentRun(Run):
         self.first = self.digest.first or self.first
         self.calls = sum(self.digest.kinds.values())
 
+    def parent(self):
+        """The subagent that started this one (a subagent's subagent), or None."""
+        pid = self.meta.get("parentAgentId")
+        return next((r for r in self.deck.every if r.id == pid), None) if pid else None
+
     def ended(self):
-        """"done", "failed" or "stopped" once the main transcript says so, else ""."""
+        """"done", "failed" or "stopped" once the transcript that called it says so
+        (the main one, or its parent subagent's), else ""."""
         if self.meta.get("requestShape") != "background":
-            hit = self.deck.results.get(self.meta.get("toolUseId", ""))
+            parent = self.parent()
+            answers = parent.digest.results if parent else self.deck.results
+            hit = answers.get(self.meta.get("toolUseId", ""))
             if hit is not None:
                 return "failed" if hit else "done"
         return self.deck.notified.get(self.id, "")
@@ -1906,10 +1916,15 @@ class Agents(Runs):
         self.every = [keep.get(p) or AgentRun(p, self) for p in paths]
         if self.session and (self.main is None or self.main.path != self.session):
             self.main = MainRun(self.session, self)
-        # The subagents at work, oldest first, and the main agent last: the list draws
-        # the last on top, so the main agent is always there.
-        runs = sorted((r for r in self.every if r.status()[1] == AMBER_RGB), key=lambda r: r.first)
-        runs += [self.main] if self.session else []
+        # The subagents at work as a tree: the newest on top, each subagent's own
+        # subagents right under it. The list draws the last run on top, so the tree
+        # is built top down and turned round, the main agent last.
+        working = [r for r in self.every if r.status()[1] == AMBER_RGB]
+        ids = {r.id for r in working}
+        def under(pid):
+            kids = [r for r in working if (r.meta.get("parentAgentId") if r.meta.get("parentAgentId") in ids else None) == pid]
+            return [x for r in sorted(kids, key=lambda r: -r.first) for x in [r] + under(r.id)]
+        runs = under(None)[::-1] + ([self.main] if self.session else [])
         # New: a subagent never seen before. (An ended one can show as at work for a moment
         # until the main transcript is read; coming back is not being new.)
         ever = getattr(self, "ever", None)
@@ -1919,7 +1934,8 @@ class Agents(Runs):
         self.runs = runs
         paths = [r.path for r in runs]
         if new:
-            self.select(max(0, len(runs) - 2))  # a new subagent: the newest, just under the main agent
+            # A new subagent: picked, wherever the tree puts it.
+            self.select(paths.index(max((r for r in runs if r.path not in ever), key=lambda r: r.first).path))
             self.fresh = (runs[self.tab], time.time())
         elif self.known is None or picked not in paths:
             self.select(len(runs) - 1)  # the main agent

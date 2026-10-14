@@ -15,7 +15,7 @@ Runs are listed by their core command, not by prose: the agent is asked to descr
 ## agents
 
 **Shows** the agent itself on top, then every Claude Code subagent at work (background and workflow
-agents too), two rows each:
+agents too; a subagent's own subagents sit indented under it), two rows each:
 
 ```
 ⠼ add refresh tokens to the auth middleware    opus-5-5

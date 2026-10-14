@@ -534,6 +534,43 @@ for r in s.every:
       "listed main",
     ]);
   });
+
+  test("a subagent's subagent sits under it, and ends by its parent's answer", () => {
+    const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
+    const main = join(dir, "s1.jsonl");
+    const subs = join(dir, "s1", "subagents");
+    mkdirSync(subs, { recursive: true });
+    const now = new Date().toISOString();
+    const agent = (id: string, meta: object, rows: object[]) => {
+      writeFileSync(join(subs, `agent-${id}.meta.json`), JSON.stringify(meta));
+      writeFileSync(join(subs, `agent-${id}.jsonl`), rows.map((o) => JSON.stringify(o)).join("\n") + "\n");
+    };
+    const at = (s: number) => new Date(Date.now() - s * 1000).toISOString();
+    // p1 (oldest) runs k1, which runs g1; p2 started later; k2 was answered by p1, so it is done.
+    agent("p1", { description: "Parent one", toolUseId: "t1", spawnDepth: 1 }, [
+      { type: "user", timestamp: at(50), message: { content: "go" } },
+      { type: "user", timestamp: at(5), message: { content: [{ type: "tool_result", tool_use_id: "tk2" }] } },
+    ]);
+    agent("p2", { description: "Parent two", toolUseId: "t2", spawnDepth: 1 }, [{ type: "user", timestamp: at(40), message: { content: "go" } }]);
+    agent("k1", { description: "Kid", toolUseId: "tk1", spawnDepth: 2, parentAgentId: "p1" }, [{ type: "user", timestamp: at(30), message: { content: "go" } }]);
+    agent("g1", { description: "Grandkid", toolUseId: "tg1", spawnDepth: 3, parentAgentId: "k1" }, [{ type: "user", timestamp: at(20), message: { content: "go" } }]);
+    agent("k2", { description: "Done kid", toolUseId: "tk2", spawnDepth: 2, parentAgentId: "p1" }, [{ type: "user", timestamp: at(25), message: { content: "go" } }]);
+    writeFileSync(main, JSON.stringify({ type: "user", timestamp: now, message: { content: "hi" } }) + "\n");
+    const check = `
+import sys, time
+from importlib.machinery import SourceFileLoader
+v = SourceFileLoader("v", sys.argv[1]).load_module()
+v.background = lambda fn, *a: fn(*a)
+s = v.Agents(); s.session, s.looked = sys.argv[2], time.time()
+s.read_main(); s.refresh()
+print(*(r.id for r in reversed(s.runs)))  # top down, as drawn
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
+      env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
+    });
+    expect(r.stderr.toString()).toBe("");
+    expect(r.stdout.toString().trim()).toBe("main p2 p1 k1 g1");
+  });
 });
 
 describe("jobs: other commands followed while they run", () => {
