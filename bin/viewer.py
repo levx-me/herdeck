@@ -1535,7 +1535,7 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=()):
     for n, lines in enumerate(jobs):
         for k, line in enumerate(lines):
             out.append(row("job" if n == 0 and k == 0 else "", line))
-    if jobs:
+    if title or jobs:  # a blank row before the model, after the title and any jobs
         out.append("")
     # model · effort · thinking
     model = (d.model or d.requested or "?").replace("claude-", "")
