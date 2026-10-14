@@ -183,16 +183,20 @@ def link(url, text):
     return f"\033]8;;{url}\a{text}\033]8;;\a"
 
 
-def strip(cells, cols, active):
+def strip(cells, cols, active, new=frozenset(), new_rgb=RED_RGB):
     """Lay cells [(width, text)] on a dark strip, scrolled so `active` shows.
 
+    Cells in `new` have something not seen yet: an arrow with such a cell hidden
+    behind it turns new_rgb, and the strip ends in a count of them all.
     Returns the line and where each shown cell landed: [(index, first col, last col)],
     columns counted from 1 like mouse reports."""
-    room = cols - 2
+    count = f" {len(new)} new " if new else ""
+    room = cols - 2 - (len(count) + 1 if count else 0)
     first = 0
     while first < active and sum(w + 1 for w, _ in cells[first:active + 1]) > room:
         first += 1
-    out, used, last, spans = [bg(STRIP_RGB), fg(MUTED_RGB), "‹" if first else " "], 0, first, []
+    arrow = lambda hidden: f"{fg(new_rgb)}{BOLD}" if new & set(hidden) else fg(MUTED_RGB)
+    out, used, last, spans = [bg(STRIP_RGB), arrow(range(first)), "‹" if first else " ", "\033[22m"], 0, first, []
     for w, text in cells[first:]:
         if used + w + 1 > room:
             break
@@ -200,7 +204,10 @@ def strip(cells, cols, active):
         out += [text, bg(STRIP_RGB), " "]
         used += w + 1
         last += 1
-    out.append(f"{fg(MUTED_RGB)}{'›' if last < len(cells) else ''}\033[K{RESET}")
+    out.append(f"{arrow(range(last, len(cells)))}{'›' if last < len(cells) else ' '}\033[22m")
+    if count:  # how many tabs have something new, wherever they are
+        out.append(f"{' ' * max(0, room - used)}{bg(new_rgb)}{fg(BRIGHT_RGB)}{BOLD}{count}\033[22m{bg(STRIP_RGB)}")
+    out.append(f"\033[K{RESET}")
     return "".join(out), spans
 
 
@@ -2150,7 +2157,7 @@ class Deck:
             else:
                 text = f"{bg(TAB_RGB)}{fg(MUTED_RGB)} {name} {fg(colour)}{icon} "
             cells.append((len(name) + 4, text))
-        bar, self.spans = strip(cells, cols, self.section)
+        bar, self.spans = strip(cells, cols, self.section, self.unseen, self.NEW_RGB)
         return bar
 
     def draw(self):
@@ -2186,11 +2193,17 @@ class Deck:
                 if x0 <= col <= x1:
                     self.choose(i)
                     return
-            # The scroll marks: ‹ picks the hidden tab before the shown ones, › the one after.
+            # The scroll marks: ‹ picks the hidden tab before the shown ones, › the one after;
+            # with something new that way (or a click on the count), the nearest new tab.
             if self.spans and col <= 1 and self.spans[0][0] > 0:
-                self.choose(self.spans[0][0] - 1)
-            elif self.spans and col > self.spans[-1][2] and self.spans[-1][0] < len(self.views) - 1:
-                self.choose(self.spans[-1][0] + 1)
+                left = [i for i in self.unseen if i < self.section]
+                self.choose(max(left) if left else self.spans[0][0] - 1)
+            elif self.spans and col > self.spans[-1][2]:
+                right = [i for i in self.unseen if i > self.section]
+                if right or self.unseen:
+                    self.choose(min(right) if right else min(self.unseen))
+                elif self.spans[-1][0] < len(self.views) - 1:
+                    self.choose(self.spans[-1][0] + 1)
         elif button == 0:
             self.views[self.section].click(row, col)
 

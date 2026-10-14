@@ -198,7 +198,8 @@ def section_bar(active):
     """The tabs, scrolled as bin/viewer.py's strip() does so the active one shows."""
     rect(d0, 0, D, STRIP)
     widths = [len(name) + 4 for name, _, _ in SECTIONS]
-    room = D - 2
+    count = " 1 new " if active < 3 else ""  # the build tab, new until shown (bin/viewer.py strip)
+    room = D - 2 - (len(count) + 1 if count else 0)
     first = 0
     while first < active and sum(w + 1 for w in widths[first:active + 1]) > room:
         first += 1
@@ -219,6 +220,9 @@ def section_bar(active):
         shown_last = i
     if shown_last < len(SECTIONS) - 1:
         text(col, 0, [("›", MUTED)], end)
+    if count:
+        rect(d0 + D - len(count), 0, len(count), "#976870")
+        text(d0 + D - len(count), 0, [(count, BRIGHT, True)], end)
 
 
 def run_box(rows, accent, noun, picked=0, fade=None, state=None):

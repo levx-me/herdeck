@@ -5,7 +5,8 @@
 Every tab works the same way: a list of runs, newest on top (the last 20, git the last 50), and the
 picked run's output under it. The tab's name carries its latest status: `✓` `✗`, a spinner while
 something runs, `●` for live servers. When something new comes in on another tab, that tab turns red until
-you open it (the deck stays where you are), and the new row fades in from the tab's colour.
+you open it; the strip ends in a count of such tabs (`2 new`), and an arrow with one hidden behind it
+turns red too. A click on the count or that arrow goes to the nearest one (the deck stays where you are), and the new row fades in from the tab's colour.
 
 Runs are listed by their core command, not by prose: the agent is asked to describe its calls as
 `<kind>: <command>`, and anything else is cut down to the command by its shell tokens.
