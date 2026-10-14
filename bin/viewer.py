@@ -823,17 +823,22 @@ class Runs:
     # drawing ---------------------------------------------------------------
 
     def frame(self, cols, rows):
-        """Head lines (run list, info, rule) and the visible log lines."""
+        """The run list box, then a box filling the rest with the run: its command,
+        info and log (an agent: its detail). Each box's border takes the section's
+        colour while the cursor is in it."""
         # A short pane (a deck on top of its agent) keeps a shorter list, so the log still shows.
-        self.list_rows = max(3, min(LIST_ROWS, (rows - 8) // 2))
+        self.list_rows = max(3, min(LIST_ROWS, (rows - 10) // 2))
         if not self.runs:
             return [f"{DIM} {self.empty}{RESET}{self.title_right()}", rule(cols)], []
+        outer, cols = cols, max(10, cols - 4)  # inside the box: "│ " … " │"
         run = self.runs[self.tab]
-        run.cols = cols  # agents lay their status out to the pane
+        run.cols = cols  # agents lay their status out to the box
         loaded = run.lines()
         self.raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
-        self.plain = run.plain() if loaded is not None else [""]
-        head = self.run_list(cols)
+        # An agent's detail is drawn anew each time: its plain lines come from these very lines.
+        self.plain = [ANSI.sub("", l) for l in loaded] if isinstance(run, AgentRun) else \
+            run.plain() if loaded is not None else [""]
+        head = self.run_list(outer)
         box = len(head)
         if self.search is not None:
             info = f"{fg(ACCENT[self.kind])}{'?' if self.back else '/'}{RESET}{self.search}▏"
@@ -853,7 +858,8 @@ class Runs:
 
         running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
         # While it runs, the last row shows a spinner under the output.
-        self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head) - (1 if running else 0))
+        room = max(1, rows - (HEAD_ROW - 1) - box - 2)  # the run's box, inside its borders
+        self.height = height = max(1, room - (len(head) - box) - (1 if running else 0))
         self.place_cursor()
         self.clamp()
         if self.cy < self.offset:
@@ -861,7 +867,7 @@ class Runs:
         elif self.cy >= self.offset + height:
             self.offset = self.cy - height + 1
         self.offset = max(0, min(self.offset, max(0, len(self.plain) - height)))
-        self.body_row = HEAD_ROW + len(head)
+        self.body_row = HEAD_ROW + len(head) + 1  # under the box's top border
         cursor = self.focus == "log" and self.copy_cursor
 
         body = []
@@ -880,7 +886,15 @@ class Runs:
             start = int(read(os.path.join(run.path, "start"), "0") or 0)
             secs = f" {int(time.time()) - start}s" if start else ""
             body.append(f"{fg(AMBER_RGB)}{spinner()} running{secs}{RESET}")
-        return head, body
+        # The run's box: all the rest of the pane, bordered in the section's colour while it has the cursor.
+        inside = (head[box:] + body + [""] * room)[:room]
+        edge = fg(ACCENT[self.kind]) if self.focus == "log" else fg("70;76;88")
+        framed = [f"{edge}╭{'─' * (cols + 2)}╮{RESET}"]
+        for line in inside:
+            line = fit(line, cols)
+            framed.append(f"{edge}│{RESET} {line}{RESET}{' ' * max(0, cols - cells(ANSI.sub('', line)))} {edge}│{RESET}")
+        framed.append(f"{edge}╰{'─' * (cols + 2)}╯{RESET}")
+        return head[:box] + framed, []
 
     def tooltip_at(self, cols):
         """(log line, column, label) of a live copy tooltip: on the line above the
@@ -1099,7 +1113,7 @@ class Runs:
             self.focus, self.follow, self.cx = "log", True, 0  # at the end of its output
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus, self.anchor = "log", None
-            self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 1, False
+            self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 3, False  # "│ " before it
             self.clamp()
             self.dragging = (self.cy, self.cx)
             if getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy]):
@@ -1109,7 +1123,7 @@ class Runs:
         """Dragging in the log selects from where the button went down, as in herdr."""
         if getattr(self, "dragging", None) is None:
             return
-        self.cy, self.cx = self.offset + row - self.body_row, col - 1
+        self.cy, self.cx = self.offset + row - self.body_row, col - 3
         self.clamp()
         self.anchor, self.linewise = self.dragging, False
 

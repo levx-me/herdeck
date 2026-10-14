@@ -287,11 +287,19 @@ def hints(pairs):
 
 
 def body(row, lines):
-    for i, runs_ in enumerate(lines):
+    """The run's box under the list, down to the hints (bin/viewer.py Runs.frame): grey, as
+    the cursor is in the list; the lines inside it."""
+    edge, last = "#464c58", ROWS - 2
+    text(d0, row, [("╭" + "─" * (D - 2) + "╮", edge)], end)
+    for r in range(row + 1, last):
+        text(d0, r, [("│", edge)], end)
+        text(end - 1, r, [("│", edge)], end)
+    text(d0, last, [("╰" + "─" * (D - 2) + "╯", edge)], end)
+    for i, runs_ in enumerate(lines[:last - row - 1]):
         if runs_ == RULE:
-            line(d0, row + i + 0.5, end, row + i + 0.5, ACTIVE)
+            line(d0 + 2, row + 1 + i + 0.5, end - 2, row + 1 + i + 0.5, ACTIVE)
         else:
-            text(d0, row + i, runs_, end)
+            text(d0 + 2, row + 1 + i, runs_, end - 2)
 
 
 def heartbeat(n, seed=7):
@@ -326,7 +334,7 @@ def label(name, *runs):
 
 def card(title, rows):
     """Rows in a rounded box the deck's width, its title in the top border (bin/viewer.py card)."""
-    inner, edge = D - 5, "#464c58"
+    inner, edge = D - 8, "#464c58"  # inside the run's box
     width = lambda runs: sum(1 if t == SPIN else len(t) for t, *_ in runs)
     top = [("╭─", edge), (f" {title} ", MUTED), ("─" * (inner - len(title) - 2) + "─╮", edge)]
     return [top] + [[("│ ", edge), *r, (" " * (inner - width(r)) + " │", edge)] for r in rows] + \
@@ -352,13 +360,13 @@ def scene_agents():
                    (SPIN, AMBER, "  Map the auth tests", "haiku-5-5"),
                    ("", AMBER, "    Read src/auth/refresh.test.ts", [(lambda t: took(38 + t).rjust(6), MUTED)])],
                   ACCENT["AGENTS"], "agents")
-    rect(d0 + 1, row, 11, AMBER)  # the WORKING pill
+    rect(d0 + 3, row + 1, 11, AMBER)  # the WORKING pill, inside the run's box
     body(row, [
         [("  ", STRIP, True), (SPIN, STRIP, True), (" WORKING ", STRIP, True), ("   ", MUTED), ("↑", GREEN),
          (lambda t: f" {rates[t % len(rates)]} tok/min", MUTED)],
         [],
-        [(" ", AMBER), (lambda t: beats[t:t + D - 2], AMBER)],
-        [(" 8m ago", MUTED), ("now".rjust(D - 9), MUTED)],
+        [(" ", AMBER), (lambda t: beats[t:t + D - 6], AMBER)],
+        [(" 8m ago", MUTED), ("now".rjust(D - 13), MUTED)],
         [],
         *card("session", [[("add refresh tokens to the auth middleware", BRIGHT, True)]]),
         *card("model", [
