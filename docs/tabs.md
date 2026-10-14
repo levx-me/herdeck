@@ -56,8 +56,10 @@ left alone; the tab is marked new.
 
 ## build · test
 
-**Shows** each run streamed live, in the colours you would see in a shell, with where it ran, how
-long it took and its exit code.
+**Shows** each run streamed live, in the colours you would see in a shell. Its box opens with a badge
+(`✓ PASSED`, `✗ FAILED`, `⠼ RUNNING`) beside where it ran, how long it took and when; a test run's
+passed and failed counts as a bar, read from the runner's summary; and down the log, line numbers
+with a red bar on error lines and an amber one on warnings. Jobs and deploys look the same.
 
 **Comes in when** the agent runs one:
 

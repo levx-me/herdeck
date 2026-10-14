@@ -10,6 +10,7 @@ so the columns line up whatever monospace font the viewer has. Colours are the
 deck's own (bin/viewer.py).
 """
 import random
+import re
 from xml.sax.saxutils import escape
 
 CW, LH, FS = 8.4, 19, 14          # cell width, line height, font size (px)
@@ -133,6 +134,8 @@ def text(col, row, runs, limit):
             col += width
             continue
         s, colour, bold = run[0], run[1], len(run) > 2 and run[2] is not False
+        if len(run) > 4 and run[4]:  # a background behind the run (a badge)
+            rect(col, row, len(s), run[4])
         underline = ' text-decoration="underline"' if len(run) > 3 and run[3] == "u" else ""
         lead, body = len(s) - len(s.lstrip(" ")), s.strip(" ")
         assert col + len(s) <= limit, f"row {row} runs past column {limit}: {s!r}"
@@ -275,10 +278,52 @@ def browse(section, rows, accent, noun, contents, keys, state=None):
     css.append(f".f{section}{{animation:fk{section} {CYCLE}s linear infinite;opacity:0}}"
                f"@keyframes fk{section}{{0%,{a:.3f}%{{opacity:0}}{a + 0.001:.3f}%{{opacity:.9}}"
                f"{b:.3f}%,100%{{opacity:0}}}}")
+    if SECTIONS[section][0] in ("JOBS", "BUILD", "TEST", "DEPLOY"):  # bin/viewer.py REPORTED
+        contents = [reported(SECTIONS[section][0], c) for c in contents]
     for picked, content in enumerate(contents):
         fade = f"f{section}" if picked == 0 else None
         layer("t", start + picked, lambda: body(run_box(rows, accent, noun, picked, fade, state), content))
     hints(keys)
+
+
+def plain(runs):
+    return "".join(r[0](0) if callable(r[0]) else ("⠋" if r[0] == SPIN else r[0]) for r in runs)
+
+
+def reported(kind, content):
+    """A run's box as bin/viewer.py draws a reported one: a status badge with where and how
+    long on the right, the command, a test run's summary bar, then the log with a gutter
+    of line numbers, red or amber on error and warning lines."""
+    command, info, rest = content[0], content[1], content[3:]
+    said = plain(info)
+    if "running" in said:
+        word, rgb, icon = "RUNNING", AMBER, SPIN
+    elif "exit 1" in said:
+        word, rgb, icon = "FAILED", RED, "✗"
+    else:
+        word, rgb, icon = {"TEST": "PASSED", "BUILD": "BUILT", "DEPLOY": "DEPLOYED"}.get(kind, "DONE"), GREEN, "✓"
+    meta = [(r[0].lstrip() if i == 0 and not callable(r[0]) else r[0], MUTED) for i, r in enumerate(info)
+            if callable(r[0]) or r[0].strip() not in ("exit 0", "exit 1")]
+    meta = [(t.replace(" · exit 0", "").rstrip(" ·") if isinstance(t, str) else t, c) for t, c in meta]
+    badge = [(" ", STRIP, True, None, rgb), (icon, STRIP, True, None, rgb), (f" {word} ", STRIP, True, None, rgb)]
+    width = len(word) + 4 + sum(max(len(t(n)) for n in range(CYCLE)) if callable(t) else len(t) for t, _ in meta)
+    head = [badge + [(" " * (D - 4 - width), MUTED)] + meta, command]
+    text_ = " ".join(plain(r) for r in rest if r != RULE)
+    passed = re.findall(r"(\d+) passed", text_)  # the last: the runner's closing summary
+    failed = re.findall(r"(\d+) failed", text_)
+    if kind == "TEST" and passed:
+        p, f = int(passed[-1]), int(failed[-1]) if failed else 0
+        cells = 20
+        green = round(cells * p / (p + f))
+        head.append([("█" * green, GREEN), ("█" * (cells - green), RED), (f"  {p} passed", GREEN)]
+                    + ([(" · ", MUTED), (f"{f} failed", RED)] if f else []) + [(f" · {p + f} total", MUTED)])
+    log = []
+    for n, r in enumerate(rest, 1):
+        said = plain(r)
+        mark = RED if re.search(r"\w*error\b|\bfail(ed)?\b|✗", said, re.I) and not re.search(r"\b0 fail", said) \
+            else AMBER if re.search(r"\bwarn", said, re.I) else None
+        log.append([(f"{n:>2}", DIMMED), ("▌" if mark else "│", mark or "#464c58"), (" ", MUTED), *r])
+    return head + [RULE] + log
 
 
 def hints(pairs):
@@ -409,7 +454,7 @@ def scene_jobs():
          [("  ~/app · 72s · exit 0", MUTED)], RULE,
          [("Downloading Chromium 131.0.6778.33", TEXT)],
          [("|████████████████████| 100% of 162.8 MiB", GREEN)],
-         [("Chromium downloaded to ~/Library/Caches/ms-playwright", TEXT)]],
+         [("Chromium downloaded to ~/Library/Caches", TEXT)]],
         [[("$ ", MUTED), ("npm run db:reset && npm run db:seed", BRIGHT, True)],
          [("  ~/app · 48s · exit 0", MUTED)], RULE,
          [("Applied 14 migrations", TEXT)],

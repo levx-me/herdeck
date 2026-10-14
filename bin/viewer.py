@@ -660,6 +660,50 @@ def copy(text):
     sys.stdout.write(f"\033]52;c;{base64.b64encode(text.encode()).decode()}\a")
 
 
+# Runs whose box opens with a status header, a summary and a gutter of line numbers.
+REPORTED = {"jobs", "build", "test", "deploy"}
+# A log line that reports an error, or a warning ("0 failed" is neither).
+ERROR_LINE = re.compile(r"\w*error(s)?\b|(?<![\w-])(fail|failed|failure|panic|fatal)\b|✗|✘|×", re.I)
+WARN_LINE = re.compile(r"(?<![\w-])(warn|warning|warnings|deprecated)\b", re.I)
+NO_PROBLEM = re.compile(r"\b0 (errors?|fail(ed|ures?)?|warnings?)\b", re.I)
+
+
+def line_mark(line):
+    """"error", "warn" or "" for a plain log line."""
+    line = NO_PROBLEM.sub("", line)  # "0 failed", "0 errors": nothing wrong said there
+    return "error" if ERROR_LINE.search(line) else "warn" if WARN_LINE.search(line) else ""
+
+
+def test_counts(plain):
+    """(passed, failed, skipped) from a test runner's closing summary near the end of
+    its log (vitest, jest, pytest, cargo, forge, bun, mocha, ...), or None.
+    ponytail: a regex sweep of the last lines; add a runner's own form when it reads wrong."""
+    found = {}
+    for line in reversed(plain[-40:]):
+        for key, pattern in (("passed", r"(\d+)\s+(?:tests?\s+)?pass(?:ed|ing|es)?\b"),
+                             ("failed", r"(\d+)\s+(?:tests?\s+)?fail(?:ed|ing|ures?|s)?\b"),
+                             ("skipped", r"(\d+)\s+(?:tests?\s+)?(?:skip(?:ped)?|pending|todo)\b")):
+            m = re.search(pattern, line, re.I)
+            if m and key not in found:
+                found[key] = int(m.group(1))
+        if "passed" in found and ("failed" in found or len(found) > 1):
+            break
+    if "passed" not in found and "failed" not in found:
+        return None
+    return found.get("passed", 0), found.get("failed", 0), found.get("skipped", 0)
+
+
+def status_words(kind, icon, rgb):
+    """The header's badge: what the run's status means for its kind."""
+    if rgb == AMBER_RGB:
+        return "RUNNING"
+    if icon == "⊘":
+        return "STOPPED"
+    if rgb == RED_RGB:
+        return "FAILED"
+    return {"test": "PASSED", "build": "BUILT", "deploy": "DEPLOYED"}.get(kind, "DONE")
+
+
 # What an empty tab says: a title, and where its runs come from.
 EMPTY = {
     "agents": ("No Claude Code session", "The agent and its subagents show here once a session starts in this pane."),
@@ -869,7 +913,14 @@ class Runs:
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
         # The run's own lines above its log: command, info, commit (agents have none).
-        extras = [] if isinstance(run, AgentRun) else [*run.command(cols), info]
+        reported = self.kind in REPORTED and not isinstance(run, (AgentRun, ServerRun))
+        if reported:
+            head_lines = self.header(run, cols, log_plain)  # badge, then (maybe) a summary
+            extras = head_lines[:1] + run.command(cols) + head_lines[1:]
+            if self.search is not None or self.msg or (self.anchor and self.part != "head"):
+                extras.append(info)  # a search being typed, a note, the selection mode
+        else:
+            extras = [] if isinstance(run, AgentRun) else [*run.command(cols), info]
         if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
             extras.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
         # tab / shift+tab in the output move the cursor between these and the log.
@@ -895,7 +946,21 @@ class Runs:
         # Mouse rows: the cursor's section starts here (under the box's top border).
         self.body_row = HEAD_ROW + box + 1 + (0 if in_head else len(extras) + ruled)
 
-        def drawn(raw, plain, first, last, marks):
+        # A reported run's log has a gutter: line numbers, a red or amber bar on error and warning lines.
+        digits = len(str(len(log_plain))) if reported else 0
+        self.gutter = digits + 2 if reported and not in_head else 0
+
+        def drawn(raw, plain, first, last, marks, gutter=False):
+            out = drawn_lines(raw, plain, first, last, marks)
+            if not gutter:
+                return out
+            for n, y in enumerate(range(first, first + len(out))):
+                mark = line_mark(plain[y]) if y < len(plain) else ""
+                bar = f"{fg(RED_RGB)}▌" if mark == "error" else f"{fg(AMBER_RGB)}▌" if mark == "warn" else f"{fg('70;76;88')}│"
+                out[n] = f"{fg(DIMMED_RGB)}{y + 1:>{digits}}{bar}{RESET} " + out[n]
+            return out
+
+        def drawn_lines(raw, plain, first, last, marks):
             out = []
             tip = self.tooltip_at(cols) if marks else None
             for y in range(first, min(len(raw), last)):
@@ -912,7 +977,7 @@ class Runs:
 
         top = drawn(extras, self.plain if in_head else [ANSI.sub("", l) for l in extras], 0, len(extras), in_head)
         log_offset = self.saved.get("log", (0, 0, 0))[2] if in_head else self.offset
-        body = drawn(log_raw, log_plain, log_offset, log_offset + height, not in_head)
+        body = drawn(log_raw, log_plain, log_offset, log_offset + height, not in_head, gutter=reported)
         head += top + ([rule(cols)] if extras else [])
         if running:
             start = int(read(os.path.join(run.path, "start"), "0") or 0)
@@ -920,6 +985,36 @@ class Runs:
             body.append(f"{fg(AMBER_RGB)}{spinner()} running{secs}{RESET}")
         # The run's box: all the rest of the pane, bordered in the section's colour while it has the cursor.
         return head[:box] + self.boxed(head[box:] + body, outer, room, self.focus == "log"), []
+
+    def header(self, run, cols, plain):
+        """A reported run's head: its status as a badge with where, how long and when on
+        the right; then for a test run its passed/failed bar, for others its error and
+        warning count."""
+        icon, rgb = run.status()
+        badge = f"{bg(rgb)}{fg(STRIP_RGB)}{BOLD} {icon} {status_words(self.kind, icon, rgb)} \033[22m{RESET}"
+        meta = ANSI.sub("", run.info()).strip().replace(" · exit 0", "")  # the badge says it went well
+        end = run.end()
+        if end and not isinstance(run, JobRun):
+            meta += f" · {time.strftime('%H:%M', time.localtime(int(end)))}"
+        room = cols - visible_len(badge) - 1
+        meta = cut(meta, max(4, room))
+        lines = [badge + " " * max(1, cols - visible_len(badge) - cells(meta)) + f"{fg(MUTED_RGB)}{meta}{RESET}"]
+        counts = test_counts(plain) if self.kind == "test" else None
+        if counts:
+            passed, failed, skipped = counts
+            total = passed + failed + skipped
+            width = max(5, min(24, cols - 40))
+            parts = [f"{fg(GREEN_RGB)}{passed} passed"] + ([f"{fg(RED_RGB)}{failed} failed"] if failed else []) + \
+                ([f"{fg(MUTED_RGB)}{skipped} skipped"] if skipped else [])
+            lines.append(f"{bar([(passed, GREEN_RGB), (failed, RED_RGB), (skipped, TAB_RGB)], width)}  "
+                         + f"{fg(MUTED_RGB)} · ".join(parts) + f"{fg(MUTED_RGB)} · {total} total{RESET}")
+        elif self.kind != "test":
+            marks = [line_mark(l) for l in plain]
+            errors, warns = marks.count("error"), marks.count("warn")
+            if errors or warns:
+                lines.append(" · ".join(([f"{fg(RED_RGB)}▌ {errors} error line{'s' * (errors != 1)}"] if errors else [])
+                                        + ([f"{fg(AMBER_RGB)}▌ {warns} warning{'s' * (warns != 1)}"] if warns else [])) + RESET)
+        return lines
 
     def boxed(self, lines, cols, room, lit):
         """lines in a rounded box cols wide and room rows tall inside, its border in
@@ -1172,7 +1267,8 @@ class Runs:
             self.focus, self.follow, self.cx = "log", True, 0  # at the end of its output
         elif row >= getattr(self, "body_row", 99) and self.plain:
             self.focus, self.anchor = "log", None
-            self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 3, False  # "│ " before it
+            # "│ " before it, and a reported log's gutter
+            self.cy, self.cx, self.follow = self.offset + row - self.body_row, col - 3 - getattr(self, "gutter", 0), False
             self.clamp()
             self.dragging = (self.cy, self.cx)
             if getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy]):
@@ -1182,7 +1278,7 @@ class Runs:
         """Dragging in the log selects from where the button went down, as in herdr."""
         if getattr(self, "dragging", None) is None:
             return
-        self.cy, self.cx = self.offset + row - self.body_row, col - 3
+        self.cy, self.cx = self.offset + row - self.body_row, col - 3 - getattr(self, "gutter", 0)
         self.clamp()
         self.anchor, self.linewise = self.dragging, False
 

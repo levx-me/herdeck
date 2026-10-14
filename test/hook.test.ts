@@ -608,6 +608,28 @@ print(m.activate(lines[at + 2]), went[0][0], went[0][1] == args[2])
   });
 });
 
+describe("a reported run's log: error lines and the test summary", () => {
+  const check = `
+import sys
+from importlib.machinery import SourceFileLoader
+sys.argv = ["v", "/tmp"]
+v = SourceFileLoader("v", "${join(root, "bin/viewer.py")}").load_module()
+for line in ["AssertionError: expected 401", "44 passed, 0 failed", "0 errors, 2 warnings", "error[E0308]: mismatched", "✓ all good"]:
+    print(v.line_mark(line) or "-")
+for log in [[" 131 pass", " 0 fail"], ["=== 1 failed, 44 passed in 0.1s ==="], ["test result: FAILED. 44 passed; 1 failed; 2 ignored"],
+            ["      Tests  1 failed | 44 passed (45)"], ["Ran 3 test suites: 30 tests passed, 1 failed, 0 skipped (31 total tests)"], ["no summary"]]:
+    print(v.test_counts(log))
+`;
+  test("marks and counts", () => {
+    const r = Bun.spawnSync(["python3", "-I", "-c", check]);
+    expect(r.stderr.toString()).toBe("");
+    expect(r.stdout.toString().trim().split("\n")).toEqual([
+      "error", "-", "warn", "error", "-",
+      "(131, 0, 0)", "(44, 1, 0)", "(44, 1, 0)", "(44, 1, 0)", "(30, 1, 0)", "None",
+    ]);
+  });
+});
+
 describe("jobs: other commands followed while they run", () => {
   const { mkdtempSync, readFileSync, existsSync, writeFileSync, rmSync } = require("node:fs");
   const { tmpdir } = require("node:os");
