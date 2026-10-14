@@ -28,7 +28,7 @@ apply right now.
 
 | Where | Keys | Action |
 |---|---|---|
-| anywhere | `[` `]` (or `tab` `shift+tab`), `1`–`7` | previous / next tab, jump to one |
+| anywhere | `[` `]` (and, outside a log, `tab` `shift+tab`), `1`–`7` | previous / next tab, jump to one |
 | | `A` `J` `S` `B` `T` `G` `D` | jump to a tab by its underlined first letter (not inside a log, where `B` and `G` move the cursor) |
 | | `L` | move the deck to the other side of the agent |
 | | `q` | close the deck (in a log: back to the list) |
@@ -38,6 +38,7 @@ apply right now.
 | | `gg` `G`, `ctrl+d` `ctrl+u` | top / bottom (`G` follows the live run again), half page |
 | | `v` `V`, `y` | select by character / line, yank (the cursor line when nothing is selected) |
 | | `/` `?`, `n` `N` | search forward / back, repeat |
+| | `tab` `shift+tab` | move the cursor between the run's command lines and its log |
 | | `esc` | cancel the selection, or back to the run list |
 | servers | `o` | open the server in the browser |
 | agents | `enter`, then `j` `k`, `enter`, `esc` | move between an agent's controls (its jobs, the fold of a long request) and press one |

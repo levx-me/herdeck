@@ -692,6 +692,7 @@ class Runs:
         self.msg = ""
         self.raw, self.plain, self.height = [], [], 1
         self.focus = "list"                # "list": j/k pick runs; "log": copy-mode cursor
+        self.part, self.saved = "log", {}  # which part of the run the cursor is in: "log" or "head" (its command)
 
     def refresh(self):
         """Reload the runs; True when a new one appeared since the last look."""
@@ -716,6 +717,14 @@ class Runs:
 
     def select(self, tab):
         self.tab, self.follow, self.anchor, self.msg = tab, True, None, ""
+        self.part, self.saved = "log", {}
+
+    def switch_part(self):
+        """tab / shift+tab in the output: the cursor goes between the run's command lines and its log."""
+        self.saved[self.part] = (self.cy, self.cx, self.offset, self.follow)
+        self.part = "head" if self.part == "log" else "log"
+        self.cy, self.cx, self.offset, self.follow = self.saved.get(self.part, (0, 0, 0, False))
+        self.anchor = None
 
     def title_right(self):
         """Text for the right end of the run list's top border."""
@@ -845,54 +854,66 @@ class Runs:
         run = self.runs[self.tab]
         run.cols = cols  # agents lay their status out to the box
         loaded = run.lines()
-        self.raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
+        log_raw = loaded if loaded is not None else [f"{DIM}loading…{RESET}"]
         # An agent's detail is drawn anew each time: its plain lines come from these very lines.
-        self.plain = [ANSI.sub("", l) for l in loaded] if isinstance(run, AgentRun) else \
+        log_plain = [ANSI.sub("", l) for l in loaded] if isinstance(run, AgentRun) else \
             run.plain() if loaded is not None else [""]
         head = self.run_list(outer)
         box = len(head)
         if self.search is not None:
             info = f"{fg(ACCENT[self.kind])}{'?' if self.back else '/'}{RESET}{self.search}▏"
         else:
-            mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") if self.anchor else ""
+            # (not while selecting in the command lines themselves: the line would shift under the cursor)
+            mode = ("-- VISUAL LINE -- " if self.linewise else "-- VISUAL -- ") \
+                if self.anchor and self.part != "head" else ""
             note = f"{fg(AMBER_RGB)}{self.msg}{RESET}  " if self.msg else ""
             info = f"{BOLD}{mode}{RESET}{note}{run.info()}"
-        # The run list box, then the run's command (agents have none: their status is the body).
-        if not isinstance(run, AgentRun):
-            head += [*run.command(cols), info]
+        # The run's own lines above its log: command, info, commit (agents have none).
+        extras = [] if isinstance(run, AgentRun) else [*run.command(cols), info]
         if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
-            head.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
-        if self.focus == "list" and self.dim_unfocused:  # the run's head reads faint with its log while the cursor is in the list
-            head[box:] = [tint(line, DIMMED_RGB) for line in head[box:]]
-        if not isinstance(run, AgentRun):
-            head.append(rule(cols))
+            extras.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
+        # tab / shift+tab in the output move the cursor between these and the log.
+        in_head = self.part == "head" and bool(extras) and self.focus == "log"
+        if not in_head:
+            self.part = "log"
+        self.raw, self.plain = (extras, [ANSI.sub("", l) for l in extras]) if in_head else (log_raw, log_plain)
+        cursor = self.focus == "log" and self.copy_cursor
 
         running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
         # While it runs, the last row shows a spinner under the output.
         room = max(1, rows - (HEAD_ROW - 1) - box - 2)  # the run's box, inside its borders
-        self.height = height = max(1, room - (len(head) - box) - (1 if running else 0))
+        ruled = 1 if extras else 0
+        height = max(1, room - len(extras) - ruled - (1 if running else 0))
+        self.height = len(extras) if in_head else height
         self.place_cursor()
         self.clamp()
         if self.cy < self.offset:
             self.offset = self.cy
-        elif self.cy >= self.offset + height:
-            self.offset = self.cy - height + 1
-        self.offset = max(0, min(self.offset, max(0, len(self.plain) - height)))
-        self.body_row = HEAD_ROW + len(head) + 1  # under the box's top border
-        cursor = self.focus == "log" and self.copy_cursor
+        elif self.cy >= self.offset + self.height:
+            self.offset = self.cy - self.height + 1
+        self.offset = max(0, min(self.offset, max(0, len(self.plain) - self.height)))
+        # Mouse rows: the cursor's section starts here (under the box's top border).
+        self.body_row = HEAD_ROW + box + 1 + (0 if in_head else len(extras) + ruled)
 
-        body = []
-        tip = self.tooltip_at(cols)
-        for y in range(self.offset, min(len(self.raw), self.offset + height)):
-            if tip and y == tip[0]:  # the tooltip sits on this row, over its text
-                _, x, label = tip
-                line = self.plain[y].ljust(x)
-                body.append(f"{line[:x]}{bg(ACCENT[self.kind])}{fg(STRIP_RGB)}{BOLD}{label}{RESET}{line[x + len(label):]}")
-            elif (cursor and y == self.cy) or self.selected(y, 0) or self.selected(y, len(self.plain[y]) - 1):
-                body.append(self.marked(y))
-            else:
-                # The log reads dim while the cursor is in the list.
-                body.append(tint(self.raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused else self.raw[y])
+        def drawn(raw, plain, first, last, marks):
+            out = []
+            tip = self.tooltip_at(cols) if marks else None
+            for y in range(first, min(len(raw), last)):
+                if tip and y == tip[0]:  # the tooltip sits on this row, over its text
+                    _, x, label = tip
+                    line = plain[y].ljust(x)
+                    out.append(f"{line[:x]}{bg(ACCENT[self.kind])}{fg(STRIP_RGB)}{BOLD}{label}{RESET}{line[x + len(label):]}")
+                elif marks and ((cursor and y == self.cy) or self.selected(y, 0) or self.selected(y, len(plain[y]) - 1)):
+                    out.append(self.marked(y))
+                else:
+                    # It reads dim while the cursor is in the list.
+                    out.append(tint(raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused else raw[y])
+            return out
+
+        top = drawn(extras, self.plain if in_head else [ANSI.sub("", l) for l in extras], 0, len(extras), in_head)
+        log_offset = self.saved.get("log", (0, 0, 0))[2] if in_head else self.offset
+        body = drawn(log_raw, log_plain, log_offset, log_offset + height, not in_head)
+        head += top + ([rule(cols)] if extras else [])
         if running:
             start = int(read(os.path.join(run.path, "start"), "0") or 0)
             secs = f" {int(time.time()) - start}s" if start else ""
@@ -1065,6 +1086,9 @@ class Runs:
             return
 
         self.msg = ""
+        if k in ("\t", "\x1b[Z"):
+            self.switch_part()
+            return
         if k in ("\r", "\n") and self.plain:  # enter on a control line of the log ([… more], [less])
             getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy])
             return
@@ -1120,7 +1144,8 @@ class Runs:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
             return [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
-        return [("hjkl w b", "move"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"), ("esc/q", "back")]
+        return [("hjkl w b", "move"), ("tab", "command/log"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"),
+                ("esc/q", "back")]
 
     def list_key(self, k):
         """Keys while the run list has the focus (newest run on top)."""
@@ -2262,7 +2287,9 @@ class Deck:
         if getattr(view, "search", None) is not None:  # typing a search: every key is text
             view.key(k)
             return
-        if k in ("\t", "]"):
+        if k in ("\t", "\x1b[Z") and view.focus == "log" and view.copy_cursor:
+            view.key(k)  # in a run's output, tab moves between its command and its log
+        elif k in ("\t", "]"):
             self.choose(self.section + 1)
         elif k in ("\x1b[Z", "["):
             self.choose(self.section - 1)
