@@ -660,6 +660,18 @@ def copy(text):
     sys.stdout.write(f"\033]52;c;{base64.b64encode(text.encode()).decode()}\a")
 
 
+# What an empty tab says: a title, and where its runs come from.
+EMPTY = {
+    "agents": ("No Claude Code session", "The agent and its subagents show here once a session starts in this pane."),
+    "jobs": ("No long-running commands", "Commands that run 10s or more show here, live, while they run."),
+    "servers": ("No dev servers running", "Ports opened by this project, or from any pane of its herdr workspace, show here."),
+    "build": ("No builds yet", "npm run build, tsc, cargo build, … show here as the agent runs them."),
+    "test": ("No test runs yet", "npm test, pytest, go test, forge test, … show here as the agent runs them."),
+    "git": ("No git changes yet", "Commits, pushes and other changes to the repository show here."),
+    "deploy": ("No deploys yet", "vercel, fly deploy, terraform apply, … show here once they have run."),
+}
+
+
 class Runs:
     """One run section (build, test or git): run tabs and the log under a
     copy-mode cursor, with the same keys as herdr's copy mode."""
@@ -671,7 +683,6 @@ class Runs:
 
     def __init__(self, kind):
         self.kind, self.dir = kind, os.path.join(BASE, kind, "runs")
-        self.empty = f"no {kind} runs yet"
         self.runs, self.known, self.tab = [], None, 0
         self.offset, self.follow = 0, True
         self.cy = self.cx = 0              # cursor line / column in the plain text
@@ -829,7 +840,7 @@ class Runs:
         # A short pane (a deck on top of its agent) keeps a shorter list, so the log still shows.
         self.list_rows = max(3, min(LIST_ROWS, (rows - 10) // 2))
         if not self.runs:
-            return [f"{DIM} {self.empty}{RESET}{self.title_right()}", rule(cols)], []
+            return self.empty_frame(cols, rows), []
         outer, cols = cols, max(10, cols - 4)  # inside the box: "│ " … " │"
         run = self.runs[self.tab]
         run.cols = cols  # agents lay their status out to the box
@@ -887,14 +898,37 @@ class Runs:
             secs = f" {int(time.time()) - start}s" if start else ""
             body.append(f"{fg(AMBER_RGB)}{spinner()} running{secs}{RESET}")
         # The run's box: all the rest of the pane, bordered in the section's colour while it has the cursor.
-        inside = (head[box:] + body + [""] * room)[:room]
-        edge = fg(ACCENT[self.kind]) if self.focus == "log" else fg("70;76;88")
-        framed = [f"{edge}╭{'─' * (cols + 2)}╮{RESET}"]
-        for line in inside:
-            line = fit(line, cols)
-            framed.append(f"{edge}│{RESET} {line}{RESET}{' ' * max(0, cols - cells(ANSI.sub('', line)))} {edge}│{RESET}")
-        framed.append(f"{edge}╰{'─' * (cols + 2)}╯{RESET}")
-        return head[:box] + framed, []
+        return head[:box] + self.boxed(head[box:] + body, outer, room, self.focus == "log"), []
+
+    def boxed(self, lines, cols, room, lit):
+        """lines in a rounded box cols wide and room rows tall inside, its border in
+        the section's colour when lit."""
+        inner = max(10, cols - 4)
+        edge = fg(ACCENT[self.kind]) if lit else fg("70;76;88")
+        out = [f"{edge}╭{'─' * (inner + 2)}╮{RESET}"]
+        for line in (lines + [""] * room)[:room]:
+            line = fit(line, inner)
+            out.append(f"{edge}│{RESET} {line}{RESET}{' ' * max(0, inner - cells(ANSI.sub('', line)))} {edge}│{RESET}")
+        return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
+
+    def empty_frame(self, cols, rows):
+        """A tab with nothing yet: its empty list, then what will show here and how, centred."""
+        title, hint = EMPTY[self.kind]
+        edge, inner = fg(ACCENT[self.kind]), max(10, cols - 4)
+        head = f" {self.noun} · 0 "
+        right = self.title_right()
+        if cols - 4 - len(head) - visible_len(right) < 1:
+            right = ""
+        fill = max(0, cols - 4 - len(head) - visible_len(right)) + (0 if right else 1)
+        top = f"{edge}╭─{fg(MUTED_RGB)}{head}{edge}{'─' * fill}{right}{edge}{'─' if right else ''}╮{RESET}"
+        listed = [top, f"{edge}│{RESET}{' ' * (cols - 2)}{edge}│{RESET}", f"{edge}╰{'─' * (cols - 2)}╯{RESET}"]
+        room = max(1, rows - (HEAD_ROW - 1) - len(listed) - 2)
+        icon = {"agents": "◇", "jobs": "◷", "servers": "◉", "build": "▣", "test": "✓", "git": "⎇", "deploy": "⇪"}[self.kind]
+        message = [f"{fg(ACCENT[self.kind])}{icon}", f"{BOLD}{fg(BRIGHT_RGB)}{title}{RESET}", ""] + \
+            [f"{fg(MUTED_RGB)}{part}" for part in wrap_cells(hint, max(10, min(inner - 4, 48)))]
+        centred = [" " * max(0, (inner - cells(ANSI.sub("", l))) // 2) + l for l in message]
+        top_pad = max(0, (room - len(centred)) // 2)
+        return listed + self.boxed([""] * top_pad + centred, cols, room, False)
 
     def tooltip_at(self, cols):
         """(log line, column, label) of a live copy tooltip: on the line above the
@@ -1197,7 +1231,6 @@ class Jobs(Runs):
 
     def __init__(self):
         super().__init__("jobs")
-        self.empty = "no command has taken 10s or more yet"
 
     @staticmethod
     def shows(path):
@@ -1267,7 +1300,6 @@ class Servers(Runs):
 
     def __init__(self):
         super().__init__("servers")
-        self.empty = "no dev servers running in this project"
         self.found, self.at, self.scanning = [], 0.0, False
 
     def refresh(self):
@@ -1899,7 +1931,6 @@ class Agents(Runs):
 
     def __init__(self):
         super().__init__("agents")
-        self.empty = "no Claude Code session in this pane"
         self.session, self.looked = "", 0.0           # the main transcript, found through herdr
         self.title, self.agent_status = "", ""        # the session's title and state, as herdr has them
         self.results, self.notified = {}, {}          # what the main transcript says about subagents
@@ -2050,9 +2081,8 @@ class Agents(Runs):
         self.offset, self.control = 0, 0
 
     def list_key(self, k):
-        if k in ("\r", "\n", "l"):
-            if self.controls():  # nothing to press: stay in the list
-                self.focus, self.control = "log", 0
+        if k in ("\r", "\n", "l"):  # into the detail: onto its first control, if it has any
+            self.focus, self.control = "log", 0
             return
         super().list_key(k)
 
@@ -2060,7 +2090,9 @@ class Agents(Runs):
         if not self.runs or self.focus == "list":
             return super().key(k)
         count = len(self.controls())
-        if k in ("j", "\t", "l"):
+        if not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
+            self.offset = max(0, self.offset + (1 if k == "j" else -1))
+        elif k in ("j", "\t", "l"):
             self.control = min(count - 1, self.control + 1)
         elif k in ("k", "\x1b[Z", "h"):
             self.control = max(0, self.control - 1)
@@ -2089,9 +2121,10 @@ class Agents(Runs):
 
     def hints(self):
         if self.focus == "log":
+            if not self.controls():
+                return [("j/k", "scroll"), ("esc/q", "back")]
             return [("j/k", "move"), ("enter", "press"), ("esc/q", "back")]
-        return [("j/k", "select")] + ([("enter", "controls")] if self.controls() else []) + \
-            [("L", "side"), ("[ ]", "tabs"), ("q", "close")]
+        return [("j/k", "select"), ("enter", "detail"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
 
 
 class Deck:
