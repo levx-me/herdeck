@@ -1523,9 +1523,10 @@ def dashboard(d, cols, main, expanded=False, title=""):
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<10}{RESET} {value}"
     wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
     out = [""]
-    # The list cuts a long title (the session's, or the subagent's task): here it is whole.
+    # The list cuts a long title: here it is whole. The agent's is its session's title
+    # (herdr's pane label), a subagent's the task it was given (the Agent call's description).
     for n, part in enumerate(wrap(title) if title else []):
-        out.append(row("title" if n == 0 else "", f"{BOLD}{part}{RESET}"))
+        out.append(row(("session" if main else "task") if n == 0 else "", f"{BOLD}{part}{RESET}"))
     # model · effort · thinking
     model = (d.model or d.requested or "?").replace("claude-", "")
     chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]

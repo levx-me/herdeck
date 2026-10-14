@@ -697,7 +697,7 @@
 </g>
 <text x="786.8" y="255.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">8m ago</text>
 <text x="1240.4" y="255.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
-<text x="778.4" y="293.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">title</text>
+<text x="778.4" y="293.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">session</text>
 <text x="870.8" y="293.7" textLength="252.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">add refresh tokens to the auth</text>
 <text x="870.8" y="312.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">middleware</text>
 <text x="778.4" y="331.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">model</text>
