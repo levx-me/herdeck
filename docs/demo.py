@@ -315,6 +315,15 @@ def label(name, *runs):
     return [(f"{name:<10} ", MUTED), *runs]
 
 
+def card(title, rows):
+    """Rows in a rounded box the deck's width, its title in the top border (bin/viewer.py card)."""
+    inner, edge = D - 5, "#464c58"
+    width = lambda runs: sum(1 if t == SPIN else len(t) for t, *_ in runs)
+    top = [("╭─", edge), (f" {title} ", MUTED), ("─" * (inner - len(title) - 2) + "─╮", edge)]
+    return [top] + [[("│ ", edge), *r, (" " * (inner - width(r)) + " │", edge)] for r in rows] + \
+        [[("╰" + "─" * (inner + 2) + "╯", edge)]]
+
+
 def bar(parts, width):
     """A stacked bar as runs: [(cells, colour)], the rest of width in track grey."""
     runs = [("█" * n, c) for n, c in parts if n]
@@ -342,27 +351,27 @@ def scene_agents():
         [(" ", AMBER), (lambda t: beats[t:t + D - 2], AMBER)],
         [(" 8m ago", MUTED), ("now".rjust(D - 9), MUTED)],
         [],
-        label("session", ("add refresh tokens to the auth", BRIGHT, True)),
-        label("", ("middleware", BRIGHT, True)),
-        [],
-        label("model", (" opus-5-5 ", BRIGHT), ("  ", MUTED), (" medium ", AMBER), ("  ✻ thought 1.3s", MUTED)),
-        label("context", *bar([(8, GREEN)], 24), (" 34%", GREEN), (" 68k/200k", MUTED)),
-        label("tokens", ("in ", MUTED), ("2k  ", TEXT), ("cache ", MUTED), ("1.4M  ", TEXT), ("out ", MUTED), ("18k", TEXT)),
-        label("tools", *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)),
-        label("", ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED), ("■ ", AMBER),
-              ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)),
-        label("tasks", *bar([(14, GREEN)], 24), (" 3/5", TEXT)),
-        label("", ("✓ ", GREEN), ("Add the refresh-token store", TEXT)),
-        label("", ("✓ ", GREEN), ("Rotate on every refresh", TEXT)),
-        label("", ("✓ ", GREEN), ("Detect a reused token", TEXT)),
-        label("", ("◐ ", AMBER), ("Fix the last-second expiry", TEXT)),
-        label("", ("○ ", MUTED), ("Document the flow", TEXT)),
-        [],
-        label("says", ("“", MUTED), ("Fixing the expiry check and running", TEXT)),
-        label("", ("the tests again.", TEXT)),
-        label("request", ("│ ", ACCENT["AGENTS"]), ("add refresh tokens to the auth", TEXT)),
-        label("", ("│ ", ACCENT["AGENTS"]), ("middleware, with rotation and reuse", TEXT)),
-        label("", ("│ ", ACCENT["AGENTS"]), ("detection", TEXT)),
+        *card("session", [[("add refresh tokens to the auth middleware", BRIGHT, True)]]),
+        *card("model", [
+            [(" opus-5-5 ", BRIGHT), ("  ", MUTED), (" medium ", AMBER), ("  ✻ thought 1.3s", MUTED)],
+            [("context ", MUTED), *bar([(8, GREEN)], 24), (" 34%", GREEN), (" 68k/200k", MUTED)],
+            [("tokens  ", MUTED), ("in ", MUTED), ("2k  ", TEXT), ("cache ", MUTED), ("1.4M  ", TEXT),
+             ("out ", MUTED), ("18k", TEXT)],
+            [("tools   ", MUTED), *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)],
+            [("        ", MUTED), ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED),
+             ("■ ", AMBER), ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)]]),
+        *card("tasks 3/5", [
+            [("✓ ", GREEN), ("Add the refresh-token store", TEXT)],
+            [("✓ ", GREEN), ("Rotate on every refresh", TEXT)],
+            [("✓ ", GREEN), ("Detect a reused token", TEXT)],
+            [("◐ ", AMBER), ("Fix the last-second expiry", TEXT)],
+            [("○ ", MUTED), ("Document the flow", TEXT)]]),
+        *card("conversation", [
+            [("  you › ", ACCENT["AGENTS"]), ("add refresh tokens to the auth", TEXT)],
+            [("        ", MUTED), ("middleware, with rotation and reuse", TEXT)],
+            [("        ", MUTED), ("detection", TEXT)],
+            [("   ai › ", ACCENT["AGENTS"]), ("Fixing the expiry check and running", TEXT)],
+            [("        ", MUTED), ("the tests again.", TEXT)]]),
     ])
     hints([("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "sections"), ("q", "close")])
 

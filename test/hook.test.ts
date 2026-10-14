@@ -595,10 +595,10 @@ went = []
 s.jump = lambda kind, path: went.append((kind, path))
 m = s.runs[-1]
 lines = m.plain()
-at = next(n for n, l in enumerate(lines) if l.startswith("job"))
-print(lines[at].split(None, 1)[1])                     # its label, whole
-print(lines[at + 1].split()[-2:])                      # under it: the way to the jobs tab
-print(m.activate(lines[at + 1]), went[0][0], went[0][1] == args[2])
+at = next(n for n, l in enumerate(lines) if "─ jobs ─" in l)  # the jobs card
+print(lines[at + 1].strip("│ "))                       # its label, whole
+print(lines[at + 2].strip("│ ").split()[-2:])          # under it: the way to the jobs tab
+print(m.activate(lines[at + 2]), went[0][0], went[0][1] == args[2])
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main, job], {
       env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },

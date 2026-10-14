@@ -1521,86 +1521,91 @@ FOLD = re.compile(r"\[… \d+ more lines?\]|\[less\]")
 PROMPT_LINES = 4  # a prompt (request) folded to this many lines
 
 
+def card(title, lines, cols):
+    """lines in a rounded box cols wide, title in its top border; each line cut or padded to fit."""
+    inner = max(4, cols - 4)
+    edge = fg("70;76;88")
+    head = f" {title} "
+    out = [f"{edge}╭─{fg(MUTED_RGB)}{head}{edge}{'─' * max(0, inner - cells(head))}─╮{RESET}"]
+    for line in lines:
+        line = fit(line, inner)
+        out.append(f"{edge}│{RESET} {line}{RESET}{' ' * max(0, inner - cells(ANSI.sub('', line)))} {edge}│{RESET}")
+    return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
+
+
 def dashboard(d, cols, main, expanded=False, title="", jobs=()):
-    """Everything known about an agent, a row each, for trimming down later."""
-    w = max(20, cols - 11)
-    row = lambda label, value: f"{fg(MUTED_RGB)}{label:<10}{RESET} {value}"
+    """Everything known about an agent, in cards: what it is (session or task), its
+    jobs, model and usage, tasks, and the conversation. A card with nothing is left out."""
+    w = max(16, cols - 4)  # inside a card
     wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
-    out = [""]
-    # The list cuts a long title: here it is whole. The agent's is its session's title
-    # (herdr's pane label), a subagent's the task it was given (the Agent call's description).
-    for n, part in enumerate(wrap(title) if title else []):
-        out.append(row(("session" if main else "task") if n == 0 else "", f"{BOLD}{part}{RESET}"))
+    row = lambda label, value: f"{fg(MUTED_RGB)}{label:<8}{RESET}{value}"
+    out = []
+    # What it is: the session's title (herdr's pane label), or the task a subagent was given.
+    if title:
+        out += card("session" if main else "task", [f"{BOLD}{part}{RESET}" for part in wrap(title)], cols)
     # Its calls that show in the jobs tab, as they read there; enter or a click goes to them.
-    for n, lines in enumerate(jobs):
-        for k, line in enumerate(lines):
-            out.append(row("job" if n == 0 and k == 0 else "", line))
-    if title or jobs:  # a blank row before the model, after the title and any jobs
-        out.append("")
-    # model · effort · thinking
+    if jobs:
+        out += card("jobs", [line for lines in jobs for line in lines], cols)
+    # model · effort · thinking, context, tokens, tools
     model = (d.model or d.requested or "?").replace("claude-", "")
     chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]
     if d.effort:
         chips.append(f"{bg(TAB_RGB)}{fg(AMBER_RGB)} {d.effort} {RESET}")
     if d.thinking_ms >= 100:
         chips.append(f"{fg(MUTED_RGB)}✻ thought {d.thinking_ms / 1000:.1f}s{RESET}")
-    out.append(row("model", " ".join(chips)))
-    # context gauge
+    usage = [" ".join(chips)]
     # A 1M-window model says so in its name, or has already gone past the usual limit.
     limit = 1_000_000 if "[1m]" in (d.requested or "") or d.context > CONTEXT_LIMIT else CONTEXT_LIMIT
     pct = min(100, d.context * 100 // limit) if d.context else 0
     rgb = GREEN_RGB if pct < 60 else AMBER_RGB if pct < 85 else RED_RGB
-    gauge = min(24, w - 18)
-    out.append(row("context", f"{bar([(pct, rgb), (100 - pct, TAB_RGB)], gauge)} {fg(rgb)}{pct}%{RESET}"
-                              f"{fg(MUTED_RGB)} {tokens(d.context)}/{tokens(limit)}{RESET}"))
-    out.append(row("tokens", f"{fg(MUTED_RGB)}in{RESET} {tokens(d.usage['in'])}  {fg(MUTED_RGB)}cache{RESET} "
-                             f"{tokens(d.usage['cache'])}  {fg(MUTED_RGB)}out{RESET} {tokens(d.usage['out'])}"))
-    # tools
+    gauge = max(4, min(24, w - 8 - 16))
+    usage.append(row("context", f"{bar([(pct, rgb), (100 - pct, TAB_RGB)], gauge)} {fg(rgb)}{pct}%{RESET}"
+                                f"{fg(MUTED_RGB)} {tokens(d.context)}/{tokens(limit)}{RESET}"))
+    usage.append(row("tokens", f"{fg(MUTED_RGB)}in{RESET} {tokens(d.usage['in'])}  {fg(MUTED_RGB)}cache{RESET} "
+                               f"{tokens(d.usage['cache'])}  {fg(MUTED_RGB)}out{RESET} {tokens(d.usage['out'])}"))
     if d.kinds:
         kinds = sorted(d.kinds.items(), key=lambda kv: -kv[1])
-        out.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], min(24, w))))
+        usage.append(row("tools", bar([(n, KIND_RGB[k]) for k, n in kinds], max(4, min(24, w - 8)))))
         # The legend wraps item by item rather than being cut.
         line, used = "", 0
         for k, n in kinds:
             item, size = f"{fg(KIND_RGB[k])}■{RESET} {k} {n}", len(f"■ {k} {n}")
-            if used and used + 2 + size > w:
-                out.append(row("", line))
+            if used and used + 2 + size > w - 8:
+                usage.append(row("", line))
                 line, used = "", 0
             line, used = (f"{line}  {item}", used + 2 + size) if used else (item, size)
         if used:
-            out.append(row("", line))
+            usage.append(row("", line))
+    out += card("model", usage, cols)
     # tasks
     if d.tasks:
         done = sum(1 for _, st in d.tasks.values() if st == "completed")
-        out.append(row("tasks", f"{bar([(done, GREEN_RGB), (len(d.tasks) - done, TAB_RGB)], min(24, w - 8))} "
-                                f"{done}/{len(d.tasks)}"))
-        items = list(d.tasks.values())
+        items, todo = list(d.tasks.values()), []
         # A long list keeps what is left in full; the done ones fold into a count.
         if len(items) > 8 and done:
-            out.append(row("", f"{fg(GREEN_RGB)}✓{RESET} {fg(MUTED_RGB)}{done} done{RESET}"))
+            todo.append(f"{fg(GREEN_RGB)}✓{RESET} {fg(MUTED_RGB)}{done} done{RESET}")
             items = [t for t in items if t[1] != "completed"]
         for subject, st in items:
             mark = {"completed": f"{fg(GREEN_RGB)}✓", "in_progress": f"{fg(AMBER_RGB)}◐"}.get(st, f"{fg(MUTED_RGB)}○")
             for n, part in enumerate(wrap(subject, w - 2)):  # wrapped under itself, not cut
-                out.append(row("", f"{mark if n == 0 else ' '}{RESET} {part}"))
-    out.append("")
-    # says
-    for n, part in enumerate(wrap(d.says)[:3] if d.says else []):
-        out.append(row("says" if n == 0 else "", f"{fg(MUTED_RGB)}“{RESET}{part}" if n == 0 else part))
-    if d.report:
-        for n, part in enumerate(wrap(d.report)[:4]):
-            out.append(row("report" if n == 0 else "", part))
+                todo.append(f"{mark if n == 0 else ' '}{RESET} {part}")
+        out += card(f"tasks {done}/{len(d.tasks)}", todo, cols)
+    # The conversation: what it was asked, what it last said, and (a subagent) its report.
+    talk = []
+    who = lambda name, n: f"{fg(ACCENT['agents'])}{name:>5} ›{RESET} " if n == 0 else " " * 8
     asked = d.request if main else d.prompt
-    lines = [part for line in asked.strip().splitlines() for part in wrap(line, w - 2)]  # room for the bar
+    lines = [part for line in asked.strip().splitlines() for part in wrap(line, w - 8)]
     shown = lines if expanded else lines[:PROMPT_LINES]
-    for n, part in enumerate(shown):
-        out.append(row(("request" if main else "prompt") if n == 0 else "", f"{fg(ACCENT['agents'])}│{RESET} {part}"))
+    talk += [who("you" if main else "asked", n) + part for n, part in enumerate(shown)]
     if len(lines) > PROMPT_LINES:  # enter or a click there folds or unfolds it
         more = len(lines) - PROMPT_LINES
         control = "[less]" if expanded else f"[… {more} more line{'s' * (more != 1)}]"
-        out.append(row("", f"{fg(ACCENT['agents'])}{control}{RESET}"))
+        talk.append(" " * 8 + f"{fg(ACCENT['agents'])}{control}{RESET}")
+    talk += [who("ai", n) + part for n, part in enumerate(wrap(d.says, w - 8)[:3] if d.says else [])]
+    talk += [who("done", n) + part for n, part in enumerate(wrap(d.report, w - 8)[:4] if d.report else [])]
+    if talk:
+        out += card("conversation", talk, cols)
     return out
-
 
 
 class AgentRun(Run):
@@ -1747,7 +1752,7 @@ class AgentRun(Run):
                 job = JobRun(path)
                 icon, colour = job.status()
                 # Its label whole, then under it, to the right: state, time and the way to it.
-                w = max(20, self.cols - 11)
+                w = max(16, self.cols - 4)  # inside its card
                 link = f"↗ jobs #{os.path.basename(path)}"
                 status = f"{icon} {job.age()}  {link}"
                 lines = [f"\033[4m{part}\033[24m" for part in wrap_cells(job.label(), w)]
@@ -1774,7 +1779,7 @@ class AgentRun(Run):
         if FOLD.search(line):
             self.expanded = not self.expanded
             return True
-        job = next((p for link, p in getattr(self, "job_rows", {}).items() if line.rstrip().endswith(link)), None) or \
+        job = next((p for link, p in getattr(self, "job_rows", {}).items() if link in line), None) or \
             next((p for label, p in getattr(self, "job_labels", {}).items() if label and label in line), None)
         if job and getattr(self.deck, "jump", None):
             self.deck.jump("jobs", job)
