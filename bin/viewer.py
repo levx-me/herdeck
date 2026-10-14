@@ -1534,6 +1534,8 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=()):
     # Its calls that show in the jobs tab, as they read there; enter or a click goes to them.
     for n, job in enumerate(jobs):
         out.append(row("job" if n == 0 else "", job))
+    if jobs:
+        out.append("")
     # model · effort · thinking
     model = (d.model or d.requested or "?").replace("claude-", "")
     chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]
