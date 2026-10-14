@@ -1532,8 +1532,9 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=()):
     for n, part in enumerate(wrap(title) if title else []):
         out.append(row(("session" if main else "task") if n == 0 else "", f"{BOLD}{part}{RESET}"))
     # Its calls that show in the jobs tab, as they read there; enter or a click goes to them.
-    for n, job in enumerate(jobs):
-        out.append(row("job" if n == 0 else "", job))
+    for n, lines in enumerate(jobs):
+        for k, line in enumerate(lines):
+            out.append(row("job" if n == 0 and k == 0 else "", line))
     if jobs:
         out.append("")
     # model · effort · thinking
@@ -1738,18 +1739,22 @@ class AgentRun(Run):
         return "idle", MUTED_RGB, icon, ""
 
     def jobs(self):
-        """(row text, run path) for its calls running now that the jobs tab shows."""
-        out = []
+        """(its link text, its rows, run path) for its calls running now that the jobs tab shows."""
+        out, self.job_labels = [], {}
         for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
             path = os.path.dirname(idfile)
             if read(idfile) in self.digest.open and Jobs.shows(path):
                 job = JobRun(path)
                 icon, colour = job.status()
-                # The time and the way to the tab stay whole; a long label gives way.
-                right = f"{job.age()}  ↗ jobs"
-                label = cut(job.label(), max(4, max(20, self.cols - 11) - 2 - len(right) - 2))
-                out.append((job.label(), f"{fg(colour)}{icon}{RESET} \033[4m{label}\033[24m"
-                                         f"{fg(MUTED_RGB)}  {job.age()}  {fg(ACCENT['jobs'])}↗ jobs{RESET}", path))
+                # Its label whole, then under it, to the right: state, time and the way to it.
+                w = max(20, self.cols - 11)
+                link = f"↗ jobs #{os.path.basename(path)}"
+                status = f"{icon} {job.age()}  {link}"
+                lines = [f"\033[4m{part}\033[24m" for part in wrap_cells(job.label(), w)]
+                lines.append(" " * max(0, w - cells(status)) + f"{fg(colour)}{icon}{fg(MUTED_RGB)} {job.age()}  "
+                             f"{fg(ACCENT['jobs'])}{link}{RESET}")
+                out.append((link, lines, path))
+                self.job_labels[job.label()[:24]] = path
         return out
 
     def lines(self):
@@ -1757,10 +1762,11 @@ class AgentRun(Run):
         name, colour, icon, since = self.state()
         since = "  ".join(x for x in (since, rate(self.digest)) if x)
         jobs = self.jobs()
-        self.job_rows = {label: path for label, _, path in jobs}  # by label: the spinner turns between frames
+        # Found again by "↗ jobs #n": its rows are redrawn (spinner, time) between frames.
+        self.job_rows = {link: path for link, _, path in jobs}
         return status_block(name, colour, icon, since, self.stamps, self.cols) + \
             dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded, self.label().strip(),
-                      [text for _, text, _ in jobs])
+                      [lines for _, lines, _ in jobs])
 
     def activate(self, line):
         """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it.
@@ -1768,7 +1774,8 @@ class AgentRun(Run):
         if FOLD.search(line):
             self.expanded = not self.expanded
             return True
-        job = next((p for label, p in getattr(self, "job_rows", {}).items() if label and label[:24] in line), None)
+        job = next((p for link, p in getattr(self, "job_rows", {}).items() if line.rstrip().endswith(link)), None) or \
+            next((p for label, p in getattr(self, "job_labels", {}).items() if label and label in line), None)
         if job and getattr(self.deck, "jump", None):
             self.deck.jump("jobs", job)
             return True

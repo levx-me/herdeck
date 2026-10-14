@@ -594,15 +594,17 @@ s.read_main(); s.refresh()
 went = []
 s.jump = lambda kind, path: went.append((kind, path))
 m = s.runs[-1]
-row = next(l for l in m.plain() if l.startswith("job"))
-print(row.split(None, 2)[2].split("  ")[0])
-print(m.activate(row), went[0][0], went[0][1] == args[2])
+lines = m.plain()
+at = next(n for n, l in enumerate(lines) if l.startswith("job"))
+print(lines[at].split(None, 1)[1])                     # its label, whole
+print(lines[at + 1].split()[-2:])                      # under it: the way to the jobs tab
+print(m.activate(lines[at + 1]), went[0][0], went[0][1] == args[2])
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main, job], {
       env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
     });
     expect(r.stderr.toString()).toBe("");
-    expect(r.stdout.toString().trim().split("\n")).toEqual(["Wait for the API to answer", "True jobs True"]);
+    expect(r.stdout.toString().trim().split("\n")).toEqual(["Wait for the API to answer", "['jobs', '#1']", "True jobs True"]);
   });
 });
 
