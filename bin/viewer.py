@@ -942,6 +942,8 @@ class Runs:
                 # there is none), so the variable-width age lines up before it.
                 sha = run.hash()
                 branch = read(os.path.join(run.path, "branch")) if self.kind == "git" else ""  # the branch it ran on
+                if branch:  # a long branch gives way before the message does: a quarter of the row at most
+                    branch = cut(branch, max(8, cols // 4))
                 right = f"{branch}  {age}  {sha:7}" if branch else f"{age}  {sha:7}" if self.kind == "git" else age
                 shown = (f"{fg(DIMMED_RGB)}{branch}{fg(MUTED_RGB)}  " if branch else "") + \
                     (f"{age}  {fg(ACCENT['git'])}{sha:7}" if self.kind == "git" else age)
