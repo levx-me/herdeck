@@ -43,6 +43,7 @@ import unicodedata
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["agents", "jobs", "servers", "build", "test", "git", "deploy"]
+TAB_KEYS = [s[0].upper() for s in SECTIONS]  # A J S B T G D, one each
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
@@ -1084,8 +1085,6 @@ class Runs:
             self.select(min(len(self.runs) - 1, self.tab + 1))
         elif k == "g":
             self.pending = "g"
-        elif k == "G":
-            self.select(0)
         elif k in ("\r", "\n", "l"):  # into the output, cursor on its last line
             self.focus, self.follow, self.cx = "log", False, 0
 
@@ -2150,13 +2149,15 @@ class Deck:
             icon, colour = view.badge()
             name = view.kind.upper()
             # No number on the tab (1-7 still jump there): more fit a narrow pane.
+            # Its first letter underlined: shift and that letter (A, J, S, ...) goes there.
+            name = f"\033[4m{name[0]}\033[24m{name[1:]}"
             if i == self.section:
                 text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {name} {icon} \033[22m"
             elif i in self.unseen:
                 text = f"{bg(self.NEW_RGB)}{fg(BRIGHT_RGB)}{BOLD} {name} {icon} \033[22m"
             else:
                 text = f"{bg(TAB_RGB)}{fg(MUTED_RGB)} {name} {fg(colour)}{icon} "
-            cells.append((len(name) + 4, text))
+            cells.append((len(view.kind) + 4, text))
         bar, self.spans = strip(cells, cols, self.section, self.unseen, self.NEW_RGB)
         return bar
 
@@ -2218,6 +2219,8 @@ class Deck:
             self.choose(self.section - 1)
         elif k.isdigit() and 1 <= int(k) <= len(self.views):
             self.choose(int(k) - 1)
+        elif k in TAB_KEYS and not (view.focus == "log" and view.copy_cursor):
+            self.choose(TAB_KEYS.index(k))  # shift+first letter; in a log, B and G stay copy-mode keys
         elif k == "L":  # reopen beside / above the agent; this process goes with the old pane
             subprocess.Popen([os.path.join(os.path.dirname(os.path.abspath(__file__)), "deck"), "flip", BASE],
                              stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,

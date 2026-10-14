@@ -132,7 +132,8 @@ def text(col, row, runs, limit):
                 layer("t", i, lambda: text(col, row, [(run[0](i).ljust(width), *run[1:])], limit))
             col += width
             continue
-        s, colour, bold = run[0], run[1], len(run) > 2
+        s, colour, bold = run[0], run[1], len(run) > 2 and run[2] is not False
+        underline = ' text-decoration="underline"' if len(run) > 3 and run[3] == "u" else ""
         lead, body = len(s) - len(s.lstrip(" ")), s.strip(" ")
         assert col + len(s) <= limit, f"row {row} runs past column {limit}: {s!r}"
         if body:
@@ -140,7 +141,7 @@ def text(col, row, runs, limit):
             weight = ' font-weight="bold"' if bold else ""
             out.append(f'<text x="{x(col + lead):.1f}" y="{top(row) + LH * 0.72:.1f}" '
                        f'textLength="{len(body) * CW:.1f}" lengthAdjust="spacingAndGlyphs" '
-                       f'fill="{colour}"{weight}>{escape(body)}</text>')
+                       f'fill="{colour}"{weight}{underline}>{escape(body)}</text>')
         col += len(s)
 
 
@@ -213,7 +214,9 @@ def section_bar(active):
             break
         on = i == active
         rect(col, 0, widths[i], ACCENT[name] if on else "#976870" if new else TAB)  # bin/viewer.py NEW_RGB
-        text(col, 0, [(f" {name} ", STRIP if on else BRIGHT if new else MUTED, on or new),
+        ink = STRIP if on else BRIGHT if new else MUTED
+        # The first letter underlined: shift and that letter goes to the tab (bin/viewer.py TAB_KEYS).
+        text(col, 0, [(" ", ink), (name[0], ink, on or new, "u"), (f"{name[1:]} ", ink, on or new),
                       (icon, STRIP if on else BRIGHT if new else colour, on or new)], end)
         col += widths[i] + 1
         used += widths[i] + 1

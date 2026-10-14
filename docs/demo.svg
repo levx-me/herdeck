@@ -182,7 +182,8 @@
 <g class="s s0">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#8fa8d2"/>
-<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">AGENTS</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">A</text>
+<text x="803.6" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">GENTS</text>
 <g class="b b0">
 <text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
@@ -214,42 +215,45 @@
 <text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
 <rect x="879.2" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="887.6" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">JOBS</text>
+<text x="887.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="896.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="954.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="963.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
-<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<text x="963.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="971.6" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <rect x="1055.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
-<text x="1064.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">BUILD</text>
+<text x="1064.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
 <g class="b b0">
 <text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
 </g>
@@ -422,7 +426,7 @@
 <g class="b b9">
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="837.2" y="141.7" textLength="151.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Map the auth tests</text>
+<text x="837.2" y="141.7" textLength="151.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Map the auth tests</text>
 <text x="1181.6" y="141.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">haiku-5-5</text>
 <text x="854.0" y="160.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">Read src/auth/refresh.test.ts</text>
 <g class="t t0">
@@ -774,39 +778,41 @@
 <g class="s s1">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="803.6" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="879.2" y="52.0" width="67.2" height="19.0" rx="0" fill="#7fb4b4"/>
-<text x="887.6" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">JOBS</text>
+<text x="887.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">J</text>
+<text x="896.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">OBS</text>
 <g class="b b0">
 <text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
@@ -838,10 +844,12 @@
 <text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
 <rect x="954.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="963.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
-<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<text x="963.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="971.6" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <rect x="1055.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
-<text x="1064.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">BUILD</text>
+<text x="1064.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
 <g class="b b0">
 <text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
 </g>
@@ -982,10 +990,10 @@
 <text x="1164.8" y="103.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">running 31s</text>
 </g>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="122.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Install Playwright's Chromium</text>
+<text x="820.4" y="122.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Install Playwright's Chromium</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">4m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="141.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Seed the dev database</text>
+<text x="820.4" y="141.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Seed the dev database</text>
 <text x="1198.4" y="141.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">26m ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="453.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">until curl -sf localhost:3000/health; do sleep 2; done</text>
@@ -1098,7 +1106,7 @@
 <g class="b b9">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="820.4" y="103.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Wait for the API to answer</text>
+<text x="820.4" y="103.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Wait for the API to answer</text>
 <g class="t t0">
 <text x="1173.2" y="103.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">running 9s</text>
 </g>
@@ -1172,7 +1180,7 @@
 <text x="820.4" y="122.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">Install Playwright's Chromium</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">4m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="141.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Seed the dev database</text>
+<text x="820.4" y="141.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Seed the dev database</text>
 <text x="1198.4" y="141.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">26m ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="260.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npx playwright install chromium</text>
@@ -1217,7 +1225,7 @@
 <g class="b b9">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="820.4" y="103.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Wait for the API to answer</text>
+<text x="820.4" y="103.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Wait for the API to answer</text>
 <g class="t t0">
 <text x="1173.2" y="103.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">running 9s</text>
 </g>
@@ -1288,7 +1296,7 @@
 <text x="1164.8" y="103.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">running 31s</text>
 </g>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="122.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">Install Playwright's Chromium</text>
+<text x="820.4" y="122.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Install Playwright's Chromium</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">4m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="141.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">Seed the dev database</text>
@@ -1315,74 +1323,78 @@
 <g class="s s2">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="803.6" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="879.2" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="887.6" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">JOBS</text>
+<text x="887.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="896.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="954.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#98b17d"/>
-<text x="963.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">SERVERS</text>
+<text x="963.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">S</text>
+<text x="971.6" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">ERVERS</text>
 <text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">●</text>
 <rect x="1055.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
-<text x="1064.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">BUILD</text>
+<text x="1064.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
 <g class="b b0">
 <text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
 </g>
@@ -1426,10 +1438,10 @@
 <text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
 <text x="1215.2" y="103.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:3000</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">anvil --block-time 2</text>
+<text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">anvil --block-time 2</text>
 <text x="1215.2" y="122.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8545</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="141.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">wrangler dev</text>
+<text x="820.4" y="141.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">wrangler dev</text>
 <text x="1215.2" y="141.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8787</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">next dev --turbopack</text>
@@ -1458,13 +1470,13 @@
 <text x="803.6" y="84.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">servers · 3</text>
 <rect x="786.8" y="109.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">next dev --turbopack</text>
+<text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">next dev --turbopack</text>
 <text x="1215.2" y="103.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:3000</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">anvil --block-time 2</text>
 <text x="1215.2" y="122.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8545</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="141.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">wrangler dev</text>
+<text x="820.4" y="141.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">wrangler dev</text>
 <text x="1215.2" y="141.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8787</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">anvil --block-time 2</text>
@@ -1488,10 +1500,10 @@
 <text x="803.6" y="84.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">servers · 3</text>
 <rect x="786.8" y="128.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">next dev --turbopack</text>
+<text x="820.4" y="103.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">next dev --turbopack</text>
 <text x="1215.2" y="103.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:3000</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">anvil --block-time 2</text>
+<text x="820.4" y="122.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">anvil --block-time 2</text>
 <text x="1215.2" y="122.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">:8545</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <text x="820.4" y="141.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">wrangler dev</text>
@@ -1525,74 +1537,78 @@
 <g class="s s3">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="803.6" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="879.2" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="887.6" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">JOBS</text>
+<text x="887.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="896.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="954.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="963.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
-<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<text x="963.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="971.6" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <rect x="1055.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#d8b46a"/>
-<text x="1064.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">BUILD</text>
+<text x="1064.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">B</text>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">UILD</text>
 <g class="b b0">
 <text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
@@ -1624,36 +1640,37 @@
 <text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
 <rect x="1139.6" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1148.0" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
+<text x="1148.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
+<text x="1156.4" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
 <g class="b b0">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <text x="1215.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <g class="t t11">
@@ -1695,10 +1712,10 @@
 <text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
 <text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="122.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="820.4" y="122.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm run build</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">6m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
-<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm run build</text>
 <text x="1198.4" y="141.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">21m ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
@@ -1919,13 +1936,13 @@
 <g class="b b9">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm run build</text>
 <text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="122.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">6m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
-<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm run build</text>
 <text x="1198.4" y="141.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">21m ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
@@ -1975,10 +1992,10 @@
 <g class="b b9">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm run build</text>
 <text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="122.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm run build</text>
+<text x="820.4" y="122.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm run build</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">6m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
 <text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm run build</text>
@@ -2013,106 +2030,111 @@
 <g class="s s4">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <rect x="786.8" y="52.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">AGENTS</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="803.6" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="854.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="879.2" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="887.6" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">JOBS</text>
+<text x="887.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="896.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="929.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="954.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="963.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
-<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<text x="963.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="971.6" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1030.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <rect x="1055.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1064.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">BUILD</text>
+<text x="1064.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
+<text x="1072.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
 <g class="b b0">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="1114.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="1139.6" y="52.0" width="67.2" height="19.0" rx="0" fill="#7aa2c8"/>
-<text x="1148.0" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">TEST</text>
+<text x="1148.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">T</text>
+<text x="1156.4" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">EST</text>
 <g class="b b0">
 <text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
@@ -2183,16 +2205,16 @@
 <text x="820.4" y="103.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test</text>
 <text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
-<text x="820.4" y="122.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="122.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="141.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test -- auth</text>
+<text x="820.4" y="141.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test -- auth</text>
 <text x="1206.8" y="141.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">9m ago</text>
 <text x="803.6" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="160.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="160.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1198.4" y="160.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">24m ago</text>
 <text x="803.6" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1206.8" y="179.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="217.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="217.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test</text>
@@ -2423,19 +2445,19 @@
 <g class="b b9">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="820.4" y="103.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="103.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
 <text x="820.4" y="122.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="141.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test -- auth</text>
+<text x="820.4" y="141.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test -- auth</text>
 <text x="1206.8" y="141.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">9m ago</text>
 <text x="803.6" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="160.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="160.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1198.4" y="160.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">24m ago</text>
 <text x="803.6" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1206.8" y="179.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="217.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="217.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test</text>
@@ -2495,19 +2517,19 @@
 <g class="b b9">
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="820.4" y="103.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="103.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1232.0" y="103.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
-<text x="820.4" y="122.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="122.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1206.8" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="141.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test -- auth</text>
 <text x="1206.8" y="141.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">9m ago</text>
 <text x="803.6" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="160.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="160.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1198.4" y="160.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">24m ago</text>
 <text x="803.6" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">npm test</text>
+<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">npm test</text>
 <text x="1206.8" y="179.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="217.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="217.7" textLength="134.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">npm test -- auth</text>
@@ -2544,106 +2566,111 @@
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="778.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
 <rect x="786.8" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">JOBS</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="803.6" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="837.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="862.4" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="870.8" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
-<text x="938.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<text x="870.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="879.2" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="938.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <rect x="963.2" y="52.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="971.6" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">BUILD</text>
+<text x="971.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
+<text x="980.0" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
 <g class="b b0">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="1047.2" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1055.6" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
+<text x="1055.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
+<text x="1064.0" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
 <g class="b b0">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="1097.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="1122.8" y="52.0" width="58.8" height="19.0" rx="0" fill="#b48ead"/>
-<text x="1131.2" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">GIT</text>
+<text x="1131.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">G</text>
+<text x="1139.6" y="65.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">IT</text>
 <text x="1164.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">✓</text>
 <text x="1190.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <g class="t t17">
@@ -2662,13 +2689,13 @@
 <text x="1013.6" y="103.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  1m ago  a41c9e2</text>
 <text x="820.4" y="122.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">git commit "Refresh-token rotation"</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="141.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git push</text>
+<text x="820.4" y="141.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git push</text>
 <text x="1013.6" y="141.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  9m ago  7d03b18</text>
 <text x="803.6" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="160.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git switch -c feat/refresh</text>
+<text x="820.4" y="160.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git switch -c feat/refresh</text>
 <text x="1080.8" y="160.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  14m ago</text>
 <text x="803.6" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git pull</text>
+<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git pull</text>
 <text x="1072.4" y="179.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">main  32m ago  51e2a90</text>
 <text x="778.4" y="217.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">$ git add</text>
 <text x="778.4" y="236.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">$ git commit</text>
@@ -2700,17 +2727,17 @@
 <text x="1215.2" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#98b17d">clean</text>
 <rect x="786.8" y="128.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git add</text>
+<text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git add</text>
 <text x="1013.6" y="103.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  1m ago  a41c9e2</text>
-<text x="820.4" y="122.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git commit "Refresh-token rotation"</text>
+<text x="820.4" y="122.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git commit "Refresh-token rotation"</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="141.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">git push</text>
 <text x="1013.6" y="141.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  9m ago  7d03b18</text>
 <text x="803.6" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="160.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git switch -c feat/refresh</text>
+<text x="820.4" y="160.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git switch -c feat/refresh</text>
 <text x="1080.8" y="160.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  14m ago</text>
 <text x="803.6" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git pull</text>
+<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git pull</text>
 <text x="1072.4" y="179.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">main  32m ago  51e2a90</text>
 <text x="778.4" y="217.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">$ git push</text>
 <text x="795.2" y="236.7" textLength="310.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · on feat/refresh · 2s · exit 0</text>
@@ -2733,17 +2760,17 @@
 <text x="1215.2" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#98b17d">clean</text>
 <rect x="786.8" y="147.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git add</text>
+<text x="820.4" y="103.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git add</text>
 <text x="1013.6" y="103.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  1m ago  a41c9e2</text>
-<text x="820.4" y="122.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git commit "Refresh-token rotation"</text>
+<text x="820.4" y="122.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git commit "Refresh-token rotation"</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="141.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git push</text>
+<text x="820.4" y="141.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git push</text>
 <text x="1013.6" y="141.7" textLength="243.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  9m ago  7d03b18</text>
 <text x="803.6" y="160.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="160.7" textLength="218.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">git switch -c feat/refresh</text>
 <text x="1080.8" y="160.7" textLength="176.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">feat/refresh  14m ago</text>
 <text x="803.6" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">git pull</text>
+<text x="820.4" y="179.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">git pull</text>
 <text x="1072.4" y="179.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">main  32m ago  51e2a90</text>
 <text x="778.4" y="217.7" textLength="235.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">$ git switch -c feat/refresh</text>
 <text x="795.2" y="236.7" textLength="310.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">~/app · on feat/refresh · 0s · exit 0</text>
@@ -2766,77 +2793,82 @@
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="778.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
 <rect x="786.8" y="52.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="795.2" y="65.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">SERVERS</text>
-<text x="862.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">●</text>
+<text x="795.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="803.6" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="862.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
 <rect x="887.6" y="52.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="896.0" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">BUILD</text>
+<text x="896.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
+<text x="904.4" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
 <g class="b b0">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="946.4" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="971.6" y="52.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="980.0" y="65.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">TEST</text>
+<text x="980.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
+<text x="988.4" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
 <g class="b b0">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠋</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠙</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠹</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠸</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠼</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠴</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠦</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠧</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠇</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a" font-weight="bold">⠏</text>
+<text x="1022.0" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="1047.2" y="52.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1055.6" y="65.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c" font-weight="bold">GIT</text>
-<text x="1089.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d" font-weight="bold">✓</text>
+<text x="1055.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">G</text>
+<text x="1064.0" y="65.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">IT</text>
+<text x="1089.2" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <rect x="1114.4" y="52.0" width="84.0" height="19.0" rx="0" fill="#d19a66"/>
-<text x="1122.8" y="65.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">DEPLOY</text>
+<text x="1122.8" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">D</text>
+<text x="1131.2" y="65.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">EPLOY</text>
 <text x="1181.6" y="65.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">·</text>
 <g class="t t20">
 <rect x="782.6" y="80.5" width="495.6" height="76.0" rx="5" fill="none" stroke="#d19a66"/>
@@ -2848,10 +2880,10 @@
 <text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
 <text x="1206.8" y="103.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">2m ago</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel</text>
+<text x="820.4" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">vercel</text>
 <text x="1198.4" y="122.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">18m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
-<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel --prod</text>
+<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">vercel --prod</text>
 <text x="1206.8" y="141.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
@@ -2872,13 +2904,13 @@
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 3</text>
 <rect x="786.8" y="109.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel --prod</text>
+<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">vercel --prod</text>
 <text x="1206.8" y="103.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">2m ago</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <text x="820.4" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel</text>
 <text x="1198.4" y="122.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">18m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
-<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel --prod</text>
+<text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">vercel --prod</text>
 <text x="1206.8" y="141.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1h ago</text>
 <text x="778.4" y="179.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">$</text>
 <text x="795.2" y="179.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel</text>
@@ -2898,10 +2930,10 @@
 <text x="803.6" y="84.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">runs · 3</text>
 <rect x="786.8" y="128.0" width="487.2" height="19.0" rx="0" fill="#3e4451"/>
 <text x="803.6" y="103.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel --prod</text>
+<text x="820.4" y="103.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">vercel --prod</text>
 <text x="1206.8" y="103.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">2m ago</text>
 <text x="803.6" y="122.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<text x="820.4" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf" font-weight="bold">vercel</text>
+<text x="820.4" y="122.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">vercel</text>
 <text x="1198.4" y="122.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">18m ago</text>
 <text x="803.6" y="141.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">✗</text>
 <text x="820.4" y="141.7" textLength="109.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">vercel --prod</text>
