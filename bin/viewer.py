@@ -658,6 +658,8 @@ class Runs:
 
     noun = "runs"
     run_class = Run
+    dim_unfocused = True  # the output reads faint while the cursor is in the list
+    copy_cursor = True    # in the output, herdr's copy-mode cursor
 
     def __init__(self, kind):
         self.kind, self.dir = kind, os.path.join(BASE, kind, "runs")
@@ -699,6 +701,12 @@ class Runs:
     def title_right(self):
         """Text for the right end of the run list's top border."""
         return ""
+
+    def place_cursor(self):
+        """Where the output's cursor goes before the frame scrolls to it: pinned to the
+        end while the run grows, or while the cursor is in the list."""
+        if self.follow or self.focus == "list":
+            self.cy = max(0, len(self.plain) - 1)
 
     def shows(self, path):
         """Whether the run in path is listed."""
@@ -830,7 +838,7 @@ class Runs:
             head += [*run.command(cols), info]
         if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
             head.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
-        if self.focus == "list":  # the run's head reads faint with its log while the cursor is in the list
+        if self.focus == "list" and self.dim_unfocused:  # the run's head reads faint with its log while the cursor is in the list
             head[box:] = [tint(line, DIMMED_RGB) for line in head[box:]]
         if not isinstance(run, AgentRun):
             head.append(rule(cols))
@@ -838,8 +846,7 @@ class Runs:
         running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
         # While it runs, the last row shows a spinner under the output.
         self.height = height = max(1, rows - (HEAD_ROW - 1) - len(head) - (1 if running else 0))
-        if self.follow or self.focus == "list":  # pinned to the end while the run grows
-            self.cy = max(0, len(self.plain) - 1)
+        self.place_cursor()
         self.clamp()
         if self.cy < self.offset:
             self.offset = self.cy
@@ -847,7 +854,7 @@ class Runs:
             self.offset = self.cy - height + 1
         self.offset = max(0, min(self.offset, max(0, len(self.plain) - height)))
         self.body_row = HEAD_ROW + len(head)
-        cursor = self.focus == "log"
+        cursor = self.focus == "log" and self.copy_cursor
 
         body = []
         tip = self.tooltip_at(cols)
@@ -860,7 +867,7 @@ class Runs:
                 body.append(self.marked(y))
             else:
                 # The log reads dim while the cursor is in the list.
-                body.append(tint(self.raw[y], DIMMED_RGB) if self.focus == "list" else self.raw[y])
+                body.append(tint(self.raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused else self.raw[y])
         if running:
             start = int(read(os.path.join(run.path, "start"), "0") or 0)
             secs = f" {int(time.time()) - start}s" if start else ""
@@ -1517,7 +1524,14 @@ def bar(parts, width):
     return out + f"{fg(TAB_RGB)}{'░' * (width - used)}{RESET}"
 
 
-FOLD = re.compile(r"\[… \d+ more lines?\]|\[less\]")
+FOLD = re.compile(r"▾ \d+ more lines?|▴ less")
+
+
+def button(text, rgb, focused):
+    """A control in an agent's detail: a key on a grey cap, lit in its colour while the cursor is on it."""
+    if focused:
+        return f"{bg(rgb)}{fg(STRIP_RGB)}{BOLD} {text} \033[22m{RESET}"
+    return f"{bg(TAB_RGB)}{fg(rgb)} {text} {RESET}"
 PROMPT_LINES = 4  # a prompt (request) folded to this many lines
 
 
@@ -1533,7 +1547,7 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
-def dashboard(d, cols, main, expanded=False, title="", jobs=()):
+def dashboard(d, cols, main, expanded=False, title="", jobs=(), focus=None):
     """Everything known about an agent, in cards: what it is (session or task), its
     jobs, model and usage, tasks, and the conversation. A card with nothing is left out."""
     w = max(16, cols - 4)  # inside a card
@@ -1599,8 +1613,8 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=()):
     talk += [who("you" if main else "asked", n) + part for n, part in enumerate(shown)]
     if len(lines) > PROMPT_LINES:  # enter or a click there folds or unfolds it
         more = len(lines) - PROMPT_LINES
-        control = "[less]" if expanded else f"[… {more} more line{'s' * (more != 1)}]"
-        talk.append(" " * 8 + f"{fg(ACCENT['agents'])}{control}{RESET}")
+        control = "▴ less" if expanded else f"▾ {more} more line{'s' * (more != 1)}"
+        talk.append(" " * 8 + button(control, ACCENT["agents"], focus == "fold"))
     talk += [who("ai", n) + part for n, part in enumerate(wrap(d.says, w - 8)[:3] if d.says else [])]
     talk += [who("done", n) + part for n, part in enumerate(wrap(d.report, w - 8)[:4] if d.report else [])]
     if talk:
@@ -1743,8 +1757,9 @@ class AgentRun(Run):
             return "running", colour, icon, f"for {took(time.time() - stamps[0])}"
         return "idle", MUTED_RGB, icon, ""
 
-    def jobs(self):
-        """(its link text, its rows, run path) for its calls running now that the jobs tab shows."""
+    def jobs(self, focus=None):
+        """(its link text, its rows, run path) for its calls running now that the jobs tab shows;
+        the one whose path is focus has its button lit."""
         out, self.job_labels = [], {}
         for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
             path = os.path.dirname(idfile)
@@ -1754,10 +1769,10 @@ class AgentRun(Run):
                 # Its label whole, then under it, to the right: state, time and the way to it.
                 w = max(16, self.cols - 4)  # inside its card
                 link = f"↗ jobs #{os.path.basename(path)}"
-                status = f"{icon} {job.age()}  {link}"
-                lines = [f"\033[4m{part}\033[24m" for part in wrap_cells(job.label(), w)]
+                status = f"{icon} {job.age()}   {link} "
+                lines = [part for part in wrap_cells(job.label(), w)]
                 lines.append(" " * max(0, w - cells(status)) + f"{fg(colour)}{icon}{fg(MUTED_RGB)} {job.age()}  "
-                             f"{fg(ACCENT['jobs'])}{link}{RESET}")
+                             + button(link, ACCENT["jobs"], focus == path))
                 out.append((link, lines, path))
                 self.job_labels[job.label()[:24]] = path
         return out
@@ -1766,12 +1781,28 @@ class AgentRun(Run):
         self.count()
         name, colour, icon, since = self.state()
         since = "  ".join(x for x in (since, rate(self.digest)) if x)
-        jobs = self.jobs()
+        focus = getattr(self, "focus_key", None)  # the control the cursor is on (Agents sets it)
+        jobs = self.jobs(focus)
         # Found again by "↗ jobs #n": its rows are redrawn (spinner, time) between frames.
         self.job_rows = {link: path for link, _, path in jobs}
-        return status_block(name, colour, icon, since, self.stamps, self.cols) + \
+        out = status_block(name, colour, icon, since, self.stamps, self.cols) + \
             dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded, self.label().strip(),
-                      [lines for _, lines, _ in jobs])
+                      [lines for _, lines, _ in jobs], focus)
+        # Its controls, in order, with the row each is on: the keyboard moves between these.
+        self.controls = []
+        for n, line in enumerate(out):
+            text = ANSI.sub("", line)
+            job = next((p for link, p in self.job_rows.items() if link in text), None)
+            if job or FOLD.search(text):
+                self.controls.append((job or "fold", n))
+        return out
+
+    def press(self, key):
+        """enter on the control key: a job goes to the jobs tab, the fold folds or unfolds."""
+        if key == "fold":
+            self.expanded = not self.expanded
+        elif getattr(self.deck, "jump", None):
+            self.deck.jump("jobs", key)
 
     def activate(self, line):
         """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it.
@@ -1970,6 +2001,75 @@ class Agents(Runs):
         if any(r.status()[1] == AMBER_RGB for r in self.runs):
             return (spinner(), AMBER_RGB)
         return ("·", MUTED_RGB)
+
+    # An agent's detail is no log: it reads the same picked or not, and enter moves the
+    # keyboard between its controls (its jobs, the fold of a long request) instead.
+    dim_unfocused = copy_cursor = False
+    control = 0
+
+    def controls(self):
+        return getattr(self.runs[self.tab], "controls", []) if self.runs else []
+
+    def frame(self, cols, rows):
+        if self.runs:
+            run = self.runs[self.tab]
+            keys = [k for k, _ in self.controls()]
+            self.control = min(self.control, max(0, len(keys) - 1))
+            run.focus_key = keys[self.control] if self.focus == "log" and keys else None
+        return super().frame(cols, rows)
+
+    def place_cursor(self):
+        """The detail starts at its top and scrolls only to keep the picked control in view."""
+        rows = [n for _, n in self.controls()]
+        self.cy = rows[min(self.control, len(rows) - 1)] if self.focus == "log" and rows else self.offset
+
+    def select(self, tab):
+        super().select(tab)
+        self.offset, self.control = 0, 0
+
+    def list_key(self, k):
+        if k in ("\r", "\n", "l"):
+            if self.controls():  # nothing to press: stay in the list
+                self.focus, self.control = "log", 0
+            return
+        super().list_key(k)
+
+    def key(self, k):
+        if not self.runs or self.focus == "list":
+            return super().key(k)
+        count = len(self.controls())
+        if k in ("j", "\t", "l"):
+            self.control = min(count - 1, self.control + 1)
+        elif k in ("k", "\x1b[Z", "h"):
+            self.control = max(0, self.control - 1)
+        elif k in ("\r", "\n") and count:
+            self.runs[self.tab].press(self.controls()[self.control][0])
+        elif k == "\x1b":
+            self.focus = "list"
+
+    def click(self, row, col):
+        """A click on a control presses it; elsewhere in the detail it does nothing."""
+        listed = getattr(self, "listed", [])
+        if self.runs and 0 <= row - HEAD_ROW - 1 < len(listed):
+            self.select(listed[row - HEAD_ROW - 1])
+            self.focus = "list"
+            return
+        line = self.offset + row - getattr(self, "body_row", 99)
+        for n, (key, at) in enumerate(self.controls()):
+            if at == line:
+                self.focus, self.control = "log", n
+                self.runs[self.tab].press(key)
+
+    def wheel(self, down, row=0):
+        if self.runs and HEAD_ROW < row <= HEAD_ROW + len(getattr(self, "listed", [])):
+            return super().wheel(down, row)
+        self.offset = max(0, self.offset + (3 if down else -3))
+
+    def hints(self):
+        if self.focus == "log":
+            return [("j/k", "move"), ("enter", "press"), ("esc/q", "back")]
+        return [("j/k", "select")] + ([("enter", "controls")] if self.controls() else []) + \
+            [("L", "side"), ("[ ]", "tabs"), ("q", "close")]
 
 
 class Deck:

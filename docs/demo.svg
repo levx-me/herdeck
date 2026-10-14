@@ -794,14 +794,12 @@
 <rect x="778.4" y="774.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
 <text x="786.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
 <text x="820.4" y="787.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="887.6" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="938.0" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
-<text x="988.4" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1005.2" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1055.6" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1089.2" y="787.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
-<text x="1173.2" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
-<text x="1190.0" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="887.6" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="904.4" y="787.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="954.8" y="787.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="988.4" y="787.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1072.4" y="787.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">q</text>
+<text x="1089.2" y="787.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 <g class="s s1">
 <rect x="778.4" y="52.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>

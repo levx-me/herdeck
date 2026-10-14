@@ -39,6 +39,7 @@ apply right now.
 | | `/` `?`, `n` `N` | search forward / back, repeat |
 | | `esc` | cancel the selection, or back to the run list |
 | servers | `o` | open the server in the browser |
+| agents | `enter`, then `j` `k`, `enter`, `esc` | move between an agent's controls (its jobs, the fold of a long request) and press one |
 
 Arrow keys work as `h` `j` `k` `l` everywhere. While the cursor is in the list, the run's command and
 log are drawn faint; moving into the log turns that around.
