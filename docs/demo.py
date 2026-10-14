@@ -207,6 +207,8 @@ def section_bar(active):
     shown_last = first
     for i in range(first, len(SECTIONS)):
         name, icon, colour = SECTIONS[i]
+        if name == "BUILD" and active < i:  # a build came in while you were elsewhere: new until shown
+            icon, colour = "✦", RED
         if used + widths[i] + 1 > room:
             break
         on = i == active

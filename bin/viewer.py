@@ -6,8 +6,8 @@
 <base>/<kind>/runs/<n>/ holds one run of kind build, test, git or deploy (written by
 bin/run and bin/record): cmd, cwd, log, start, pid, and once finished rc and
 end. The servers section lists the project's dev servers (bin/servers on
-<base>/root). A new run, or a write to <base>/focus naming a section, brings
-that section forward; a new run is also followed live. The jobs section lists
+<base>/root). A new run, or a write to <base>/focus naming a section, marks
+that section's tab new (a red ✦) until it is shown; a new run is also followed live. The jobs section lists
 the agent's other commands that ran 10s or more (bin/hook, bin/job), live from
 Claude Code's own output file while they run.
 
@@ -2077,6 +2077,7 @@ class Deck:
         self.views = [Agents(), Jobs(), Servers()] + [Git() if k == "git" else Runs(k) for k in SECTIONS[3:]]
         self.views[0].jump = self.jump  # a job in an agent's detail leads to the jobs tab
         self.section = 0
+        self.unseen = set()  # tabs with something new not shown yet
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
         # The section last picked by hand in any deck, shared by all of them.
@@ -2118,24 +2119,28 @@ class Deck:
             pass
 
     def refresh(self):
+        # Something new elsewhere marks its tab instead of taking the deck there.
         for i, view in enumerate(self.views):
-            if view.refresh():  # a new run brings its section forward
-                self.section = i
+            if view.refresh() and i != self.section:
+                self.unseen.add(i)
         at = self.mtime(self.focus_path)
         if at != self.focus_at:  # a section was asked for (e.g. a dev server started)
             self.focus_at = at
-            if read(self.focus_path) in SECTIONS:
-                self.section = SECTIONS.index(read(self.focus_path))
+            if read(self.focus_path) in SECTIONS and SECTIONS.index(read(self.focus_path)) != self.section:
+                self.unseen.add(SECTIONS.index(read(self.focus_path)))
         at = self.mtime(self.shared_path)
         if at != self.shared_at:  # picked by hand in another deck
             self.shared_at = at
             if read(self.shared_path) in SECTIONS:
                 self.section = SECTIONS.index(read(self.shared_path))
 
+    NEW = ("✦", RED_RGB)  # on a tab with something new, until it is shown
+
     def section_bar(self, cols):
+        self.unseen.discard(self.section)  # on show: seen
         cells = []
         for i, view in enumerate(self.views):
-            icon, colour = view.badge()
+            icon, colour = self.NEW if i in self.unseen else view.badge()
             name = view.kind.upper()
             # No number on the tab (1-7 still jump there): more fit a narrow pane.
             if i == self.section:
