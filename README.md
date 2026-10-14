@@ -33,7 +33,7 @@ beside the agent**, live, so you never scroll back through the conversation to f
 
 ## Why it feels effortless
 
-- **It keeps up without pulling you around.** A new test run, server or commit marks its tab with a red `✦` until you look; the tab you are on stays put. Close the deck and it stays closed until you want it back.
+- **It keeps up without pulling you around.** A new test run, server or commit turns its tab red until you look; the tab you are on stays put. Close the deck and it stays closed until you want it back.
 - **It fits the pane.** Beside the agent, or on top of a narrow one. `L` moves it.
 - **It remembers.** Resume a session in a new pane and its history comes back from the transcript.
 - **It asks nothing of you.** No config, no commands to learn: the bottom row always shows the keys that work right now. bash, `jq` and `python3`, nothing else.

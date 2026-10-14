@@ -7,7 +7,7 @@
 bin/run and bin/record): cmd, cwd, log, start, pid, and once finished rc and
 end. The servers section lists the project's dev servers (bin/servers on
 <base>/root). A new run, or a write to <base>/focus naming a section, marks
-that section's tab new (a red ✦) until it is shown; a new run is also followed live. The jobs section lists
+that section's tab new (red) until it is shown; a new run is also followed live. The jobs section lists
 the agent's other commands that ran 10s or more (bin/hook, bin/job), live from
 Claude Code's own output file while they run.
 
@@ -2134,17 +2134,19 @@ class Deck:
             if read(self.shared_path) in SECTIONS:
                 self.section = SECTIONS.index(read(self.shared_path))
 
-    NEW = ("✦", RED_RGB)  # on a tab with something new, until it is shown
+    NEW_RGB = blend(RED_RGB, TAB_RGB, 0.35)  # a tab with something new, until it is shown: red-tinted
 
     def section_bar(self, cols):
         self.unseen.discard(self.section)  # on show: seen
         cells = []
         for i, view in enumerate(self.views):
-            icon, colour = self.NEW if i in self.unseen else view.badge()
+            icon, colour = view.badge()
             name = view.kind.upper()
             # No number on the tab (1-7 still jump there): more fit a narrow pane.
             if i == self.section:
                 text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {name} {icon} \033[22m"
+            elif i in self.unseen:
+                text = f"{bg(self.NEW_RGB)}{fg(BRIGHT_RGB)}{BOLD} {name} {icon} \033[22m"
             else:
                 text = f"{bg(TAB_RGB)}{fg(MUTED_RGB)} {name} {fg(colour)}{icon} "
             cells.append((len(name) + 4, text))

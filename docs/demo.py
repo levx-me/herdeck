@@ -207,13 +207,13 @@ def section_bar(active):
     shown_last = first
     for i in range(first, len(SECTIONS)):
         name, icon, colour = SECTIONS[i]
-        if name == "BUILD" and active < i:  # a build came in while you were elsewhere: new until shown
-            icon, colour = "✦", RED
+        new = name == "BUILD" and active < i  # a build came in while you were elsewhere: new until shown
         if used + widths[i] + 1 > room:
             break
         on = i == active
-        rect(col, 0, widths[i], ACCENT[name] if on else TAB)
-        text(col, 0, [(f" {name} ", STRIP if on else MUTED, on), (icon, STRIP if on else colour, on)], end)
+        rect(col, 0, widths[i], ACCENT[name] if on else "#976870" if new else TAB)  # bin/viewer.py NEW_RGB
+        text(col, 0, [(f" {name} ", STRIP if on else BRIGHT if new else MUTED, on or new),
+                      (icon, STRIP if on else BRIGHT if new else colour, on or new)], end)
         col += widths[i] + 1
         used += widths[i] + 1
         shown_last = i
