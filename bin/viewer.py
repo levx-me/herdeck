@@ -36,6 +36,7 @@ import termios
 import textwrap
 import threading
 import time
+import traceback
 import tty
 import unicodedata
 
@@ -461,7 +462,7 @@ class Run:
 
     def plain(self):
         self.lines()
-        return self._log[2]
+        return self._log[2] or []  # none read yet: a log that is gone (a job's, say) or not there
 
     def _load(self, path, key):
         try:
@@ -2049,6 +2050,21 @@ class Deck:
             self.views[self.section].key(k)
 
 
+_crash = ""
+def crashed():
+    """Append the current exception to <TMPDIR>/steading/crash.log, once per distinct traceback."""
+    global _crash
+    trace = traceback.format_exc()
+    if trace == _crash:
+        return
+    _crash = trace
+    try:
+        with open(os.path.join(os.path.dirname(BASE), "crash.log"), "a") as f:
+            f.write(f"--- {time.strftime('%Y-%m-%d %H:%M:%S')} {BASE}\n{trace}")
+    except OSError:
+        pass
+
+
 def legacy(key):
     """A kitty keyboard protocol key (CSI code;mods u) as the bytes it stands for:
     esc, ctrl+letter as its control character, anything else as its character."""
@@ -2084,29 +2100,37 @@ def main():
             if os.path.getmtime(me) != born:  # edited: restart in place with the new code
                 restore()
                 os.execv(sys.executable, [sys.executable, me] + sys.argv[1:])
-            deck.refresh()
-            deck.draw()
-            fading = any(time.time() - getattr(v, "fresh", (None, 0))[1] < FADE_SECS for v in deck.views)
-            if select.select([fd], [], [], 0.05 if fading else 0.3)[0]:
-                k = os.read(fd, 256).decode("utf-8", "replace")
-                events = MOUSE.findall(k)
-                for button, col, row, kind in events:
-                    if kind == "M":  # press or drag
-                        deck.mouse(int(button), int(col), int(row))
-                    elif int(button) == 0:  # left button let go
-                        getattr(deck.views[deck.section], "release", lambda: None)()
-                if events:
-                    continue
-                # One read can hold several keys (fast presses, arrows): take them one at a time.
-                for key in KEYS.findall(k):
-                    key = legacy(key)
-                    view = deck.views[deck.section]
-                    typing = getattr(view, "search", None) is not None
-                    if key == "q" and not typing:
-                        if getattr(view, "focus", "list") != "log":
-                            return
-                        key = "\x1b"  # in a log, q goes back to the list as esc does
-                    deck.key(key if typing else ARROWS.get(key, key))
+            try:
+                deck.refresh()
+                deck.draw()
+            except Exception:  # a bad frame must not close the pane: note it and draw again
+                crashed()
+                time.sleep(0.5)
+                continue
+            try:
+                fading = any(time.time() - getattr(v, "fresh", (None, 0))[1] < FADE_SECS for v in deck.views)
+                if select.select([fd], [], [], 0.05 if fading else 0.3)[0]:
+                    k = os.read(fd, 256).decode("utf-8", "replace")
+                    events = MOUSE.findall(k)
+                    for button, col, row, kind in events:
+                        if kind == "M":  # press or drag
+                            deck.mouse(int(button), int(col), int(row))
+                        elif int(button) == 0:  # left button let go
+                            getattr(deck.views[deck.section], "release", lambda: None)()
+                    if events:
+                        continue
+                    # One read can hold several keys (fast presses, arrows): take them one at a time.
+                    for key in KEYS.findall(k):
+                        key = legacy(key)
+                        view = deck.views[deck.section]
+                        typing = getattr(view, "search", None) is not None
+                        if key == "q" and not typing:
+                            if getattr(view, "focus", "list") != "log":
+                                return
+                            key = "\x1b"  # in a log, q goes back to the list as esc does
+                        deck.key(key if typing else ARROWS.get(key, key))
+            except Exception:  # nor a key that trips something
+                crashed()
     except KeyboardInterrupt:
         pass
     finally:
