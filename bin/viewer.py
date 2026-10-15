@@ -44,7 +44,8 @@ BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plug
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["agents", "jobs", "servers", "build", "test", "git", "deploy"]
 FOCUS = {"pane": True}  # whether the deck's pane has the keyboard; without it the accents go grey
-TAB_KEYS = [s[0].upper() for s in SECTIONS]  # A J S B T G D, one each
+# shift and a letter of the tab's name goes there: its first, but git's I (G is vim's bottom).
+TAB_KEYS = ["A", "J", "S", "B", "T", "I", "D"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
 HEAD_ROW = 2
@@ -1277,6 +1278,8 @@ class Runs:
             self.select(min(len(self.runs) - 1, self.tab + 1))
         elif k == "g":
             self.pending = "g"
+        elif k == "G":  # the bottom of the list: the oldest run
+            self.select(0)
         elif k in ("\r", "\n", "l"):  # into the output, cursor on its last line
             self.focus, self.follow, self.cx = "log", False, 0
 
@@ -2363,8 +2366,9 @@ class Deck:
             icon, colour = view.badge()
             name = view.kind.upper()
             # No number on the tab (1-7 still jump there): more fit a narrow pane.
-            # Its first letter underlined: shift and that letter (A, J, S, ...) goes there.
-            name = f"\033[4m{name[0]}\033[24m{name[1:]}"
+            # Its key letter underlined: shift and that letter (A, J, S, ...) goes there.
+            at = name.index(TAB_KEYS[i])
+            name = f"{name[:at]}\033[4m{name[at]}\033[24m{name[at + 1:]}"
             if i == self.section and not FOCUS["pane"]:  # shown, but the keyboard is elsewhere: grey
                 text = f"{bg(ACTIVE_RGB)}{fg(BRIGHT_RGB)}{BOLD} {name} {icon} \033[22m"
             elif i == self.section:
@@ -2443,7 +2447,7 @@ class Deck:
         elif k.isdigit() and 1 <= int(k) <= len(self.views):
             self.choose(int(k) - 1)
         elif k in TAB_KEYS and not (view.focus == "log" and view.copy_cursor):
-            self.choose(TAB_KEYS.index(k))  # shift+first letter; in a log, B and G stay copy-mode keys
+            self.choose(TAB_KEYS.index(k))  # shift+its letter; in a log, B stays a copy-mode key
         elif k == "L":  # reopen beside / above the agent; this process goes with the old pane
             subprocess.Popen([os.path.join(os.path.dirname(os.path.abspath(__file__)), "deck"), "flip", BASE],
                              stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,

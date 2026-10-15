@@ -254,7 +254,8 @@ def section_bar(active):
         rect(col, 0, widths[i], ACCENT[name] if on else "#976870" if new else TAB)  # bin/viewer.py NEW_RGB
         ink = STRIP if on else BRIGHT if new else MUTED
         # The first letter underlined: shift and that letter goes to the tab (bin/viewer.py TAB_KEYS).
-        text(col, 0, [(" ", ink), (name[0], ink, on or new, "u"), (f"{name[1:]} ", ink, on or new),
+        at = 1 if name == "GIT" else 0  # git's key is I (bin/viewer.py TAB_KEYS)
+        text(col, 0, [(" " + name[:at], ink, on or new), (name[at], ink, on or new, "u"), (f"{name[at + 1:]} ", ink, on or new),
                       (icon, STRIP if on else BRIGHT if new else colour, on or new)], end)
         col += widths[i] + 1
         used += widths[i] + 1

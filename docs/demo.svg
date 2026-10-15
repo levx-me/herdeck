@@ -3910,8 +3910,9 @@
 <text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="1349.6" y="71.0" width="58.8" height="19.0" rx="0" fill="#b48ead"/>
-<text x="1358.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">G</text>
-<text x="1366.4" y="84.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">IT</text>
+<text x="1358.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">G</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">I</text>
+<text x="1374.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">T</text>
 <text x="1391.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">✓</text>
 <text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <g class="t t17">
@@ -4278,8 +4279,9 @@
 <text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
 <rect x="1274.0" y="71.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">G</text>
-<text x="1290.8" y="84.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">IT</text>
+<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">G</text>
+<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">I</text>
+<text x="1299.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">T</text>
 <text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
 <rect x="1341.2" y="71.0" width="84.0" height="19.0" rx="0" fill="#d19a66"/>
 <text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">D</text>
