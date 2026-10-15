@@ -26,26 +26,31 @@
 <line x1="14.0" y1="327.5" x2="232.4" y2="327.5" stroke="#3e4451" stroke-width="1"/>
 <text x="14.0" y="350.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">agents</text>
 <text x="165.2" y="350.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">priority</text>
-<rect x="14.0" y="375.0" width="218.4" height="76.0" rx="0" fill="#3e4451"/>
+<rect x="14.0" y="375.0" width="218.4" height="57.0" rx="0" fill="#3e4451"/>
 <text x="14.0" y="388.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">◐</text>
 <text x="30.8" y="388.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">app</text>
 <text x="64.4" y="388.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· feature</text>
-<text x="30.8" y="407.7" textLength="201.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Run the auth tests again</text>
-<text x="30.8" y="426.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">after the expiry fix</text>
-<text x="30.8" y="445.7" textLength="151.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">▰▰▰▱▱ 3/5 · 2m 14s</text>
-<text x="14.0" y="464.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">○</text>
-<text x="30.8" y="464.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">api</text>
-<text x="64.4" y="464.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· main</text>
-<text x="30.8" y="483.7" textLength="193.2" lengthAdjust="spacingAndGlyphs" fill="#585e69">Paginated the users API</text>
-<text x="30.8" y="502.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">▰▰▰▰▰ 4/4</text>
-<text x="14.0" y="521.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">!</text>
-<text x="30.8" y="521.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">web</text>
-<text x="64.4" y="521.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· dev</text>
-<text x="30.8" y="540.7" textLength="126.0" lengthAdjust="spacingAndGlyphs" fill="#585e69">Waiting for you</text>
+<text x="30.8" y="407.7" textLength="201.6" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">feat/refresh · 3 changed</text>
+<text x="30.8" y="426.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">opus-5-5 ·</text>
+<text x="123.2" y="426.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">▰▰▱▱▱ 34%</text>
+<text x="14.0" y="445.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">○</text>
+<text x="30.8" y="445.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">api</text>
+<text x="64.4" y="445.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· main</text>
+<text x="30.8" y="464.7" textLength="126.0" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">main ↑2 · clean</text>
+<text x="30.8" y="483.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sonnet-5-5 ·</text>
+<text x="140.0" y="483.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">▰▰▰▱▱ 58%</text>
+<text x="14.0" y="502.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">!</text>
+<text x="30.8" y="502.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">web</text>
+<text x="64.4" y="502.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· dev</text>
+<text x="30.8" y="521.7" textLength="151.2" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">dev ↓1 · 1 changed</text>
+<text x="30.8" y="540.7" textLength="84.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">opus-5-5 ·</text>
+<text x="123.2" y="540.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">▰▰▰▰▱ 86%</text>
 <text x="14.0" y="559.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">○</text>
 <text x="30.8" y="559.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">docs</text>
 <text x="72.8" y="559.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">· main</text>
-<text x="30.8" y="578.7" textLength="201.6" lengthAdjust="spacingAndGlyphs" fill="#585e69">Wrote the auth flow page</text>
+<text x="30.8" y="578.7" textLength="100.8" lengthAdjust="spacingAndGlyphs" fill="#7aa2c8">main · clean</text>
+<text x="30.8" y="597.7" textLength="92.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">haiku-5-5 ·</text>
+<text x="131.6" y="597.7" textLength="75.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">▰▱▱▱▱ 12%</text>
 <text x="215.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">«</text>
 <rect x="240.8" y="52.0" width="1268.4" height="19.0" rx="0" fill="#21252b"/>
 <rect x="240.8" y="52.0" width="126.0" height="19.0" rx="0" fill="#7aa2c8"/>

@@ -48,12 +48,13 @@ Commands run in the deck get `CI=1` (no watch modes) and `FORCE_COLOR=1`, `CLICO
 
 ## herdr's sidebar
 
-Each open deck reports what its agent is doing to herdr as two pane tokens, renewed while
-the deck is open and gone 20 seconds after it closes:
+A hook (`bin/sidebar`, after each tool call and at the end of each turn) reports each
+agent's repository and context use to herdr as pane tokens, with or without a deck open:
 
-- `$doing`, `$doing2`: the call running, else the agent's latest words, or `Waiting for you`,
-  split at a word over two rows to fit the sidebar.
-- `$progress`: its tasks (`▰▰▰▱▱ 3/5`) and, while it works, the time on the request at hand.
+- `$repo`: the branch, commits not pushed (`↑`) or not pulled (`↓`), files not committed.
+- `$model`: the model.
+- `$ctx`: context used, a bar and a percentage; from 80% on it is `$ctxhot` instead, so
+  the layout can colour it.
 
 Show them in herdr's agents list with a row layout in `~/.config/herdr/config.toml`:
 
@@ -61,9 +62,8 @@ Show them in herdr's agents list with a row layout in `~/.config/herdr/config.to
 [ui.sidebar.agents]
 rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
-  ["$doing"],
-  ["$doing2"],
-  [{ token = "$progress", dim = true }],
+  [{ token = "$repo", fg = "#89b4fa" }],
+  [{ token = "$model", dim = true }, { token = "$ctx", dim = true }, { token = "$ctxhot", fg = "#e06c75", bold = true }],
 ]
 ```
 

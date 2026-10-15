@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Claude Code hook (PostToolUse on any tool, and Stop): hands the event to
+# bin/sidebar.py in the background, so a tool call never waits on it. That
+# reports the agent's repository and context use to herdr's sidebar.
+[ "${HERDR_ENV:-}" = 1 ] && [ -n "${HERDR_PANE_ID:-}" ] || exit 0
+input=$(cat)
+(printf '%s' "$input" | python3 -I "$(dirname "$0")/sidebar.py" >/dev/null 2>&1 &)
+exit 0

@@ -173,18 +173,16 @@ for i, (icon, colour, name, branch, on) in enumerate(spaces):
 text(side, 12, [("new", DIMMED), ("● ".rjust(SB - 8), BLUE), ("menu", DIMMED)], -1)
 line(side, 13.5, -1, 13.5, ACTIVE)
 text(side, 14, [("agents", MUTED), ("priority".rjust(SB - 7), MUTED)], -1)
-# Agent rows as Steading lays them out: what each is doing ($doing) and its tasks and time
-# on the request at hand ($progress), reported by its deck (bin/viewer.py Deck.report).
-# A long $doing wraps onto a second row ($doing2); empty rows are left out, as herdr does.
-crew = [("app", "feature", "◐", AMBER, ["Run the auth tests again", "after the expiry fix"], "▰▰▰▱▱ 3/5 · 2m 14s", True),
-        ("api", "main", "○", GREEN, ["Paginated the users API"], "▰▰▰▰▰ 4/4", False),
-        ("web", "dev", "!", RED, ["Waiting for you"], "", False),
-        ("docs", "main", "○", GREEN, ["Wrote the auth flow page"], "", False)]
+# Agent rows as Steading lays them out: each agent's repository ($repo) and model and
+# context use ($ctx, or $ctxhot in red from 80%), reported by its hook (bin/sidebar).
+crew = [("app", "feature", "◐", AMBER, "feat/refresh · 3 changed", "opus-5-5", "▰▰▱▱▱ 34%", False, True),
+        ("api", "main", "○", GREEN, "main ↑2 · clean", "sonnet-5-5", "▰▰▰▱▱ 58%", False, False),
+        ("web", "dev", "!", RED, "dev ↓1 · 1 changed", "opus-5-5", "▰▰▰▰▱ 86%", True, False),
+        ("docs", "main", "○", GREEN, "main · clean", "haiku-5-5", "▰▱▱▱▱ 12%", False, False)]
 row = 16
-for name, tab, icon, colour, doing, progress, on in crew:
-    lines = [[(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)]]
-    lines += [[("  " + part, TEXT if on else DIMMED)] for part in doing]
-    lines += [[("  " + progress, MUTED)]] if progress else []
+for name, tab, icon, colour, repo, model, ctx, hot, on in crew:
+    lines = [[(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)], [("  " + repo, BLUE)],
+             [("  " + model + " · ", MUTED), (ctx, RED, True) if hot else (ctx, MUTED)]]
     if on:
         rect(side, row, SB - 1, ACTIVE, rows=len(lines))
     for n, spans in enumerate(lines):

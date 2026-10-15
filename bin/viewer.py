@@ -2001,9 +2001,15 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
-SIDEBAR_COLS = 24  # herdr's sidebar is 26 wide by default (ui.sidebar_width), less its margin
 JOB_IDS = {}  # a job's id file: its tool call id (bin/hook writes it once)
 ACTIVITY_SHOWN = 5  # calls in the activity card before "▾ N more"
+
+
+def context_use(d):
+    """(percent of the window used, the window) for a digest. A 1M-window model says so
+    in its name, or has already gone past the usual limit."""
+    limit = 1_000_000 if "[1m]" in (d.requested or "") or d.context > CONTEXT_LIMIT else CONTEXT_LIMIT
+    return (min(100, d.context * 100 // limit) if d.context else 0), limit
 
 
 def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
@@ -2024,9 +2030,7 @@ def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
     if d.thinking_ms >= 100:
         chips.append(f"{fg(MUTED_RGB)}✻ thought {d.thinking_ms / 1000:.1f}s{RESET}")
     usage = [" ".join(chips)]
-    # A 1M-window model says so in its name, or has already gone past the usual limit.
-    limit = 1_000_000 if "[1m]" in (d.requested or "") or d.context > CONTEXT_LIMIT else CONTEXT_LIMIT
-    pct = min(100, d.context * 100 // limit) if d.context else 0
+    pct, limit = context_use(d)
     rgb = GREEN_RGB if pct < 60 else AMBER_RGB if pct < 85 else RED_RGB
     gauge = max(4, min(24, w - 8 - 16))
     usage.append(row("context", f"{bar([(pct, rgb), (100 - pct, TAB_RGB)], gauge)} {fg(rgb)}{pct}%{RESET}"
@@ -2793,9 +2797,6 @@ class Deck:
         for i, view in enumerate(self.views):
             if view.refresh() and i != self.section:
                 self.arrived(i)
-        if time.time() - getattr(self, "reported_at", 0) >= 2 and not getattr(self, "reporting", False):
-            self.reporting, self.reported_at = True, time.time()
-            background(self.report)
         if not getattr(self, "warmed", False):  # once: every tab's rows read ahead, so a first switch is instant
             self.warmed = True
             background(self.warm)
@@ -2811,44 +2812,6 @@ class Deck:
             shared = read(self.shared_path)  # once: another deck may be rewriting it
             if shared in SECTIONS:
                 self.section = SECTIONS.index(shared)
-
-    def report(self):
-        """The agent's lines for herdr's sidebar: what it is doing ($doing, wrapping onto $doing2) and its tasks and
-        time at work ($progress), as pane tokens a ui.sidebar.agents.rows layout can show.
-        Sent when they change, and every 10s to renew them; they lapse 20s after the deck
-        closes, so a closed deck leaves no stale line."""
-        try:
-            main = self.views[0].main
-            agent = read(os.path.join(BASE, "agent"))
-            if not main or not agent:
-                return
-            doing = main.subline()[0].strip()
-            doing = doing[:1].upper() + doing[1:]
-            # Two rows of it, split at a word to fit herdr's sidebar (26 columns by default);
-            # herdr cuts what is still too long.
-            lines = wrap_cells(" ".join(doing.split()), SIDEBAR_COLS) if doing else [""]
-            doing, more = lines[0], " ".join(lines[1:])
-            d, parts = main.digest, []
-            if d.tasks:
-                done, total = sum(1 for _, st in d.tasks.values() if st == "completed"), len(d.tasks)
-                filled = round(5 * done / total)
-                parts.append(f"{'▰' * filled}{'▱' * (5 - filled)} {done}/{total}")
-            if self.views[0].agent_status == "working" and d.request_at:  # time on the request at hand
-                parts.append(took(time.time() - d.request_at))
-            progress = " · ".join(parts)
-            now = (doing, more, progress)
-            if now == getattr(self, "reported", None) and time.time() - getattr(self, "renewed_at", 0) < 10:
-                return
-            args = [os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "report-metadata", agent,
-                    "--source", "steading", "--ttl-ms", "20000"]
-            for name, value in (("doing", doing), ("doing2", more), ("progress", progress)):
-                args += ["--token", f"{name}={value}"] if value else ["--clear-token", name]
-            subprocess.run(args, capture_output=True, timeout=3)
-            self.reported, self.renewed_at = now, time.time()
-        except Exception:  # herdr gone, or an older herdr without tokens: the sidebar keeps its own rows
-            pass
-        finally:
-            self.reporting = False
 
     def warm(self):
         """Read what each tab's rows show (status, age, label, info) in the background,

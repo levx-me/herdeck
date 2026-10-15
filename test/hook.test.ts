@@ -777,46 +777,35 @@ esac
 });
 
 describe("herdr sidebar tokens", () => {
-  test("a deck reports what its agent is doing and its tasks as $doing, $doing2 and $progress", () => {
-    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs");
+  test("the hook reports the agent's repository and context use, once per 3s, and skips subagents", () => {
+    const { mkdtempSync, writeFileSync, readFileSync, existsSync, chmodSync } = require("node:fs");
     const { tmpdir } = require("node:os");
-    const dir = mkdtempSync(join(tmpdir(), "steading-report-"));
-    const base = join(dir, "w1_p1");
-    mkdirSync(base, { recursive: true });
-    writeFileSync(join(base, "agent"), "w1:p1\n");
-    const main = join(dir, "s1.jsonl");
-    const at = new Date().toISOString();
-    const rows = [
-      { type: "user", timestamp: at, message: { content: "fix the tests" } },
-      { type: "assistant", timestamp: at, message: { content: [
-        { type: "tool_use", id: "c1", name: "TaskCreate", input: { subject: "One" } },
-        { type: "tool_use", id: "c2", name: "Bash", input: { command: "bun test", description: "run the auth tests again after the expiry fix" } }] } },
-    ];
-    writeFileSync(main, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
-    const check = `
-import sys, time
-from importlib.machinery import SourceFileLoader
-args = sys.argv[1:]; sys.argv = sys.argv[:1]
-v = SourceFileLoader("v", args[0]).load_module()
-v.background = lambda fn, *a: fn(*a)
-sent = []
-v.subprocess.run = lambda a, **k: sent.append(a) or v.subprocess.CompletedProcess(a, 1, "", "")
-deck = v.Deck()
-a = deck.views[0]
-a.find_session = lambda: None
-a.session, a.agent_status = args[1], "working"
-a.refresh()
-deck.reported_at = 0
-deck.refresh()
-r = [x for x in sent if "report-metadata" in x][-1]
-print(r[3], [t for t in r if t.startswith(("doing=", "doing2=", "progress="))])
-`;
-    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
-      env: { PATH: process.env.PATH!, STEADING_BASE: base },
-    });
-    expect(r.stderr.toString()).toBe("");
-    const out = r.stdout.toString().trim();
-    // Wrapped at a word to fit the sidebar's 24 columns, the rest on the second row.
-    expect(out).toStartWith("w1:p1 ['doing=Run the auth tests again', 'doing2=after the expiry fix', 'progress=▱▱▱▱▱ 0/1 · ");
+    const dir = mkdtempSync(join(tmpdir(), "steading-sidebar-"));
+    writeFileSync(join(dir, "herdr"), `#!/bin/sh\necho "$@" >> ${dir}/calls\n`);
+    chmodSync(join(dir, "herdr"), 0o755);
+    const transcript = join(dir, "s1.jsonl");
+    const usage = (input: number) => JSON.stringify({ type: "assistant", timestamp: new Date().toISOString(),
+      message: { id: `m${input}`, model: "claude-opus-5-5", content: [{ type: "text", text: "ok" }],
+        usage: { input_tokens: input, cache_read_input_tokens: 0, output_tokens: 10 } } });
+    writeFileSync(transcript, [usage(1000), usage(170000)].join("\n") + "\n");
+    Bun.spawnSync(["git", "init", "-q", join(dir, "repo")]);
+    writeFileSync(join(dir, "repo", "a.txt"), "x");
+    const env = { PATH: process.env.PATH!, TMPDIR: dir, HERDR_ENV: "1", HERDR_PANE_ID: "w1:p1", HERDR_BIN_PATH: join(dir, "herdr") };
+    const hook = (event: object) =>
+      Bun.spawnSync(["python3", "-I", join(root, "bin/sidebar.py")], { env, stdin: Buffer.from(JSON.stringify(event)) });
+    const event = { hook_event_name: "PostToolUse", cwd: join(dir, "repo"), transcript_path: transcript };
+    hook(event);
+    hook(event); // within 3s: skipped
+    hook({ ...event, agent_id: "sub" }); // a subagent: skipped
+    const calls = readFileSync(join(dir, "calls"), "utf8").trim().split("\n");
+    expect(calls.length).toBe(1);
+    // 170k of 200k: 85%, past 80%, so it goes out as $ctxhot.
+    expect(calls[0]).toContain("--token repo=");
+    expect(calls[0]).toContain("1 changed");
+    expect(calls[0]).toContain("--token model=opus-5-5");
+    expect(calls[0]).toContain("--clear-token ctx --token ctxhot=▰▰▰▰▱ 85%");
+    hook({ ...event, hook_event_name: "Stop" }); // the end of a turn always reports
+    expect(readFileSync(join(dir, "calls"), "utf8").trim().split("\n").length).toBe(2);
+    expect(existsSync(join(dir, "steading", "w1_p1", "sidebar"))).toBe(true);
   });
 });

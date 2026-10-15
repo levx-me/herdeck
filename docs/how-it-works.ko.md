@@ -48,12 +48,12 @@ deck에서 실행되는 명령에는 `CI=1`(watch 모드 끔)과 `FORCE_COLOR=1`
 
 ## herdr 사이드바
 
-열려 있는 deck은 에이전트가 하는 일을 herdr에 두 개의 pane 토큰으로 알려 줍니다. deck이 열려
-있는 동안 갱신되고, 닫히면 20초 뒤 사라집니다.
+훅(`bin/sidebar`, 도구 호출마다와 턴이 끝날 때)이 각 에이전트의 저장소 상태와 컨텍스트 사용량을
+herdr에 pane 토큰으로 알려 줍니다. deck이 열려 있지 않아도 됩니다.
 
-- `$doing`, `$doing2`: 실행 중인 호출, 없으면 에이전트의 마지막 말, 또는 `Waiting for you`.
-  사이드바 폭에 맞게 단어 단위로 두 줄에 나눕니다.
-- `$progress`: 할 일 진행(`▰▰▰▱▱ 3/5`)과, 일하는 동안 지금 요청에 쓴 시간.
+- `$repo`: 브랜치, 안 올린 커밋(`↑`)과 안 받은 커밋(`↓`), 커밋 안 한 파일 수.
+- `$model`: 모델.
+- `$ctx`: 컨텍스트 사용량(막대와 퍼센트). 80%부터는 `$ctxhot`으로 바뀌어 행 구성에서 색을 줄 수 있습니다.
 
 `~/.config/herdr/config.toml`의 행 구성으로 herdr agents 목록에 보이게 합니다.
 
@@ -61,9 +61,8 @@ deck에서 실행되는 명령에는 `CI=1`(watch 모드 끔)과 `FORCE_COLOR=1`
 [ui.sidebar.agents]
 rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
-  ["$doing"],
-  ["$doing2"],
-  [{ token = "$progress", dim = true }],
+  [{ token = "$repo", fg = "#89b4fa" }],
+  [{ token = "$model", dim = true }, { token = "$ctx", dim = true }, { token = "$ctxhot", fg = "#e06c75", bold = true }],
 ]
 ```
 
