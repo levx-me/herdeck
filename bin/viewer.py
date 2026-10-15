@@ -2685,8 +2685,9 @@ class Deck:
         # Open on whichever is newer: the section that asked for this deck, or
         # the one last picked anywhere.
         latest = self.focus_path if self.focus_at > self.shared_at else self.shared_path
-        if read(latest) in SECTIONS:
-            self.section = SECTIONS.index(read(latest))
+        first = read(latest)  # once: another deck may be rewriting it
+        if first in SECTIONS:
+            self.section = SECTIONS.index(first)
 
     @staticmethod
     def mtime(path):
@@ -2801,13 +2802,15 @@ class Deck:
         at = self.mtime(self.focus_path)
         if at != self.focus_at:  # a section was asked for (e.g. a dev server started)
             self.focus_at = at
-            if read(self.focus_path) in SECTIONS and SECTIONS.index(read(self.focus_path)) != self.section:
-                self.arrived(SECTIONS.index(read(self.focus_path)))
+            focus = read(self.focus_path)  # once, as above
+            if focus in SECTIONS and SECTIONS.index(focus) != self.section:
+                self.arrived(SECTIONS.index(focus))
         at = self.mtime(self.shared_path)
         if at != self.shared_at:  # picked by hand in another deck
             self.shared_at = at
-            if read(self.shared_path) in SECTIONS:
-                self.section = SECTIONS.index(read(self.shared_path))
+            shared = read(self.shared_path)  # once: another deck may be rewriting it
+            if shared in SECTIONS:
+                self.section = SECTIONS.index(shared)
 
     def report(self):
         """The agent's lines for herdr's sidebar: what it is doing ($doing, wrapping onto $doing2) and its tasks and
