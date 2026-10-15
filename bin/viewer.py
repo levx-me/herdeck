@@ -2797,6 +2797,14 @@ class Deck:
         if frame == self.last_frame:  # nothing changed: leave the screen alone
             return
         self.last_frame = frame
+        # Kept for the next deck of this agent at this size: it shows it at once (see shown_cached).
+        if time.time() - getattr(self, "cached_at", 0) > 2:
+            self.cached_at = time.time()
+            try:
+                with open(frame_cache(), "w") as f:
+                    f.write(frame)
+            except OSError:
+                pass
         # Synchronized output: terminals that support it show the frame at once.
         sys.stdout.write("\033[?2026h\033[H" + frame + "\033[?2026l")
         sys.stdout.flush()
@@ -2899,6 +2907,24 @@ def legacy(key):
     return chr(code)
 
 
+def frame_cache():
+    """The last frame a deck of this agent drew at this pane size."""
+    cols, rows = shutil.get_terminal_size()
+    return os.path.join(BASE, f"frame-{cols}x{rows}")
+
+
+def shown_cached():
+    """Show the last frame drawn at this size (a day old at most) while the runs load:
+    a deck reopened, or moved by L, is not blank for its first second."""
+    try:
+        if time.time() - os.path.getmtime(frame_cache()) < 86400:
+            with open(frame_cache()) as f:
+                sys.stdout.write("\033[?2026h\033[H" + f.read() + "\033[?2026l")
+                sys.stdout.flush()
+    except OSError:
+        pass
+
+
 def main():
     deck = Deck()
     me = os.path.abspath(__file__)
@@ -2916,6 +2942,7 @@ def main():
     # Kitty keyboard protocol, disambiguate only: esc then comes as its own sequence, so
     # nothing on the way (herdr, the terminal) has to wait to tell it from an arrow key.
     sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1002h\033[?1006h\033[>1u\033[?1004h")  # 1004: focus in/out reports
+    shown_cached()
     try:
         tty.setcbreak(fd)
         while True:
