@@ -12,7 +12,7 @@ the agent's other commands that ran 10s or more (bin/hook, bin/job), live from
 Claude Code's own output file while they run.
 
 Keys: [ ] (or tab/shift-tab) and 1-7 switch sections,
-q close the pane, L reopen it on the other side of the agent (right or above). In a run section j/k pick a run from the list and enter (or l)
+ctrl+c closes the pane (q only leaves a log), L reopens it on the other side of the agent (right or above). In a run section j/k pick a run from the list and enter (or l)
 moves into its output; esc comes back. The output takes herdr's copy-mode keys: h j k l, w b e, W B E,
 0 ^ $, { }, gg G, ctrl-d/u, v V select, y yank (the line when nothing is
 selected), / ? search, n N repeat, esc cancel. Servers work the same way, their
@@ -1238,7 +1238,7 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
         return [("hjkl w b", "move"), ("tab", "command/log"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"),
                 ("esc/q", "back")]
 
@@ -1476,7 +1476,7 @@ class Servers(Runs):
 
     def hints(self):
         if self.focus == "list" and self.search is None:
-            return [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
+            return [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
         return super().hints()
 
     def list_key(self, k):
@@ -2245,7 +2245,7 @@ class Agents(Runs):
             if not self.controls():
                 return [("j/k", "scroll"), ("esc/q", "back")]
             return [("j/k", "move"), ("enter", "press"), ("esc/q", "back")]
-        return [("j/k", "select"), ("enter", "detail"), ("L", "side"), ("[ ]", "tabs"), ("q", "close")]
+        return [("j/k", "select"), ("enter", "detail"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
 
 
 class Deck:
@@ -2475,9 +2475,11 @@ def main():
                         key = legacy(key)
                         view = deck.views[deck.section]
                         typing = getattr(view, "search", None) is not None
+                        if key == "\x03":  # ctrl+c, when the keyboard protocol sends it as a key, not a signal
+                            return
                         if key == "q" and not typing:
                             if getattr(view, "focus", "list") != "log":
-                                return
+                                continue  # a stray q no longer closes the deck: ctrl+c (or prefix+t) does
                             key = "\x1b"  # in a log, q goes back to the list as esc does
                         deck.key(key if typing else ARROWS.get(key, key))
             except Exception:  # nor a key that trips something

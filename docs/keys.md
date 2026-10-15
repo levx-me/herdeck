@@ -31,7 +31,7 @@ apply right now.
 | anywhere | `[` `]` (and, outside a log, `tab` `shift+tab`), `1`–`7` | previous / next tab, jump to one |
 | | `A` `J` `S` `B` `T` `G` `D` | jump to a tab by its underlined first letter (not inside a log, where `B` and `G` move the cursor) |
 | | `L` | move the deck to the other side of the agent |
-| | `q` | close the deck (in a log: back to the list) |
+| | `ctrl+c` | close the deck (`q` only goes back from a log to the list, so a stray `q` closes nothing) |
 | run list | `j` `k` (or `↓` `↑`), `gg` | pick a run (newest on top), the newest |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |

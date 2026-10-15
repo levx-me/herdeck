@@ -470,10 +470,10 @@ def scene_agents():
             [("   ai › ", ACCENT["AGENTS"]), ("Fixing the expiry check and running", TEXT)],
             [("        ", MUTED), ("the tests again.", TEXT)]]),
     ])
-    hints([("j/k", "select"), ("L", "side"), ("[ ]", "sections"), ("q", "close")])  # nothing to press here
+    hints([("j/k", "select"), ("L", "side"), ("[ ]", "sections"), ("ctrl+c", "close")])  # nothing to press here
 
 
-RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "sections"), ("q", "close")]
+RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "sections"), ("ctrl+c", "close")]
 
 
 def scene_jobs():
