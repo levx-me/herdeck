@@ -461,17 +461,12 @@ def scene_agents():
              ("■ ", AMBER), ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)]]),
         *card("now", [
             [("Fixing the expiry check, then the tests.", BRIGHT), ("19:42".rjust(D - 8 - 41), MUTED)],
-            [(SPIN, AMBER), (" Run the auth tests", TEXT), (lambda t: f"{12 + t}s".rjust(D - 8 - 20), MUTED)],
-            [("✓ ", GREEN), ("Editing src/middleware/auth.ts", MUTED)],
-            [("✓ ", GREEN), ("Reading src/auth/refresh.ts", MUTED)]]),
-        *card("jobs · 3", [
-            [("Wait for the API to answer", TEXT)],
-            [(" " * 25, MUTED), (SPIN, AMBER), (lambda t: f" running {9 + t}s".ljust(13), MUTED),
+            [(SPIN, AMBER), (" Run the auth tests", BRIGHT), (lambda t: f"{12 + t}s".rjust(D - 8 - 20), MUTED)],
+            [("✓ ", GREEN), ("Wait for the API to answer", MUTED), (" " * (D - 8 - 2 - 26 - 11), MUTED),
              (" ↗ jobs #3 ", ACCENT["JOBS"], False, None, TAB)],
-            [("Install Playwright's Chromium", TEXT)],
-            [(" " * 23, MUTED), ("✓", GREEN), (" 72s · 4m ago  ", MUTED), (" ↗ jobs #2 ", ACCENT["JOBS"], False, None, TAB)],
-            [("Seed the dev database", TEXT)],
-            [(" " * 22, MUTED), ("✓", GREEN), (" 48s · 26m ago  ", MUTED), (" ↗ jobs #1 ", ACCENT["JOBS"], False, None, TAB)]]),
+            [("✓ ", GREEN), ("Editing src/middleware/auth.ts", MUTED)],
+            [("✓ ", GREEN), ("Reading src/auth/refresh.ts", MUTED)],
+            [(" ▾ 18 more ", ACCENT["AGENTS"], False, None, TAB)]]),
         *card("tasks 3/5", [
             [("✓ ", GREEN), ("Add the refresh-token store", TEXT)],
             [("✓ ", GREEN), ("Rotate on every refresh", TEXT)],

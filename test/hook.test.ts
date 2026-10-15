@@ -572,7 +572,7 @@ print(*(r.id for r in reversed(s.runs)))  # top down, as drawn
     expect(r.stdout.toString().trim()).toBe("main p2 p1 k1 g1");
   });
 
-  test("the agent's detail shows its running job, and enter on it goes to the jobs tab", () => {
+  test("the now card shows a call that ran long with a button to its output in the jobs tab", () => {
     const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
     const main = join(dir, "s1.jsonl");
     const job = join(dir, "base", "jobs", "runs", "1");
@@ -595,16 +595,17 @@ went = []
 s.jump = lambda kind, path: went.append((kind, path))
 m = s.runs[-1]
 lines = m.plain()
-at = next(n for n, l in enumerate(lines) if "─ jobs ·" in l)  # the jobs card
-print(lines[at + 1].strip("│ "))                       # its label, whole
-print(lines[at + 2].strip("│ ").split()[-2:])          # under it: the way to the jobs tab
-print(m.activate(lines[at + 2]), went[0][0], went[0][1] == args[2])
+row = next(l for l in lines if "↗ jobs #1" in l)       # the call, in the now card, with its button
+print(row.strip("│ ").split("  ")[0])
+print(m.activate(row), went[0][0], went[0][1] == args[2])
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main, job], {
       env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
     });
     expect(r.stderr.toString()).toBe("");
-    expect(r.stdout.toString().trim().split("\n")).toEqual(["Wait for the API to answer", "['jobs', '#1']", "True jobs True"]);
+    const [row, went] = r.stdout.toString().trim().split("\n");
+    expect(row).toEndWith("sleep 60"); // the call as a phrase, its spinner before it
+    expect(went).toBe("True jobs True");
   });
 });
 

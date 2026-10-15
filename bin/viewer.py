@@ -1685,7 +1685,7 @@ class Digest:
         self.outputs = []                      # (time, output tokens) per reply, the last few minutes
         self.seen_messages = set()
         self.open, self.last_tool = {}, None   # tool calls without a result; the latest call
-        self.recent = []                       # [id, phrase, started, "" | "ok" | "error"], the last few calls
+        self.recent = []                       # [id, phrase, started, "" | "ok" | "error"] per call, oldest first
         self.says_at = None                    # when it last said something
         self.called = set()                    # every tool call id it made (its jobs are among them)
         self.says = ""
@@ -1751,7 +1751,7 @@ class Digest:
             self.open[b.get("id")] = (name, what, self.last)
             self.called.add(b.get("id"))
             self.last_tool = (name, what, self.last)
-            self.recent = self.recent[-5:] + [[b.get("id"), what, self.last, ""]]
+            self.recent = self.recent[-500:] + [[b.get("id"), what, self.last, ""]]  # all it did, bounded
             kind = TOOL_KINDS.get(name, "other")
             self.kinds[kind] = self.kinds.get(kind, 0) + 1
             if name == "TaskCreate":
@@ -1813,7 +1813,7 @@ def bar(parts, width):
     return out + f"{fg(TAB_RGB)}{'░' * (width - used)}{RESET}"
 
 
-JOBS_FOLD = re.compile(r"▾ \d+ more jobs?|▴ fewer jobs")
+NOW_FOLD = re.compile(r"▾ \d+ more|▴ fewer")
 
 
 def button(text, rgb, focused):
@@ -1835,9 +1835,12 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
-def dashboard(d, cols, main, title="", jobs=(), focus=None, hidden=0, jobs_open=False):
+NOW_SHOWN = 5  # calls in the now card before "▾ N more"
+
+
+def dashboard(d, cols, main, title="", links=None, focus=None, now_open=False):
     """Everything known about an agent, in cards: what it is (session or task), model
-    and usage, its jobs, and tasks. A card with nothing is left out."""
+    and usage, what it is doing and did (now), and tasks. A card with nothing is left out."""
     w = max(16, cols - 4)  # inside a card
     wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<8}{RESET}{value}"
@@ -1876,7 +1879,9 @@ def dashboard(d, cols, main, title="", jobs=(), focus=None, hidden=0, jobs_open=
         if used:
             usage.append(row("", line))
     out += card("model", usage, cols)
-    # Now: its latest words (the step it said it is on), the calls running, the last few done.
+    # Now: its latest words (the step it said it is on), then what it did, newest first: the last
+    # few, or all of it unfolded. A call that ran long has a button to its output in the jobs tab.
+    links = links or {}
     now = []
     lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
     said = next((l for l in lines if l), "")
@@ -1884,25 +1889,24 @@ def dashboard(d, cols, main, title="", jobs=(), focus=None, hidden=0, jobs_open=
         when = time.strftime("%H:%M", time.localtime(d.says_at)) if d.says_at else ""
         said = cut(said, w - len(when) - 2)
         now.append(f"{fg(BRIGHT_RGB)}{said}{RESET}{' ' * max(2, w - cells(said) - len(when))}{fg(MUTED_RGB)}{when}{RESET}")
-    for call_id, phrase, started, state in reversed(d.recent):
-        if state:
-            mark = f"{fg(GREEN_RGB)}✓" if state == "ok" else f"{fg(RED_RGB)}✗"
-            now.append(f"{mark}{RESET} {fg(MUTED_RGB)}{cut(phrase, w - 2)}{RESET}")
-        else:
-            since = took(time.time() - started) if started else ""
-            now.append(f"{fg(AMBER_RGB)}{spinner()}{RESET} {cut(phrase, w - 3 - len(since))}{fg(MUTED_RGB)}"
-                       f"{' ' * max(1, w - 2 - cells(cut(phrase, w - 3 - len(since))) - len(since))}{since}{RESET}")
-        if len(now) >= 5:
-            break
+    calls = list(reversed(d.recent))
+    shown = calls if now_open else calls[:NOW_SHOWN]
+    for call_id, phrase, started, state in shown:
+        path = links.get(call_id)
+        link = f"↗ jobs #{os.path.basename(path)}" if path else ""
+        right = f"{took(time.time() - started)}" if not state and started else ""
+        room = w - 2 - (len(link) + 3 if link else 0) - (len(right) + 1 if right else 0)
+        text = cut(phrase, max(4, room))
+        mark = f"{fg(AMBER_RGB)}{spinner()}" if not state else f"{fg(GREEN_RGB)}✓" if state == "ok" else f"{fg(RED_RGB)}✗"
+        ink = BRIGHT_RGB if not state else MUTED_RGB
+        tail = (f"{fg(MUTED_RGB)}{right}{RESET} " if right else "") + (button(link, ACCENT["jobs"], focus == path) if link else "")
+        pad = w - 2 - cells(text) - visible_len(tail)
+        now.append(f"{mark}{RESET} {fg(ink)}{text}{RESET}{' ' * max(1, pad)}{tail}")
+    if len(calls) > NOW_SHOWN:  # enter or a click there unfolds or folds it
+        more = len(calls) - NOW_SHOWN
+        now.append(button("▴ fewer" if now_open else f"▾ {more} more", ACCENT["agents"], focus == "now-fold"))
     if now:
         out += card("now", now, cols)
-    # The jobs it ran, as the jobs tab lists them; enter or a click goes to one there.
-    if jobs:
-        rows = [line for lines in jobs for line in lines]
-        if hidden:  # enter or a click there shows them all, or folds them again
-            control = "▴ fewer jobs" if jobs_open else f"▾ {hidden} more job{'s' * (hidden != 1)}"
-            rows.append(button(control, ACCENT["jobs"], focus == "jobs-fold"))
-        out += card(f"jobs · {len(jobs) + (0 if jobs_open else hidden)}", rows, cols)
     # tasks
     if d.tasks:
         done = sum(1 for _, st in d.tasks.values() if st == "completed")
@@ -2053,52 +2057,27 @@ class AgentRun(Run):
             return "running", colour, icon, f"for {took(time.time() - stamps[0])}"
         return "idle", MUTED_RGB, icon, ""
 
-    JOBS_SHOWN = 4  # jobs in the card before "▾ N more"
-
-    def jobs(self, focus=None):
-        """(its link text, its rows, run path) for the jobs it ran, as the jobs tab lists them:
-        those running first, then the newest; JOBS_SHOWN of them unless unfolded. The one
-        whose path is focus has its button lit."""
-        mine = []
+    def job_links(self):
+        """{tool call id: run path} for its calls the jobs tab lists (the ones that ran long),
+        so the now card can lead to their output."""
+        links = {}
         for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
-            path = os.path.dirname(idfile)
-            if read(idfile) in self.digest.called and Jobs.shows(path):
-                job = JobRun(path)
-                running = job.status()[1] == AMBER_RGB
-                mine.append((not running, -int(read(os.path.join(path, "start"), "0") or 0), path, job))
-        mine.sort()
-        self.jobs_hidden = max(0, len(mine) - self.JOBS_SHOWN)
-        if not getattr(self, "jobs_open", False):
-            mine = mine[:self.JOBS_SHOWN]
-        out, self.job_labels = [], {}
-        w = max(16, self.cols - 4)  # inside its card
-        for _, _, path, job in mine:
-            icon, colour = job.status()
-            # Its label whole, then under it, to the right: state, how long (and when) and the way to it.
-            when = job.age() if colour == AMBER_RGB else \
-                f"{int(job.end() or time.time()) - int(read(os.path.join(path, 'start'), '0') or 0)}s · {job.age()}"
-            link = f"↗ jobs #{os.path.basename(path)}"
-            status = f"{icon} {when}   {link} "
-            lines = wrap_cells(job.label(), w)
-            if len(lines) > 2:  # two lines at most, … where it goes on
-                lines = [lines[0], cut(lines[1], w - 1) + ("" if cells(lines[1]) >= w - 1 else "…")]
-            lines.append(" " * max(0, w - cells(status)) + f"{fg(colour)}{icon}{fg(MUTED_RGB)} {when}  "
-                         + button(link, ACCENT["jobs"], focus == path))
-            out.append((link, lines, path))
-            self.job_labels[job.label()[:24]] = path
-        return out
+            call = read(idfile)
+            if call in self.digest.called and Jobs.shows(os.path.dirname(idfile)):
+                links[call] = os.path.dirname(idfile)
+        return links
 
     def lines(self):
         self.count()
         name, colour, icon, since = self.state()
         since = "  ".join(x for x in (since, rate(self.digest)) if x)
         focus = getattr(self, "focus_key", None)  # the control the cursor is on (Agents sets it)
-        jobs = self.jobs(focus)
+        links = self.job_links()
         # Found again by "↗ jobs #n": its rows are redrawn (spinner, time) between frames.
-        self.job_rows = {link: path for link, _, path in jobs}
+        self.job_rows = {f"↗ jobs #{os.path.basename(path)}": path for path in links.values()}
         out = status_block(name, colour, icon, since, self.stamps, self.cols) + \
             dashboard(self.digest, self.cols, isinstance(self, MainRun), self.label().strip(),
-                      [lines for _, lines, _ in jobs], focus, self.jobs_hidden, getattr(self, "jobs_open", False))
+                      links, focus, getattr(self, "now_open", False))
         # Its controls, in order, with the row each is on: the keyboard moves between these.
         self.controls = []
         for n, line in enumerate(out):
@@ -2106,24 +2085,24 @@ class AgentRun(Run):
             job = next((p for link, p in self.job_rows.items() if link in text), None)
             if job:
                 self.controls.append((job, n))
-            elif JOBS_FOLD.search(text):
-                self.controls.append(("jobs-fold", n))
+            elif NOW_FOLD.search(text):
+                self.controls.append(("now-fold", n))
         return out
 
     def press(self, key):
-        """enter on the control key: a job goes to the jobs tab; the fold shows all its jobs or fewer."""
-        if key == "jobs-fold":
-            self.jobs_open = not getattr(self, "jobs_open", False)
+        """enter on the control key: a job goes to its output in the jobs tab; the fold shows
+        everything the agent did, or the last few again."""
+        if key == "now-fold":
+            self.now_open = not getattr(self, "now_open", False)
         elif getattr(self.deck, "jump", None):
             self.deck.jump("jobs", key)
 
     def activate(self, line):
-        """A click on a job goes to it in the jobs tab; on the fold, all its jobs or fewer."""
-        if JOBS_FOLD.search(line):
-            self.press("jobs-fold")
+        """A click on a job's button goes to its output in the jobs tab; on the fold, all or fewer."""
+        if NOW_FOLD.search(line):
+            self.press("now-fold")
             return True
-        job = next((p for link, p in getattr(self, "job_rows", {}).items() if link in line), None) or \
-            next((p for label, p in getattr(self, "job_labels", {}).items() if label and label in line), None)
+        job = next((p for link, p in getattr(self, "job_rows", {}).items() if link in line), None)
         if job and getattr(self.deck, "jump", None):
             self.deck.jump("jobs", job)
             return True
