@@ -437,10 +437,10 @@ def scene_agents():
     # The heartbeat scrolls left a column a second, new beats coming in at the right.
     beats, rates = heartbeat(CYCLE + D - 2)
     row = run_box([(SPIN, AMBER, "add refresh tokens to the auth middleware", "opus-5-5"),
-                   ("", AMBER, "  Bash npm test", [("▰▰▰", GREEN), ("▱▱", DIMMED), (" 3/5  ", MUTED),
+                   ("", AMBER, "  Run the auth tests", [("▰▰▰", GREEN), ("▱▱", DIMMED), (" 3/5  ", MUTED),
                                                     (lambda t: took(134 + t).rjust(6), MUTED)]),
                    (SPIN, AMBER, "  Map the auth tests", "haiku-5-5"),
-                   ("", AMBER, "    Read src/auth/refresh.test.ts", [(lambda t: took(38 + t).rjust(6), MUTED)])],
+                   ("", AMBER, "    Reading src/auth/refresh.test.ts", [(lambda t: took(38 + t).rjust(6), MUTED)])],
                   ACCENT["AGENTS"], "agents")
     rect(d0 + 3, row + 1, 11, AMBER)  # the WORKING pill, inside the run's box
     body(row, [
@@ -459,6 +459,11 @@ def scene_agents():
             [("tools   ", MUTED), *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)],
             [("        ", MUTED), ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED),
              ("■ ", AMBER), ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)]]),
+        *card("now", [
+            [("Fixing the expiry check, then the tests.", BRIGHT), ("19:42".rjust(D - 8 - 41), MUTED)],
+            [(SPIN, AMBER), (" Run the auth tests", TEXT), (lambda t: f"{12 + t}s".rjust(D - 8 - 20), MUTED)],
+            [("✓ ", GREEN), ("Editing src/middleware/auth.ts", MUTED)],
+            [("✓ ", GREEN), ("Reading src/auth/refresh.ts", MUTED)]]),
         *card("jobs · 3", [
             [("Wait for the API to answer", TEXT)],
             [(" " * 25, MUTED), (SPIN, AMBER), (lambda t: f" running {9 + t}s".ljust(13), MUTED),

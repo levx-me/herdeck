@@ -630,6 +630,30 @@ for log in [[" 131 pass", " 0 fail"], ["=== 1 failed, 44 passed in 0.1s ==="], [
   });
 });
 
+describe("an agent's calls read as phrases", () => {
+  test("a command's description, else a verb and what it works on", () => {
+    const check = `
+import sys
+from importlib.machinery import SourceFileLoader
+sys.argv = ["v", "/tmp"]
+v = SourceFileLoader("v", "${join(root, "bin/viewer.py")}").load_module()
+for name, args in [("Bash", {"command": "cd x; python3 - <<'EOF'", "description": "Fix the dedupe"}),
+                   ("Bash", {"command": "pnpm test\\necho done"}),
+                   ("Read", {"file_path": "/repo/lib/llm.ts"}),
+                   ("Grep", {"pattern": "NAMES", "path": "/repo/lib"}),
+                   ("WebFetch", {"url": "https://docs.anthropic.com/en/batch"}),
+                   ("Agent", {"description": "Map the tests"})]:
+    print(v.tool_summary(name, args, "/repo"))
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check]);
+    expect(r.stderr.toString()).toBe("");
+    expect(r.stdout.toString().trim().split("\n")).toEqual([
+      "Fix the dedupe", "pnpm test", "Reading lib/llm.ts", "Searching for NAMES in lib",
+      "Reading docs.anthropic.com", "Handing off: Map the tests",
+    ]);
+  });
+});
+
 describe("jobs: other commands followed while they run", () => {
   const { mkdtempSync, readFileSync, existsSync, writeFileSync, rmSync } = require("node:fs");
   const { tmpdir } = require("node:os");

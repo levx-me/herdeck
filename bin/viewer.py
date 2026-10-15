@@ -39,6 +39,7 @@ import time
 import traceback
 import tty
 import unicodedata
+import urllib.parse
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
@@ -1637,16 +1638,40 @@ CONTEXT_LIMIT = 200_000  # tokens; a "[1m]" model has 1,000,000
 
 
 def tool_summary(name, args, cwd=""):
-    """One line for a tool call, picked as zoetrope does: the field that says what it does."""
+    """A tool call as a phrase a person reads: a command's own description (Claude writes one
+    for nearly every Bash call), else what the call works on, behind a verb."""
     if not isinstance(args, dict):
-        return ""
+        return name
     pick = lambda *keys: next((str(args[k]) for k in keys if isinstance(args.get(k), str) and args[k]), "")
-    if name in ("Read", "Write", "Edit", "MultiEdit", "NotebookEdit"):
-        path = pick("file_path", "path", "notebook_path")
-        return os.path.relpath(path, cwd) if cwd and path.startswith(cwd + "/") else path
+    path = pick("file_path", "path", "notebook_path")
+    if cwd and path.startswith(cwd + "/"):
+        path = os.path.relpath(path, cwd)
     if name == "Bash":
-        return pick("command", "description")
-    return pick("description", "subagent_type", "pattern", "url", "query", "prompt", "command", "path", "subject")
+        return pick("description") or (pick("command").splitlines() or [""])[0]
+    verbs = {"Read": "Reading", "Write": "Writing", "Edit": "Editing", "MultiEdit": "Editing",
+             "NotebookEdit": "Editing"}
+    if name in verbs:
+        return f"{verbs[name]} {path}"
+    if name == "Grep":
+        return f"Searching for {pick('pattern')}" + (f" in {path}" if path else "")
+    if name == "Glob":
+        return f"Finding {pick('pattern')}"
+    if name == "WebFetch":
+        return f"Reading {urllib.parse.urlparse(pick('url')).netloc or pick('url')}"
+    if name == "WebSearch":
+        return f"Searching the web: {pick('query')}"
+    if name in ("Agent", "Task"):
+        return f"Handing off: {pick('description', 'prompt')}"
+    if name == "TaskCreate":
+        return f"Adding a task: {pick('subject')}"
+    if name == "TaskUpdate":
+        return f"Task {pick('taskId')}: {pick('status') or 'updated'}"
+    if name == "ToolSearch":
+        return "Loading tools"
+    if name == "Skill":
+        return f"Using the {pick('skill', 'name')} skill"
+    detail = pick("description", "subagent_type", "pattern", "url", "query", "prompt", "command", "path", "subject")
+    return f"{name} {detail}".strip()
 
 
 class Digest:
@@ -1660,6 +1685,8 @@ class Digest:
         self.outputs = []                      # (time, output tokens) per reply, the last few minutes
         self.seen_messages = set()
         self.open, self.last_tool = {}, None   # tool calls without a result; the latest call
+        self.recent = []                       # [id, phrase, started, "" | "ok" | "error"], the last few calls
+        self.says_at = None                    # when it last said something
         self.called = set()                    # every tool call id it made (its jobs are among them)
         self.says = ""
         self.tasks, self.task_seq = {}, 0      # TaskCreate / TaskUpdate (TodoWrite too)
@@ -1691,6 +1718,9 @@ class Digest:
             for b in content if isinstance(content, list) else []:
                 if isinstance(b, dict) and b.get("type") == "tool_result":
                     self.open.pop(b.get("tool_use_id"), None)
+                    for call in self.recent:
+                        if call[0] == b.get("tool_use_id"):
+                            call[3] = "error" if b.get("is_error") else "ok"
                     self.results[b.get("tool_use_id")] = bool(b.get("is_error"))
             return
         if row.get("type") != "assistant":
@@ -1710,7 +1740,7 @@ class Digest:
             if not isinstance(b, dict):
                 continue
             if b.get("type") == "text" and b.get("text", "").strip():
-                self.says = b["text"].strip()
+                self.says, self.says_at = b["text"].strip(), self.last
             if b.get("type") != "tool_use":
                 continue
             name, args = b.get("name", ""), b.get("input") or {}
@@ -1721,6 +1751,7 @@ class Digest:
             self.open[b.get("id")] = (name, what, self.last)
             self.called.add(b.get("id"))
             self.last_tool = (name, what, self.last)
+            self.recent = self.recent[-5:] + [[b.get("id"), what, self.last, ""]]
             kind = TOOL_KINDS.get(name, "other")
             self.kinds[kind] = self.kinds.get(kind, 0) + 1
             if name == "TaskCreate":
@@ -1845,6 +1876,26 @@ def dashboard(d, cols, main, title="", jobs=(), focus=None, hidden=0, jobs_open=
         if used:
             usage.append(row("", line))
     out += card("model", usage, cols)
+    # Now: its latest words (the step it said it is on), the calls running, the last few done.
+    now = []
+    lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
+    said = next((l for l in lines if l), "")
+    if said:
+        when = time.strftime("%H:%M", time.localtime(d.says_at)) if d.says_at else ""
+        said = cut(said, w - len(when) - 2)
+        now.append(f"{fg(BRIGHT_RGB)}{said}{RESET}{' ' * max(2, w - cells(said) - len(when))}{fg(MUTED_RGB)}{when}{RESET}")
+    for call_id, phrase, started, state in reversed(d.recent):
+        if state:
+            mark = f"{fg(GREEN_RGB)}✓" if state == "ok" else f"{fg(RED_RGB)}✗"
+            now.append(f"{mark}{RESET} {fg(MUTED_RGB)}{cut(phrase, w - 2)}{RESET}")
+        else:
+            since = took(time.time() - started) if started else ""
+            now.append(f"{fg(AMBER_RGB)}{spinner()}{RESET} {cut(phrase, w - 3 - len(since))}{fg(MUTED_RGB)}"
+                       f"{' ' * max(1, w - 2 - cells(cut(phrase, w - 3 - len(since))) - len(since))}{since}{RESET}")
+        if len(now) >= 5:
+            break
+    if now:
+        out += card("now", now, cols)
     # The jobs it ran, as the jobs tab lists them; enter or a click goes to one there.
     if jobs:
         rows = [line for lines in jobs for line in lines]
@@ -1957,7 +2008,7 @@ class AgentRun(Run):
             doing = "waiting for you"
         elif d.open or (d.last_tool and not d.says):
             name, what, _ = list(d.open.values())[-1] if d.open else d.last_tool
-            doing = f"{name} {what.splitlines()[0] if what else ''}".rstrip()
+            doing = what.splitlines()[0] if what else name
         else:
             # Its first line of words, without markdown marks.
             lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
