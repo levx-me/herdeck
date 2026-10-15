@@ -216,7 +216,7 @@ describe("record keeps finished runs for the deck", () => {
       "helm list", "forge script script/Deploy.s.sol", "supabase start", "sam --version"])
       expect(ok(cmd)).toBeNull();
     expect(ok("git push origin main")?.kind).toBe("git");
-  });
+  }, 30_000); // 27 runs of bin/record: past bun's 5s default on a busy machine
 
   test("a deploy: description", () =>
     expect(labelOf("deploy: vercel --prod", "vercel --prod --yes 2>&1 | tail -3")).toEqual({ kind: "deploy", label: "vercel --prod" }));

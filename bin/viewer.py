@@ -927,14 +927,18 @@ class Runs:
             extras.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
         # tab / shift+tab in the output move the cursor between these and the log.
         self.has_head = bool(extras)
+        self.log_empty = not any(l.strip() for l in log_plain)
+        if extras and self.focus == "log" and self.part == "log" and self.log_empty:
+            self.part = "head"  # nothing in the log (yet): the cursor goes on the command lines
         in_head = self.part == "head" and bool(extras) and self.focus == "log"
         if not in_head:
             self.part = "log"
         self.raw, self.plain = (extras, [ANSI.sub("", l) for l in extras]) if in_head else (log_raw, log_plain)
-        if in_head and getattr(self, "to_end", False):
-            self.to_end = False
+        if in_head and getattr(self, "to_end", None) is not None and self.to_end is not False:
+            column, self.to_end = self.to_end, None
             self.cy = max(0, len(self.plain) - 1)
-            self.cx = max(0, len(self.plain[self.cy]) - 1)
+            last = max(0, len(self.plain[self.cy]) - 1)
+            self.cx = last if column is True else min(column, last)  # True: its last character
         cursor = self.focus == "log" and self.copy_cursor
 
         running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
@@ -1200,6 +1204,25 @@ class Runs:
             else:
                 self.switch_part()
                 self.to_end = True  # the next frame puts the cursor on the command lines' last character
+            return
+        # j (↓) on the command lines' last line goes down into the log's first line, k (↑) on the
+        # log's first line up to the command lines' last; the column stays where it can.
+        if self.anchor is None and k == "j" and self.part == "head" and self.cy >= len(self.plain) - 1 \
+                and not getattr(self, "log_empty", False):
+            column = self.cx
+            self.switch_part()
+            self.cy, self.cx, self.offset, self.follow = 0, column, 0, False
+            return
+        # k (↑) on the box's first line (the command lines', or a log without them) goes back to the list.
+        if self.anchor is None and k == "k" and self.cy == 0 \
+                and (self.part == "head" or not getattr(self, "has_head", False)):
+            self.focus = "list"
+            return
+        if self.anchor is None and k == "k" and self.part == "log" and self.cy == 0 \
+                and getattr(self, "has_head", False):
+            column = self.cx
+            self.switch_part()
+            self.to_end = column  # the next frame puts the cursor on the command lines' last line
             return
         if self.anchor is None and k == "l" and self.part == "head" and self.plain \
                 and self.cy == len(self.plain) - 1 and self.cx >= len(self.plain[self.cy]) - 1:
