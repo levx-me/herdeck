@@ -2331,15 +2331,18 @@ class Agents(Runs):
     def place_cursor(self):
         """The detail starts at its top and scrolls only to keep the picked control in view."""
         rows = [n for _, n in self.controls()]
-        self.cy = rows[min(self.control, len(rows) - 1)] if self.focus == "log" and rows else self.offset
+        if self.focus == "log" and rows and not getattr(self, "past", False):
+            self.cy = rows[min(self.control, len(rows) - 1)]
+        else:  # no control to follow (or j went on past the last one): the scroll stays as set
+            self.cy = self.offset
 
     def select(self, tab):
         super().select(tab)
-        self.offset, self.control = 0, 0
+        self.offset, self.control, self.past = 0, 0, False
 
     def list_key(self, k):
         if k in ("\r", "\n", "l"):  # into the detail: onto its first control, if it has any
-            self.focus, self.control = "log", 0
+            self.focus, self.control, self.past = "log", 0, False
             return
         super().list_key(k)
 
@@ -2347,8 +2350,14 @@ class Agents(Runs):
         if not self.runs or self.focus == "list":
             return super().key(k)
         count = len(self.controls())
-        if not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
+        past = getattr(self, "past", False)
+        if (not count or past) and k == "k" and past:  # back from scrolling past: onto the last control
+            self.past = False
+        elif not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
             self.offset = max(0, self.offset + (1 if k == "j" else -1))
+        elif k == "j" and self.control >= count - 1:  # past the last control: scroll on to the end
+            self.past = True
+            self.offset += 1
         elif k in ("j", "\t"):
             self.control = min(count - 1, self.control + 1)
         elif k in ("k", "\x1b[Z"):
