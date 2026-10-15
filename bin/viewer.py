@@ -2351,8 +2351,9 @@ class Agents(Runs):
             return super().key(k)
         count = len(self.controls())
         past = getattr(self, "past", False)
-        if (not count or past) and k == "k" and past:  # back from scrolling past: onto the last control
+        if k == "k" and past:  # scrolled past the last button (still lit): k goes on up, to the one before
             self.past = False
+            self.control = max(0, self.control - 1)
         elif not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
             self.offset = max(0, self.offset + (1 if k == "j" else -1))
         elif k == "j" and self.control >= count - 1:  # past the last control: scroll on to the end
