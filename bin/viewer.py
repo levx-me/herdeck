@@ -348,17 +348,31 @@ class Run:
         self._log = (None, None, None, "")  # (file key, display lines, plain lines, hash)
         self._loading = None
 
+    def fixed(self, name, default=""):
+        """One of the run's files that never changes once written (rc, end, start, cwd, ...):
+        read until it is there, then kept, so a frame does not reopen every row's files."""
+        known = self.__dict__.setdefault("_fixed", {})
+        if name not in known:
+            value = read(os.path.join(self.path, name))
+            if not value:
+                return default
+            known[name] = value
+        return known[name]
+
     def source(self):
-        """Claude's task output file, for a run sent to the background."""
+        """Claude's task output file, for a run sent to the background (not kept:
+        bin/record removes it when a job ends, and the log takes over)."""
         return read(os.path.join(self.path, "source"))
 
     def rc(self):
         """Exit code, or "" while running. A background run's code is the
         "[exited with code N]" line Claude Code appends to its output file."""
-        rc = read(os.path.join(self.path, "rc"))
-        src = self.source()
-        if rc or not src:
+        rc = self.fixed("rc") or getattr(self, "_tail_rc", "")
+        if rc:
             return rc
+        src = self.source()
+        if not src:
+            return ""
         try:
             with open(src, "rb") as f:
                 f.seek(max(0, os.path.getsize(src) - 200))
@@ -366,18 +380,23 @@ class Run:
         except OSError:
             return ""
         m = re.search(r"\[exited with code (\d+)\]\s*$", tail)
+        if m:
+            self._tail_rc = m.group(1)
         return m.group(1) if m else ""
 
     def status(self):
+        if getattr(self, "dead", False):  # died without an exit code: it stays that way
+            return ("⊘", MUTED_RGB)
         rc = self.rc()
         if rc:
             return ("✓", GREEN_RGB) if rc == "0" else ("✗", RED_RGB)
         if self.source():
             return (spinner(), AMBER_RGB)  # background run still going
         try:
-            os.kill(int(read(os.path.join(self.path, "pid"), "0")), 0)
+            os.kill(int(self.fixed("pid", "0")), 0)
             return (spinner(), AMBER_RGB)
         except (OSError, ValueError):
+            self.dead = True
             return ("⊘", MUTED_RGB)  # the runner died without an exit code
 
     def label(self):
@@ -394,7 +413,7 @@ class Run:
         """'running 4s' while it runs, else how long ago it finished."""
         end = self.end()
         if not end:
-            start = int(read(os.path.join(self.path, "start"), "0") or 0)
+            start = int(self.fixed("start", "0") or 0)
             return f"running {int(time.time()) - start}s" if start else "running"
         s = int(time.time()) - int(end)
         for unit, size in (("d", 86400), ("h", 3600), ("m", 60)):
@@ -443,7 +462,7 @@ class Run:
 
     def end(self):
         """When it finished: the end file, or a finished background run's output mtime."""
-        end = read(os.path.join(self.path, "end"))
+        end = self.fixed("end")
         if not end and self.source() and self.rc():
             try:
                 end = str(int(os.path.getmtime(self.source())))
@@ -468,7 +487,7 @@ class Run:
         return getattr(self, "_full", "")
 
     def _find_full(self, short):
-        cwd = read(os.path.join(self.path, "cwd"))
+        cwd = self.fixed("cwd")
         # Every directory the command cd's into (newest last wins), then its cwd.
         cds = [os.path.join(cwd, os.path.expanduser(d.strip("'\""))) for d in re.findall(r"(?:^|[;&|(\n]\s*)cd\s+(\S+)", self.full)]
         for d in [*reversed(cds), cwd]:
@@ -483,11 +502,11 @@ class Run:
 
     def info(self):
         """Where, how long, and how it ended."""
-        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+        start = int(self.fixed("start", "0") or 0)
         end = self.end()
         rc = self.rc()
-        parts = [read(os.path.join(self.path, "cwd")).replace(os.path.expanduser("~"), "~", 1)]
-        branch = read(os.path.join(self.path, "branch"))
+        parts = [self.fixed("cwd").replace(os.path.expanduser("~"), "~", 1)]
+        branch = self.fixed("branch")
         if branch:
             parts.append(f"on {branch}")
         if start:
@@ -1158,7 +1177,7 @@ class Runs:
                 # git rows keep a fixed 7-column hash at the far right (blank when
                 # there is none), so the variable-width age lines up before it.
                 sha = run.hash()
-                branch = read(os.path.join(run.path, "branch")) if self.kind == "git" else ""  # the branch it ran on
+                branch = run.fixed("branch") if self.kind == "git" else ""  # the branch it ran on
                 if branch:  # a long branch gives way before the message does: a quarter of the row at most
                     branch = cut(branch, max(8, cols // 4))
                 right = f"{branch}  {age}  {sha:7}" if branch else f"{age}  {sha:7}" if self.kind == "git" else age
@@ -1402,33 +1421,38 @@ class JobRun(Run):
 
     def label(self):
         """The agent's description, else the command in words, as the agents tab shows it."""
-        return self.tag or command_phrase(self.full, read(os.path.join(self.path, "cwd")))
+        return self.tag or command_phrase(self.full, self.fixed("cwd"))
 
     def limit(self):
         """The call's timeout in seconds (Claude Code's default is 2 minutes)."""
-        return int(read(os.path.join(self.path, "timeout"), "120000") or 120000) // 1000
+        return int(self.fixed("timeout", "120000") or 120000) // 1000
 
     def stopped(self):
         """Gone without bin/record hearing how it ended (interrupted, say)."""
         if self.rc():
             return False
-        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+        start = int(self.fixed("start", "0") or 0)
         return not os.path.exists(self.source()) or time.time() > start + self.limit() + 15
 
     def status(self):
+        if getattr(self, "dead", False):
+            return ("⊘", MUTED_RGB)
         if self.rc():
             return super().status()
-        return ("⊘", MUTED_RGB) if self.stopped() else (spinner(), AMBER_RGB)
+        if self.stopped():  # gone without an end: it stays that way
+            self.dead = True
+            return ("⊘", MUTED_RGB)
+        return (spinner(), AMBER_RGB)
 
     def age(self):
         return "stopped" if self.stopped() else super().age()
 
     def info(self):
-        start = int(read(os.path.join(self.path, "start"), "0") or 0)
+        start = int(self.fixed("start", "0") or 0)
         end, rc = self.end(), self.rc()
         limit = self.limit()
         took = f"{(int(end) if end else int(time.time())) - start}s"
-        parts = [read(os.path.join(self.path, "cwd")).replace(os.path.expanduser("~"), "~", 1)]
+        parts = [self.fixed("cwd").replace(os.path.expanduser("~"), "~", 1)]
         if rc:
             parts += [took, exit_code(rc)]
         elif self.stopped():
@@ -1977,6 +2001,7 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
+JOB_IDS = {}  # a job's id file: its tool call id (bin/hook writes it once)
 ACTIVITY_SHOWN = 5  # calls in the activity card before "▾ N more"
 
 
@@ -2233,7 +2258,7 @@ class AgentRun(Run):
         so the activity card can lead to their output."""
         links = {}
         for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
-            call = read(idfile)
+            call = JOB_IDS.get(idfile) or JOB_IDS.setdefault(idfile, read(idfile))  # written once, with the job
             if call in self.digest.called and Jobs.shows(os.path.dirname(idfile)):
                 links[call] = os.path.dirname(idfile)
         return links
@@ -2683,12 +2708,14 @@ class Deck:
     def choose(self, i):
         """A section picked by hand: show it here and in every other deck."""
         self.section = i % len(self.views)
-        try:
-            with open(self.shared_path, "w") as f:
-                f.write(SECTIONS[self.section])
-            self.shared_at = self.mtime(self.shared_path)
-        except OSError:
-            pass
+        def share(name=SECTIONS[self.section]):  # off the loop: the switch itself draws at once
+            try:
+                with open(self.shared_path, "w") as f:
+                    f.write(name)
+                self.shared_at = self.mtime(self.shared_path)
+            except OSError:
+                pass
+        background(share)
 
     def arrived(self, i):
         """Something new on tab i: the deck goes there when following, else the tab is marked."""
@@ -2751,6 +2778,9 @@ class Deck:
         for i, view in enumerate(self.views):
             if view.refresh() and i != self.section:
                 self.arrived(i)
+        if not getattr(self, "warmed", False):  # once: every tab's rows read ahead, so a first switch is instant
+            self.warmed = True
+            background(self.warm)
         at = self.mtime(self.focus_path)
         if at != self.focus_at:  # a section was asked for (e.g. a dev server started)
             self.focus_at = at
@@ -2761,6 +2791,21 @@ class Deck:
             self.shared_at = at
             if read(self.shared_path) in SECTIONS:
                 self.section = SECTIONS.index(read(self.shared_path))
+
+    def warm(self):
+        """Read what each tab's rows show (status, age, label, info) in the background,
+        filling the runs' kept files, so the first switch to a tab draws at once."""
+        for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):  # the agents' job buttons
+            JOB_IDS.setdefault(idfile, read(idfile))
+            Jobs.shows(os.path.dirname(idfile))
+        for view in self.views:
+            for run in list(view.runs):
+                try:
+                    run.status(), run.label()
+                    getattr(run, "age", lambda: "")()
+                    getattr(run, "info", lambda: "")()
+                except Exception:  # a run half written or gone: its tab reads it when shown
+                    pass
 
     NEW_RGB = blend(RED_RGB, TAB_RGB, 0.35)  # a tab with something new, until it is shown: red-tinted
 
