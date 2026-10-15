@@ -44,6 +44,31 @@ BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plug
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["agents", "jobs", "servers", "build", "test", "git", "deploy"]
 FOCUS = {"pane": True}  # whether the deck's pane has the keyboard; without it the accents go grey
+
+# Settings, shared by every deck: the "," popup writes them, each deck rereads them when they change.
+SETTINGS_PATH = os.path.join(os.environ.get("HERDR_PLUGIN_CONFIG_DIR")
+                             or os.path.expanduser("~/.config/herdr/plugins/config/steading"), "settings.json")
+SETTINGS = [  # (key, label, what it does, default)
+    ("follow", "Follow new runs", "a new run takes the deck to its tab, instead of marking the tab", False),
+]
+
+
+def settings():
+    try:
+        with open(SETTINGS_PATH) as f:
+            saved = json.load(f)
+    except (OSError, ValueError):
+        saved = {}
+    return {key: bool(saved.get(key, default)) for key, _, _, default in SETTINGS}
+
+
+def save_settings(values):
+    try:
+        os.makedirs(os.path.dirname(SETTINGS_PATH), exist_ok=True)
+        with open(SETTINGS_PATH, "w") as f:
+            json.dump(values, f, indent=2)
+    except OSError:
+        pass
 # shift and a letter of the tab's name goes there: its first, but git's I (G is vim's bottom).
 TAB_KEYS = ["A", "J", "S", "B", "T", "I", "D"]
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
@@ -2308,6 +2333,7 @@ class Deck:
         self.views[0].jump = self.jump  # a job in an agent's detail leads to the jobs tab
         self.section = 0
         self.unseen = set()  # tabs with something new not shown yet
+        self.settings, self.settings_open, self.setting = settings(), False, 0
         self.last_frame = None
         self.focus_path = os.path.join(BASE, "focus")
         # The section last picked by hand in any deck, shared by all of them.
@@ -2348,6 +2374,36 @@ class Deck:
         except OSError:
             pass
 
+    def arrived(self, i):
+        """Something new on tab i: the deck goes there when following, else the tab is marked."""
+        if self.settings["follow"]:
+            self.section = i
+        else:
+            self.unseen.add(i)
+
+    def popup(self, cols, rows):
+        """The settings popup: (first row, its lines) centred in the pane."""
+        width = min(cols - 4, 56)
+        inner = width - 4
+        edge = fg(ACCENT["agents"])
+        lines = [f"{edge}╭─{fg(BRIGHT_RGB)}{BOLD} settings \033[22m{edge}{'─' * (width - 13)}╮{RESET}"]
+        body = [""]
+        for n, (key, label, what, _) in enumerate(SETTINGS):
+            on = self.settings[key]
+            switch = f"{bg(GREEN_RGB)}{fg(STRIP_RGB)}{BOLD} on  \033[22m" if on else f"{bg(TAB_RGB)}{fg(MUTED_RGB)} off "
+            picked = n == self.setting
+            mark = f"{fg(ACCENT['agents'])}›" if picked else " "
+            name = f"{BOLD if picked else ''}{fg(BRIGHT_RGB)}{label}\033[22m"
+            body.append(f"{mark} {name}{' ' * max(1, inner - 2 - len(label) - 5)}{switch}{RESET}")
+            body += [f"  {fg(MUTED_RGB)}{part}{RESET}" for part in wrap_cells(what, inner - 2)]
+            body.append("")
+        body.append(f"{fg(DIMMED_RGB)}j/k move · space toggle · esc close{RESET}")
+        for line in body:
+            pad = inner - cells(ANSI.sub("", line))
+            lines.append(f"{edge}│{RESET} {bg(STRIP_RGB)}{line}{bg(STRIP_RGB)}{' ' * max(0, pad)} {RESET}{edge}│{RESET}")
+        lines.append(f"{edge}╰{'─' * (width - 2)}╯{RESET}")
+        return max(1, (rows - len(lines)) // 2), lines, (cols - width) // 2
+
     def look_focus(self):
         """Ask herdr whether this deck's pane has the keyboard (when the terminal
         sends no focus reports)."""
@@ -2365,15 +2421,18 @@ class Deck:
         if not getattr(self, "looking", False) and time.time() - getattr(self, "looked", 0) >= 0.5:
             self.looking, self.looked = True, time.time()
             background(self.look_focus)
-        # Something new elsewhere marks its tab instead of taking the deck there.
+        at = self.mtime(SETTINGS_PATH)
+        if at != getattr(self, "settings_at", None):  # changed here or in another deck
+            self.settings_at, self.settings = at, settings()
+        # Something new elsewhere marks its tab, or (following) takes the deck there.
         for i, view in enumerate(self.views):
             if view.refresh() and i != self.section:
-                self.unseen.add(i)
+                self.arrived(i)
         at = self.mtime(self.focus_path)
         if at != self.focus_at:  # a section was asked for (e.g. a dev server started)
             self.focus_at = at
             if read(self.focus_path) in SECTIONS and SECTIONS.index(read(self.focus_path)) != self.section:
-                self.unseen.add(SECTIONS.index(read(self.focus_path)))
+                self.arrived(SECTIONS.index(read(self.focus_path)))
         at = self.mtime(self.shared_path)
         if at != self.shared_at:  # picked by hand in another deck
             self.shared_at = at
@@ -2412,6 +2471,12 @@ class Deck:
         # Overwrite in place (each line clears its own tail, \033[J the rest)
         # instead of clearing the screen, so nothing flashes between frames.
         bar, lines = self.section_bar(cols), (head + body)[:rows - 2]
+        if self.settings_open:  # the popup over the deck, the deck faint around it
+            lines = [tint(line, DIMMED_RGB) for line in lines] + [""] * max(0, rows - 2 - len(lines))
+            first, box, left = self.popup(cols, rows - 2)
+            for n, line in enumerate(box):
+                if 0 <= first + n < len(lines):
+                    lines[first + n] = " " * left + line
         if not FOCUS["pane"]:  # without the keyboard the whole deck reads faint, its colours kept
             bar, lines = tint(bar, DIMMED_RGB), [tint(line, DIMMED_RGB) for line in lines]
         out = [bar, "\033[K"]
@@ -2421,7 +2486,8 @@ class Deck:
         out.append("\033[J")
         # Keys only matter with the keyboard here: faint without it.
         key_rgb, what_rgb = (BRIGHT_RGB, MUTED_RGB) if FOCUS["pane"] else (DIMMED_RGB, DIMMED_RGB)
-        hints = "  ".join(f"{fg(key_rgb)}{key} {fg(what_rgb)}{what}" for key, what in view.hints())
+        pairs = [("j/k", "move"), ("space", "toggle"), ("esc", "close")] if self.settings_open else view.hints()
+        hints = "  ".join(f"{fg(key_rgb)}{key} {fg(what_rgb)}{what}" for key, what in pairs)
         out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
         frame = "".join(out)
         if frame == self.last_frame:  # nothing changed: leave the screen alone
@@ -2460,6 +2526,21 @@ class Deck:
         view = self.views[self.section]
         if getattr(view, "search", None) is not None:  # typing a search: every key is text
             view.key(k)
+            return
+        if self.settings_open:  # the popup has the keys
+            if k in ("j", "\t"):
+                self.setting = min(len(SETTINGS) - 1, self.setting + 1)
+            elif k in ("k", "\x1b[Z"):
+                self.setting = max(0, self.setting - 1)
+            elif k in (" ", "\r", "\n", "l", "h"):
+                key = SETTINGS[self.setting][0]
+                self.settings[key] = not self.settings[key]
+                save_settings(self.settings)
+            elif k in ("\x1b", ",", "q"):
+                self.settings_open = False
+            return
+        if k == "," and not (view.focus == "log" and view.copy_cursor):
+            self.settings_open, self.setting = True, 0
             return
         if k in ("\t", "\x1b[Z") and view.focus == "log" and view.copy_cursor:
             view.key(k)  # in a run's output, tab moves between its command and its log
