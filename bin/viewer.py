@@ -925,6 +925,7 @@ class Runs:
         if run.hash():  # the whole hash, on its own line so a narrow pane does not cut it
             extras.append(f"{DIM}  commit {fg(ACCENT['git'])}{run.full_hash() or run.hash()}{RESET}")
         # tab / shift+tab in the output move the cursor between these and the log.
+        self.has_head = bool(extras)
         in_head = self.part == "head" and bool(extras) and self.focus == "log"
         if not in_head:
             self.part = "log"
@@ -1184,6 +1185,11 @@ class Runs:
         self.msg = ""
         if k in ("\t", "\x1b[Z"):
             self.switch_part()
+            return
+        # h (or ←) at the box's top-left corner leaves it for the list, as l (→) came in.
+        if k == "h" and self.cy == 0 and self.cx == 0 and self.anchor is None \
+                and (self.part == "head" or not getattr(self, "has_head", False)):
+            self.focus = "list"
             return
         if k in ("\r", "\n") and self.plain:  # enter on a control line of the log ([… more], [less])
             getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy])
@@ -2218,10 +2224,12 @@ class Agents(Runs):
         count = len(self.controls())
         if not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
             self.offset = max(0, self.offset + (1 if k == "j" else -1))
-        elif k in ("j", "\t", "l"):
+        elif k in ("j", "\t"):
             self.control = min(count - 1, self.control + 1)
-        elif k in ("k", "\x1b[Z", "h"):
+        elif k in ("k", "\x1b[Z"):
             self.control = max(0, self.control - 1)
+        elif k == "h" and self.control == 0 and self.offset == 0:  # h or ← at the top: back to the list
+            self.focus = "list"
         elif k in ("\r", "\n") and count:
             self.runs[self.tab].press(self.controls()[self.control][0])
         elif k == "\x1b":
@@ -2248,8 +2256,8 @@ class Agents(Runs):
     def hints(self):
         if self.focus == "log":
             if not self.controls():
-                return [("j/k", "scroll"), ("esc/q", "back")]
-            return [("j/k", "move"), ("enter", "press"), ("esc/q", "back")]
+                return [("j/k", "scroll"), ("h/esc", "back")]
+            return [("j/k", "move"), ("enter", "press"), ("h/esc", "back")]
         return [("j/k", "select"), ("enter", "detail"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
 
 
