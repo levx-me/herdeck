@@ -460,7 +460,6 @@ def scene_agents():
             [("        ", MUTED), ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED),
              ("■ ", AMBER), ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)]]),
         *card("activity", [
-            [("Fixing the expiry check, then the tests.", BRIGHT), ("19:42".rjust(D - 8 - 41), MUTED)],
             [(SPIN, AMBER), (" Run the auth tests", BRIGHT), (lambda t: f"{12 + t}s".rjust(D - 8 - 20), MUTED)],
             [("✓ ", GREEN), ("Wait for the API to answer", MUTED), (" " * (D - 8 - 2 - 26 - 11), MUTED),
              (" ↗ jobs #3 ", ACCENT["JOBS"], False, None, TAB)],

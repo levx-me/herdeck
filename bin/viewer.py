@@ -1819,7 +1819,6 @@ class Digest:
         self.seen_messages = set()
         self.open, self.last_tool = {}, None   # tool calls without a result; the latest call
         self.recent = []                       # [id, phrase, started, "" | "ok" | "error"] per call, oldest first
-        self.says_at = None                    # when it last said something
         self.called = set()                    # every tool call id it made (its jobs are among them)
         self.says = ""
         self.tasks, self.task_seq = {}, 0      # TaskCreate / TaskUpdate (TodoWrite too)
@@ -1873,7 +1872,7 @@ class Digest:
             if not isinstance(b, dict):
                 continue
             if b.get("type") == "text" and b.get("text", "").strip():
-                self.says, self.says_at = b["text"].strip(), self.last
+                self.says = b["text"].strip()
             if b.get("type") != "tool_use":
                 continue
             name, args = b.get("name", ""), b.get("input") or {}
@@ -2012,19 +2011,11 @@ def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
         if used:
             usage.append(row("", line))
     out += card("model", usage, cols)
-    # Activity: its latest words (the step it said it is on), then what it did, newest first: the
-    # last few, or unfolded a window ({top, at, rows}) on all of it, the cursor's call lit. Long
+    # Activity: what it did, newest first: the last few, or unfolded a window ({top, at, rows}) on all of it, the cursor's call lit. Long
     # phrases wrap in full rather than being cut.
     # A call that ran long has a button to its output in the jobs tab.
     links = links or {}
     activity = []
-    lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
-    said = next((l for l in lines if l), "")
-    if said:  # wrapped in full, its time at the end of the first row
-        when = time.strftime("%H:%M", time.localtime(d.says_at)) if d.says_at else ""
-        for i, part in enumerate(wrap(said, w - len(when) - 2)):
-            end = f"{' ' * max(2, w - cells(part) - len(when))}{fg(MUTED_RGB)}{when}" if i == 0 and when else ""
-            activity.append(f"{fg(BRIGHT_RGB)}{part}{RESET}{end}{RESET}")
     calls = list(reversed(d.recent))
 
     def rows_of(n):
