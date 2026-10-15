@@ -1394,6 +1394,10 @@ class JobRun(Run):
     """A command the agent ran outside the deck, followed live from Claude
     Code's output file (source) until bin/record files its log and exit code."""
 
+    def label(self):
+        """The agent's description, else the command in words, as the agents tab shows it."""
+        return self.tag or command_phrase(self.full, read(os.path.join(self.path, "cwd")))
+
     def limit(self):
         """The call's timeout in seconds (Claude Code's default is 2 minutes)."""
         return int(read(os.path.join(self.path, "timeout"), "120000") or 120000) // 1000
@@ -1645,15 +1649,28 @@ GIT_VERBS = {"status": "Checking what changed", "diff": "Looking at the changes"
              "fetch": "Fetching", "merge": "Merging", "rebase": "Rebasing", "checkout": "Switching branch",
              "switch": "Switching branch", "branch": "Looking at branches", "stash": "Stashing changes",
              "reset": "Resetting", "tag": "Tagging", "clone": "Cloning", "ls-remote": "Asking the remote"}
-SETUP = re.compile(r"(cd|export|set|source|\.|unset|true|:)\b")  # steps that only prepare the real one
+SETUP = re.compile(r"(cd|export|set|source|\.|unset|true|:|echo|printf|mkdir)\b")  # steps around the real one
+HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?")
 
 
 def command_phrase(command, cwd="", kind=""):
     """A command with no description, in words: what its main step does to what
     ("Listing docs", "Committing: Fix X", "Running the tests with bun")."""
-    line = (command.strip().splitlines() or [""])[0]
-    steps = [p.strip() for p in re.split(r"&&|\|\||;|\|", line) if p.strip()]
-    step = next((p for p in steps if not SETUP.match(p)), steps[0] if steps else "")
+    # The script's own lines, here-documents left out, each step the head of its pipe.
+    lines, end = [], None
+    for line in command.strip().splitlines():
+        if end:
+            end = None if line.strip() == end else end
+            continue
+        lines.append(line)
+        found = HEREDOC.search(line)
+        end = found[1] if found else None
+    steps = [p.split("|")[0].strip() for p in re.split(r"&&|\|\||;|\n", "\n".join(lines))]
+    steps = [p for p in steps if p and not p.startswith("#")]
+    work = [p for p in steps if not SETUP.match(p)]
+    # The main step: a commit if there is one, else the last that does the work.
+    step = next((p for p in work if re.match(r"git commit\b", p)), work[-1] if work else steps[0] if steps else "")
+    line = step
     try:
         words = shlex.split(step)
     except ValueError:
@@ -1665,7 +1682,8 @@ def command_phrase(command, cwd="", kind=""):
     home = os.path.expanduser("~")
     def where(p):
         p = os.path.relpath(p, cwd) if cwd and p.startswith(cwd + "/") else p
-        return "~" + p[len(home):] if p.startswith(home + "/") else p
+        p = "~" + p[len(home):] if p.startswith(home + "/") else p
+        return os.path.basename(p) if len(p) > 40 else p  # a long path by its name alone
     prog, args = os.path.basename(words[0]), words[1:]
     plain = [where(a) for a in args if not a.startswith("-")]
     target = plain[-1] if plain else ""
@@ -1689,6 +1707,10 @@ def command_phrase(command, cwd="", kind=""):
         return f"Finding files in {sub or '.'}"
     if prog == "sed" and "-i" in args:
         return f"Editing {target}"
+    if prog in ("cat", "tee") and (">" in step or prog == "tee"):  # cat > file <<EOF
+        return f"Writing {where(step.split('>')[-1].split()[0]) if '>' in step else target}"
+    if prog == "sleep":
+        return f"Waiting {sub}s" if sub.isdigit() else "Waiting"
     if prog in ("cat", "head", "tail", "less", "sed", "wc", "jq", "awk"):
         return f"Reading {target}" if target else f"Running {prog}"
     if prog in ("grep", "rg", "ag"):

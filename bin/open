@@ -27,5 +27,7 @@ You MUST give every test, build, git or deploy (vercel, fly, wrangler, terraform
 that does the work, copied as it runs, without cd, pipes, filters or redirects, never a sentence: \
 \`test: forge test --match-path 'test/*'\`, \`build: pnpm build\`, \`git: git commit -m \"Fix X\" && git push\`, \
 \`deploy: vercel --prod\`. Do this even when the call also does other things: Steading files the run under that \
-kind and shows that line."
+kind and shows that line. \
+Give every other Bash call a description too: what it does, in a few plain words (\`Measure how fast the \
+sandbox starts\`), never the command itself. Steading shows it to the user as what you are doing."
 jq -n --arg note "$note" '{hookSpecificOutput: {hookEventName: "SessionStart", additionalContext: $note}}'

@@ -604,7 +604,7 @@ print(m.activate(row), went[0][0], went[0][1] == args[2])
     });
     expect(r.stderr.toString()).toBe("");
     const [row, went] = r.stdout.toString().trim().split("\n");
-    expect(row).toEndWith("Running sleep"); // the call as a phrase, its spinner before it
+    expect(row).toEndWith("Waiting 60s"); // the call as a phrase, its spinner before it
     expect(went).toBe("True jobs True");
   });
 
@@ -682,6 +682,8 @@ for name, args in [("Bash", {"command": "cd x; python3 - <<'EOF'", "description"
                    ("Bash", {"command": "pnpm test\\necho done"}),
                    ("Bash", {"command": "cd /repo/x && ls -la docs"}),
                    ("Bash", {"command": "cd /tmp; claude --version"}),
+                   ("Bash", {"command": "cd x && cat > s3.py <<'EOF'\\nprint(1)\\nEOF\\n./venv/bin/python s3.py 2>&1 | tail -5"}),
+                   ("Bash", {"command": "sleep 60; cat /private/tmp/claude-501/some-project/tasks/b1.output"}),
                    ("Bash", {"command": "x", "description": 'git: git commit -m "Fix X" && git push'}),
                    ("Read", {"file_path": "/repo/lib/llm.ts"}),
                    ("Grep", {"pattern": "NAMES", "path": "/repo/lib"}),
@@ -692,7 +694,7 @@ for name, args in [("Bash", {"command": "cd x; python3 - <<'EOF'", "description"
     const r = Bun.spawnSync(["python3", "-I", "-c", check]);
     expect(r.stderr.toString()).toBe("");
     expect(r.stdout.toString().trim().split("\n")).toEqual([
-      "Fix the dedupe", "Running the tests with pnpm", "Listing docs", "Running claude", "Committing: Fix X", "Reading lib/llm.ts", "Searching for NAMES in lib",
+      "Fix the dedupe", "Running the tests with pnpm", "Listing docs", "Running claude", "Running s3.py", "Reading b1.output", "Committing: Fix X", "Reading lib/llm.ts", "Searching for NAMES in lib",
       "Reading docs.anthropic.com", "Handing off: Map the tests",
     ]);
   });
