@@ -2791,6 +2791,9 @@ class Deck:
         for i, view in enumerate(self.views):
             if view.refresh() and i != self.section:
                 self.arrived(i)
+        if time.time() - getattr(self, "reported_at", 0) >= 2 and not getattr(self, "reporting", False):
+            self.reporting, self.reported_at = True, time.time()
+            background(self.report)
         if not getattr(self, "warmed", False):  # once: every tab's rows read ahead, so a first switch is instant
             self.warmed = True
             background(self.warm)
@@ -2804,6 +2807,40 @@ class Deck:
             self.shared_at = at
             if read(self.shared_path) in SECTIONS:
                 self.section = SECTIONS.index(read(self.shared_path))
+
+    def report(self):
+        """The agent's line for herdr's sidebar: what it is doing ($doing) and its tasks and
+        time at work ($progress), as pane tokens a ui.sidebar.agents.rows layout can show.
+        Sent when they change, and every 10s to renew them; they lapse 20s after the deck
+        closes, so a closed deck leaves no stale line."""
+        try:
+            main = self.views[0].main
+            agent = read(os.path.join(BASE, "agent"))
+            if not main or not agent:
+                return
+            doing = main.subline()[0].strip()
+            doing = doing[:1].upper() + doing[1:]
+            d, parts = main.digest, []
+            if d.tasks:
+                done, total = sum(1 for _, st in d.tasks.values() if st == "completed"), len(d.tasks)
+                filled = round(5 * done / total)
+                parts.append(f"{'▰' * filled}{'▱' * (5 - filled)} {done}/{total}")
+            if self.views[0].agent_status == "working" and d.request_at:  # time on the request at hand
+                parts.append(took(time.time() - d.request_at))
+            progress = " · ".join(parts)
+            now = (doing, progress)
+            if now == getattr(self, "reported", None) and time.time() - getattr(self, "renewed_at", 0) < 10:
+                return
+            args = [os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "report-metadata", agent,
+                    "--source", "steading", "--ttl-ms", "20000"]
+            for name, value in (("doing", doing), ("progress", progress)):
+                args += ["--token", f"{name}={value}"] if value else ["--clear-token", name]
+            subprocess.run(args, capture_output=True, timeout=3)
+            self.reported, self.renewed_at = now, time.time()
+        except Exception:  # herdr gone, or an older herdr without tokens: the sidebar keeps its own rows
+            pass
+        finally:
+            self.reporting = False
 
     def warm(self):
         """Read what each tab's rows show (status, age, label, info) in the background,

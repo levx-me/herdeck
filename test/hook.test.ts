@@ -775,3 +775,47 @@ esac
     expect(readdirSync(join(dir, "panes")).length).toBe(1);
   }, 30000);
 });
+
+describe("herdr sidebar tokens", () => {
+  test("a deck reports what its agent is doing and its tasks as $doing and $progress", () => {
+    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs");
+    const { tmpdir } = require("node:os");
+    const dir = mkdtempSync(join(tmpdir(), "steading-report-"));
+    const base = join(dir, "w1_p1");
+    mkdirSync(base, { recursive: true });
+    writeFileSync(join(base, "agent"), "w1:p1\n");
+    const main = join(dir, "s1.jsonl");
+    const at = new Date().toISOString();
+    const rows = [
+      { type: "user", timestamp: at, message: { content: "fix the tests" } },
+      { type: "assistant", timestamp: at, message: { content: [
+        { type: "tool_use", id: "c1", name: "TaskCreate", input: { subject: "One" } },
+        { type: "tool_use", id: "c2", name: "Bash", input: { command: "bun test", description: "run the tests" } }] } },
+    ];
+    writeFileSync(main, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
+    const check = `
+import sys, time
+from importlib.machinery import SourceFileLoader
+args = sys.argv[1:]; sys.argv = sys.argv[:1]
+v = SourceFileLoader("v", args[0]).load_module()
+v.background = lambda fn, *a: fn(*a)
+sent = []
+v.subprocess.run = lambda a, **k: sent.append(a) or v.subprocess.CompletedProcess(a, 1, "", "")
+deck = v.Deck()
+a = deck.views[0]
+a.find_session = lambda: None
+a.session, a.agent_status = args[1], "working"
+a.refresh()
+deck.reported_at = 0
+deck.refresh()
+r = [x for x in sent if "report-metadata" in x][-1]
+print(r[3], [t for t in r if t.startswith(("doing=", "progress="))])
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
+      env: { PATH: process.env.PATH!, STEADING_BASE: base },
+    });
+    expect(r.stderr.toString()).toBe("");
+    const out = r.stdout.toString().trim();
+    expect(out).toStartWith("w1:p1 ['doing=Run the tests', 'progress=▱▱▱▱▱ 0/1 · ");
+  });
+});

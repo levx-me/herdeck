@@ -173,15 +173,18 @@ for i, (icon, colour, name, branch, on) in enumerate(spaces):
 text(side, 12, [("new", DIMMED), ("● ".rjust(SB - 8), BLUE), ("menu", DIMMED)], -1)
 line(side, 13.5, -1, 13.5, ACTIVE)
 text(side, 14, [("agents", MUTED), ("priority".rjust(SB - 7), MUTED)], -1)
-crew = [("app", "◐", AMBER, "working", "add refresh tokens to…", True),
-        ("api", "○", GREEN, "idle", "Paginate the users API", False),
-        ("web", "○", GREEN, "idle", "Dark mode for settings", False),
-        ("docs", "○", GREEN, "idle", "Document the auth flow", False)]
-for i, (name, icon, colour, state, title, on) in enumerate(crew):
+# Agent rows as Steading lays them out: what each is doing ($doing) and its tasks and time
+# on the request at hand ($progress), reported by its deck (bin/viewer.py Deck.report).
+crew = [("app", "feature", "◐", AMBER, "Run the auth tests", "▰▰▰▱▱ 3/5 · 2m 14s", True),
+        ("api", "main", "○", GREEN, "Paginated the users API", "▰▰▰▰▰ 4/4", False),
+        ("web", "dev", "!", RED, "Waiting for you", "", False),
+        ("docs", "main", "○", GREEN, "Wrote the auth flow page", "", False)]
+for i, (name, tab, icon, colour, doing, progress, on) in enumerate(crew):
     if on:
-        rect(side, 16 + 2 * i, SB - 1, ACTIVE, rows=2)
-    text(side, 16 + 2 * i, [(name, BRIGHT, True), (" · ", MUTED), (icon + " ", colour), (state, colour)], -1)
-    text(side, 17 + 2 * i, [("  " + title, DIMMED)], -1)
+        rect(side, 16 + 3 * i, SB - 1, ACTIVE, rows=3)
+    text(side, 16 + 3 * i, [(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)], -1)
+    text(side, 17 + 3 * i, [("  " + doing, TEXT if on else DIMMED)], -1)
+    text(side, 18 + 3 * i, [("  " + progress, MUTED)], -1)
 text(-3, ROWS - 1, [("«", MUTED)], -1)
 # The tab bar: this space's tabs, then the usage figures herdr's tab_bar_right shows.
 rect(0, -1, A + 1 + D, STRIP)

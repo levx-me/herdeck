@@ -46,6 +46,25 @@ flowchart LR
 Commands run in the deck get `CI=1` (no watch modes) and `FORCE_COLOR=1`, `CLICOLOR_FORCE=1`,
 `PY_COLORS=1`, `CARGO_TERM_COLOR=always`.
 
+## herdr's sidebar
+
+Each open deck reports what its agent is doing to herdr as two pane tokens, renewed while
+the deck is open and gone 20 seconds after it closes:
+
+- `$doing`: the call running, else the agent's latest words, or `Waiting for you`.
+- `$progress`: its tasks (`▰▰▰▱▱ 3/5`) and, while it works, the time on the request at hand.
+
+Show them in herdr's agents list with a row layout in `~/.config/herdr/config.toml`:
+
+```toml
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "workspace", bold = true }, "tab"],
+  ["$doing"],
+  [{ token = "$progress", dim = true }],
+]
+```
+
 ## Security notes
 
 - Routed tests and builds are returned to Claude Code as **approved** (`permissionDecision: "allow"`),

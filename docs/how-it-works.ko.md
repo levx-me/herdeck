@@ -46,6 +46,25 @@ flowchart LR
 deck에서 실행되는 명령에는 `CI=1`(watch 모드 끔)과 `FORCE_COLOR=1`, `CLICOLOR_FORCE=1`,
 `PY_COLORS=1`, `CARGO_TERM_COLOR=always`가 설정됩니다.
 
+## herdr 사이드바
+
+열려 있는 deck은 에이전트가 하는 일을 herdr에 두 개의 pane 토큰으로 알려 줍니다. deck이 열려
+있는 동안 갱신되고, 닫히면 20초 뒤 사라집니다.
+
+- `$doing`: 실행 중인 호출, 없으면 에이전트의 마지막 말, 또는 `Waiting for you`.
+- `$progress`: 할 일 진행(`▰▰▰▱▱ 3/5`)과, 일하는 동안 지금 요청에 쓴 시간.
+
+`~/.config/herdr/config.toml`의 행 구성으로 herdr agents 목록에 보이게 합니다.
+
+```toml
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", { token = "workspace", bold = true }, "tab"],
+  ["$doing"],
+  [{ token = "$progress", dim = true }],
+]
+```
+
 ## 보안 참고
 
 - deck으로 넘긴 테스트와 빌드는 Claude Code에 **승인됨**(`permissionDecision: "allow"`)으로 돌려주므로
