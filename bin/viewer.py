@@ -1024,8 +1024,7 @@ class Runs:
         edge = fg(ACCENT[self.kind]) if lit and FOCUS["pane"] else fg("70;76;88")
         out = [f"{edge}╭{'─' * (inner + 2)}╮{RESET}"]
         for line in (lines + [""] * room)[:room]:
-            # Without the keyboard the deck's content reads faint too, its colours kept.
-            line = fit(line if FOCUS["pane"] else tint(line, DIMMED_RGB), inner)
+            line = fit(line, inner)
             out.append(f"{edge}│{RESET} {line}{RESET}{' ' * max(0, inner - cells(ANSI.sub('', line)))} {edge}│{RESET}")
         return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
@@ -2358,9 +2357,12 @@ class Deck:
         head, body = view.frame(cols, rows - 1)  # the last row holds the key hints
         # Overwrite in place (each line clears its own tail, \033[J the rest)
         # instead of clearing the screen, so nothing flashes between frames.
-        out = [self.section_bar(cols), "\033[K"]
+        bar, lines = self.section_bar(cols), (head + body)[:rows - 2]
+        if not FOCUS["pane"]:  # without the keyboard the whole deck reads faint, its colours kept
+            bar, lines = tint(bar, DIMMED_RGB), [tint(line, DIMMED_RGB) for line in lines]
+        out = [bar, "\033[K"]
         # Never past the hints row: a taller frame would scroll the tabs off the top.
-        for line in (head + body)[:rows - 2]:
+        for line in lines:
             out += ["\r\n", fit(line, cols), RESET, "\033[K"]
         out.append("\033[J")
         # Keys only matter with the keyboard here: faint without it.
