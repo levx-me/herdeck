@@ -532,8 +532,8 @@ def scene_servers():
 
 
 def scene_build():
-    browse(3, [(SPIN, AMBER, "npm run build", "now"), ("✓", GREEN, "npm run build", "6m ago"),
-               ("✗", RED, "npm run build", "21m ago")], ACCENT["BUILD"], "runs", [
+    browse(3, [(SPIN, AMBER, "Building the project", "now"), ("✓", GREEN, "Building the project", "6m ago"),
+               ("✗", RED, "Building the project", "21m ago")], ACCENT["BUILD"], "runs", [
         [[("$ ", MUTED), ("npm run build", BRIGHT, True)],
          [("  ~/app · ", MUTED), (lambda t: f"{9 + t}s", MUTED), (" · running", MUTED)], RULE,
          [("> next build", MUTED)], [], [("   ▲ Next.js 15.4.1", TEXT)], [],
@@ -564,9 +564,9 @@ def scene_build():
 
 
 def scene_test():
-    browse(4, [(SPIN, AMBER, "npm test", "now"), ("✗", RED, "npm test", "1m ago"),
-               ("✓", GREEN, "npm test -- auth", "9m ago"), ("✓", GREEN, "npm test", "24m ago"),
-               ("✓", GREEN, "npm test", "1h ago")], ACCENT["TEST"], "runs", [
+    browse(4, [(SPIN, AMBER, "Running all the tests", "now"), ("✗", RED, "Running all the tests", "1m ago"),
+               ("✓", GREEN, "Testing auth", "9m ago"), ("✓", GREEN, "Running all the tests", "24m ago"),
+               ("✓", GREEN, "Running all the tests", "1h ago")], ACCENT["TEST"], "runs", [
         [[("$ ", MUTED), ("npm test", BRIGHT, True)],
          [("  ~/app · ", MUTED), (lambda t: f"{12 + t}s", MUTED), (" · running", MUTED)], RULE,
          [(" RUN ", BLUE, True), (" v3.2.4 ", TEXT), ("~/app", MUTED)], [],
@@ -625,8 +625,8 @@ def scene_git():
 
 
 def scene_deploy():
-    browse(6, [("✓", GREEN, "vercel --prod", "2m ago"), ("✓", GREEN, "vercel", "18m ago"),
-               ("✗", RED, "vercel --prod", "1h ago")], ACCENT["DEPLOY"], "runs", [
+    browse(6, [("✓", GREEN, "Deploying to production", "2m ago"), ("✓", GREEN, "Deploying with vercel", "18m ago"),
+               ("✗", RED, "Deploying to production", "1h ago")], ACCENT["DEPLOY"], "runs", [
         [[("$ ", MUTED), ("vercel --prod", BRIGHT, True)],
          [("  ~/app · 41s · exit 0", MUTED)], RULE,
          [("Vercel CLI 44.2.0", MUTED)],

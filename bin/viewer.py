@@ -378,6 +378,9 @@ class Run:
             return ("⊘", MUTED_RGB)  # the runner died without an exit code
 
     def label(self):
+        kind = os.path.basename(os.path.dirname(os.path.dirname(self.path)))
+        if kind in ("test", "build", "deploy"):  # in words; its header keeps the command
+            return command_phrase(self.tag or self.full, "", kind)
         if self.tag:
             return self.tag
         cmd = re.sub(r"^cd \S+ && ", "", self.cmd)
@@ -1653,6 +1656,44 @@ SETUP = re.compile(r"(cd|export|set|source|\.|unset|true|:|echo|printf|mkdir)\b"
 HEREDOC = re.compile(r"<<-?\s*['\"]?(\w+)['\"]?")
 
 
+PICKS = {"--match-path", "--match-test", "--match-contract", "-k", "-t", "--filter", "-p", "--package",
+         "--test-name-pattern", "--grep", "-g", "--testNamePattern", "--spec"}  # flags naming what to test
+TOOLS = {"npm", "pnpm", "yarn", "bun", "npx", "bunx", "cargo", "go", "forge", "make", "uv", "poetry",
+         "python", "python3", "dotnet", "mvn", "gradle", "swift", "deno", "docker", "turbo", "nx"}
+
+
+def run_phrase(kind, prog, args, where=lambda p: p):
+    """A test, build or deploy command in words: what it tests or builds, not how
+    ("Testing hook.test.ts", "Running all the tests", "Building for release", "Deploying to production")."""
+    picked, names, skip = [], [], False
+    for i, a in enumerate(args):
+        if skip:
+            skip = False
+        elif a in PICKS and i + 1 < len(args):
+            picked.append(args[i + 1].strip("'\""))
+            skip = True
+        elif a.startswith("-") and "=" in a and a.split("=")[0] in PICKS:
+            picked.append(a.split("=", 1)[1].strip("'\""))
+        elif not a.startswith("-") and a not in ("test", "build", "run", "deploy", ".") and a not in TOOLS:
+            names.append(os.path.basename(where(a).rstrip("/")) or a)
+    if kind == "test":
+        what = names + picked
+        if not what:
+            return "Running all the tests"
+        return f"Testing {', '.join(what[:2])}" + (f" and {len(what) - 2} more" if len(what) > 2 else "")
+    if kind == "deploy":
+        return "Deploying to production" if {"--prod", "--production", "production", "prod"} & set(args) \
+            else f"Deploying with {prog}"
+    tag = next((args[i + 1] for i, a in enumerate(args[:-1]) if a in ("-t", "--tag")), "")
+    if prog == "docker":
+        return f"Building the image {tag}".strip()
+    if prog not in TOOLS:  # ./build.sh, a script of its own
+        return f"Running {prog}"
+    release = {"--release", "--prod", "--production", "production"} & set(args)
+    return f"Building {names[0]}" + (" for release" if release else "") if names else \
+        "Building for release" if release else "Building the project"
+
+
 def command_phrase(command, cwd="", kind=""):
     """A command with no description, in words: what its main step does to what
     ("Listing docs", "Committing: Fix X", "Running the tests with bun")."""
@@ -1693,12 +1734,8 @@ def command_phrase(command, cwd="", kind=""):
             msg = next((args[i + 1] for i, a in enumerate(args[:-1]) if a in ("-m", "-am")), "")
             return f"Committing: {msg.splitlines()[0]}" if msg else "Committing"
         return GIT_VERBS.get(sub, f"Running git {sub}".strip())
-    if kind == "test" or sub == "test" or prog in ("pytest", "jest", "vitest"):
-        return f"Running the tests with {prog}"
-    if kind == "build" or sub == "build":
-        return f"Building with {prog}"
-    if kind == "deploy":
-        return f"Deploying with {prog}"
+    if kind in ("test", "build", "deploy") or sub in ("test", "build") or prog in ("pytest", "jest", "vitest"):
+        return run_phrase(kind or ("build" if sub == "build" else "test"), prog, args, where)
     if prog in ("npm", "pnpm", "yarn", "bun") and sub == "run" and len(plain) > 1:
         return f"Running {plain[1]}"
     if prog in ("ls", "tree"):

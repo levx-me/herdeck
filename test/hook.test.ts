@@ -690,12 +690,16 @@ for name, args in [("Bash", {"command": "cd x; python3 - <<'EOF'", "description"
                    ("WebFetch", {"url": "https://docs.anthropic.com/en/batch"}),
                    ("Agent", {"description": "Map the tests"})]:
     print(v.tool_summary(name, args, "/repo"))
+for kind, command in [("test", "bun test test/hook.test.ts"), ("test", "forge test --match-path 'test/*'"),
+                      ("build", "cargo build --release"), ("build", "docker build -t web ."), ("deploy", "vercel --prod")]:
+    print(v.command_phrase(command, "", kind))
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check]);
     expect(r.stderr.toString()).toBe("");
     expect(r.stdout.toString().trim().split("\n")).toEqual([
-      "Fix the dedupe", "Running the tests with pnpm", "Listing docs", "Running claude", "Running s3.py", "Reading b1.output", "Committing: Fix X", "Reading lib/llm.ts", "Searching for NAMES in lib",
+      "Fix the dedupe", "Running all the tests", "Listing docs", "Running claude", "Running s3.py", "Reading b1.output", "Committing: Fix X", "Reading lib/llm.ts", "Searching for NAMES in lib",
       "Reading docs.anthropic.com", "Handing off: Map the tests",
+      "Testing hook.test.ts", "Testing test/*", "Building for release", "Building the image web", "Deploying to production",
     ]);
   });
 });

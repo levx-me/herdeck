@@ -8,8 +8,9 @@ something runs, `●` for live servers. When something new comes in on another t
 you open it; the strip ends in a count of such tabs (`2 new`), and an arrow with one hidden behind it
 turns red too. A click on the count or that arrow goes to the nearest one (the deck stays where you are), and the new row fades in from the tab's colour.
 
-Runs are listed by their core command, not by prose: the agent is asked to describe its calls as
-`<kind>: <command>`, and anything else is cut down to the command by its shell tokens.
+Runs are listed in words: what a test run tests ("Testing auth", "Running all the tests"), what a build
+builds ("Building for release"), where a deploy goes ("Deploying to production"), and for jobs the agent's own
+description or the command's main step ("Running s3.py", "Waiting 60s"). The command itself heads the run's box.
 
 ---
 
