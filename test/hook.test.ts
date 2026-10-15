@@ -608,14 +608,14 @@ print(m.activate(row), went[0][0], went[0][1] == args[2])
     expect(went).toBe("True jobs True");
   });
 
-  test("unfolded, the activity card scrolls inside with its own cursor; esc folds it back onto its button", () => {
+  test("unfolded, the activity card (long phrases wrapped) scrolls inside with its own cursor; esc folds it back onto its button", () => {
     const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
     const main = join(dir, "s1.jsonl");
     mkdirSync(join(dir, "base"), { recursive: true });
     const rows = [];
     for (let i = 0; i < 30; i++) {
       const at = new Date(Date.now() - (30 - i) * 1000).toISOString();
-      rows.push({ type: "assistant", timestamp: at, message: { content: [{ type: "tool_use", id: `t${i}`, name: "Bash", input: { command: `echo ${i}`, description: `Step ${i}` } }] } });
+      rows.push({ type: "assistant", timestamp: at, message: { content: [{ type: "tool_use", id: `t${i}`, name: "Bash", input: { command: `echo ${i}`, description: `Step ${i}` + (i % 3 ? "" : " with a long description that goes well past the width of one row of the card") } }] } });
       rows.push({ type: "user", timestamp: at, message: { content: [{ type: "tool_result", tool_use_id: `t${i}`, content: "ok" }] } });
     }
     writeFileSync(main, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
@@ -631,7 +631,8 @@ shown = lambda: [v.ANSI.sub("", l) for l in s.frame(60, 30)[0]]
 m = s.runs[-1]
 s.list_key("\\r"); shown()                       # into the detail, on the fold (its only button)
 s.key("\\r"); p = shown()                        # unfolded: a window, newest first, all of it in view
-print(s.inside(), sum("Step" in l for l in p) > 5, any("1–" in l and "of 30" in l for l in p))
+print(s.inside(), sum("Step" in l for l in p) > 5, any("1–" in l and "of 30" in l for l in p),
+      any(l.strip("│ ").startswith("past the width") for l in p), not any("…" in l for l in p))  # wrapped, not cut
 for k in "jjj": s.key(k)
 s.key("\\x04"); shown()                          # j a row, ctrl+d half the window
 print(m.activity_at > 3, m.activity_top > 0)
@@ -644,7 +645,7 @@ print(s.inside(), s.focus, m.focus_key, any("▾ 25 more" in l for l in p))
       env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
     });
     expect(r.stderr.toString()).toBe("");
-    expect(r.stdout.toString().trim().split("\n")).toEqual(["True True True", "True True", "True True", "False log activity-fold True"]);
+    expect(r.stdout.toString().trim().split("\n")).toEqual(["True True True True True", "True True", "True True", "False log activity-fold True"]);
   });
 });
 

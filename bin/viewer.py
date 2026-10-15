@@ -1954,34 +1954,65 @@ def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
             usage.append(row("", line))
     out += card("model", usage, cols)
     # Activity: its latest words (the step it said it is on), then what it did, newest first: the
-    # last few, or unfolded a window (top, cursor, rows) on all of it, the cursor's row lit.
+    # last few, or unfolded a window ({top, at, rows}) on all of it, the cursor's call lit. Long
+    # phrases wrap in full rather than being cut.
     # A call that ran long has a button to its output in the jobs tab.
     links = links or {}
     activity = []
     lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
     said = next((l for l in lines if l), "")
-    if said:
+    if said:  # wrapped in full, its time at the end of the first row
         when = time.strftime("%H:%M", time.localtime(d.says_at)) if d.says_at else ""
-        said = cut(said, w - len(when) - 2)
-        activity.append(f"{fg(BRIGHT_RGB)}{said}{RESET}{' ' * max(2, w - cells(said) - len(when))}{fg(MUTED_RGB)}{when}{RESET}")
+        for i, part in enumerate(wrap(said, w - len(when) - 2)):
+            end = f"{' ' * max(2, w - cells(part) - len(when))}{fg(MUTED_RGB)}{when}" if i == 0 and when else ""
+            activity.append(f"{fg(BRIGHT_RGB)}{part}{RESET}{end}{RESET}")
     calls = list(reversed(d.recent))
-    top, at, rows = window or (0, -1, ACTIVITY_SHOWN)
-    for n, (call_id, phrase, started, state) in enumerate(calls[top:top + rows], top):
+
+    def rows_of(n):
+        """Call n's rows: its mark, the phrase wrapped in full, time and job button on the first row."""
+        call_id, phrase, started, state = calls[n]
         path = links.get(call_id)
         link = f"↗ jobs #{os.path.basename(path)}" if path else ""
         right = f"{took(time.time() - started)}" if not state and started else ""
         room = w - 2 - (len(link) + 3 if link else 0) - (len(right) + 1 if right else 0)
-        text = cut(phrase, max(4, room))
         mark = f"{fg(AMBER_RGB)}{spinner()}" if not state else f"{fg(GREEN_RGB)}✓" if state == "ok" else f"{fg(RED_RGB)}✗"
         ink = BRIGHT_RGB if not state or window else MUTED_RGB  # unfolded, done calls read bright too
         tail = (f"{fg(MUTED_RGB)}{right}{RESET} " if right else "") + (button(link, ACCENT["jobs"], focus == path) if link else "")
-        pad = w - 2 - cells(text) - visible_len(tail)
-        line = f"{mark}{RESET} {fg(ink)}{text}{RESET}{' ' * max(1, pad)}{tail}"
-        activity.append(bg(ACTIVE_RGB) + line.replace(RESET, RESET + bg(ACTIVE_RGB)) + RESET if n == at else line)
+        out = []
+        for i, part in enumerate(wrap(phrase, max(4, room))):
+            if i == 0:
+                pad = w - 2 - cells(part) - visible_len(tail)
+                out.append(f"{mark}{RESET} {fg(ink)}{part}{RESET}{' ' * max(1 if tail else 0, pad)}{tail}")
+            else:
+                out.append(f"  {fg(ink)}{part}{RESET}")
+        if window and n == window["at"]:
+            out = [bg(ACTIVE_RGB) + l.replace(RESET, RESET + bg(ACTIVE_RGB)) + " " * max(0, w - visible_len(l)) + RESET
+                   for l in out]
+        return out
+
+    if window:  # rows to fill: from top, keeping the cursor's call in, none left empty
+        at, budget = window["at"], window["rows"]
+        top = min(window["top"], at)
+        size = {}
+        rows = lambda n: size.setdefault(n, len(rows_of(n)))
+        while top < at and sum(rows(n) for n in range(top, at + 1)) > budget:
+            top += 1
+        used, last = rows(top), top
+        while last + 1 < len(calls) and used + rows(last + 1) <= budget:
+            last += 1
+            used += rows(last)
+        while top > 0 and used + rows(top - 1) <= budget:
+            top -= 1
+            used += rows(top)
+        window["top"], shown = top, range(top, last + 1)
+    else:
+        shown = range(min(ACTIVITY_SHOWN, len(calls)))
+    for n in shown:
+        activity += rows_of(n)
     if len(calls) > ACTIVITY_SHOWN:  # enter or a click there unfolds or folds it
         more = len(calls) - ACTIVITY_SHOWN
         if window:  # where the window is, after the fold
-            where = f"{fg(MUTED_RGB)}  {top + 1}–{min(top + rows, len(calls))} of {len(calls)}{RESET}"
+            where = f"{fg(MUTED_RGB)}  {shown[0] + 1}–{shown[-1] + 1} of {len(calls)}{RESET}"
             activity.append(button("▴ fewer", ACCENT["agents"], False) + where)
         else:
             activity.append(button(f"▾ {more} more", ACCENT["agents"], focus == "activity-fold"))
@@ -2159,15 +2190,14 @@ class AgentRun(Run):
         window = None
         if getattr(self, "activity_open", False):  # the window keeps the activity cursor in it
             total = len(self.digest.recent)
-            rows = max(1, min(getattr(self, "activity_rows", 10), total))
             at = max(0, min(getattr(self, "activity_at", 0), total - 1))
-            top = max(0, min(getattr(self, "activity_top", 0), total - rows))
-            top = at if at < top else at - rows + 1 if at >= top + rows else top
-            self.activity_at, self.activity_top = at, top
-            window = (top, at, rows)
+            window = {"top": max(0, getattr(self, "activity_top", 0)), "at": at,
+                      "rows": getattr(self, "activity_rows", 10)}  # rows of the card, not calls: they wrap
         out = status_block(name, colour, icon, since, self.stamps, self.cols) + \
             dashboard(self.digest, self.cols, isinstance(self, MainRun), self.label().strip(),
                       links, focus, window)
+        if window:  # the top the card settled on, the cursor's call in view
+            self.activity_at, self.activity_top = window["at"], window["top"]
         # Its controls, in order, with the row each is on: the keyboard moves between these.
         self.controls = []
         for n, line in enumerate(out):
