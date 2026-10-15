@@ -811,6 +811,10 @@ class Runs:
         """Text for the right end of the run list's top border."""
         return ""
 
+    def shade(self, y, line):
+        """A log row as drawn (agents mark their cursor row)."""
+        return line
+
     def place_cursor(self):
         """Where the output's cursor goes before the frame scrolls to it: pinned to the
         end while the run grows, or while the cursor is in the list."""
@@ -1018,7 +1022,8 @@ class Runs:
                     out.append(self.marked(y))
                 else:
                     # It reads dim while the cursor is in the list.
-                    out.append(tint(raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused else raw[y])
+                    out.append(tint(raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused
+                               else self.shade(y, raw[y]))
             return out
 
         top = drawn(extras, self.plain if in_head else [ANSI.sub("", l) for l in extras], 0, len(extras), in_head)
@@ -2294,7 +2299,7 @@ class Agents(Runs):
     # An agent's detail is no log: it reads the same picked or not, and enter moves the
     # keyboard between its controls (its jobs, the fold of a long request) instead.
     dim_unfocused = copy_cursor = False
-    control = 0
+    line = 0  # the detail's cursor row: j/k move it a row at a time, the view follows
 
     def controls(self):
         return getattr(self.runs[self.tab], "controls", []) if self.runs else []
@@ -2302,50 +2307,57 @@ class Agents(Runs):
     def frame(self, cols, rows):
         if self.runs:
             run = self.runs[self.tab]
-            keys = [k for k, _ in self.controls()]
-            self.control = min(self.control, max(0, len(keys) - 1))
-            run.focus_key = keys[self.control] if self.focus == "log" and keys else None
+            # The button on the cursor's row is lit.
+            run.focus_key = next((key for key, at in self.controls() if at == self.line), None) \
+                if self.focus == "log" else None
         return super().frame(cols, rows)
 
     def place_cursor(self):
-        """The detail starts at its top and scrolls only to keep the picked control in view."""
-        rows = [n for _, n in self.controls()]
-        if self.focus == "log" and rows and not getattr(self, "past", False):
-            self.cy = rows[min(self.control, len(rows) - 1)]
-        else:  # no control to follow (or j went on past the last one): the scroll stays as set
+        """In the detail the view follows the cursor row; from the list it stays where it was."""
+        if self.focus == "log":
+            self.line = max(0, min(self.line, len(self.plain) - 1))
+            self.cy = self.line
+        else:
             self.cy = self.offset
+
+    def shade(self, y, line):
+        """The cursor's row in the detail, on a lighter ground."""
+        if self.focus != "log" or y != self.line:
+            return line
+        return bg(ACTIVE_RGB) + line.replace(RESET, RESET + bg(ACTIVE_RGB)) + RESET
 
     def select(self, tab):
         super().select(tab)
-        self.offset, self.control, self.past = 0, 0, False
+        self.offset, self.line = 0, 0
 
     def list_key(self, k):
-        if k in ("\r", "\n", "l"):  # into the detail: onto its first control, if it has any
-            self.focus, self.control, self.past = "log", 0, False
+        if k in ("\r", "\n", "l"):  # into the detail, at its top
+            self.focus, self.line = "log", self.offset
             return
         super().list_key(k)
 
     def key(self, k):
         if not self.runs or self.focus == "list":
             return super().key(k)
-        count = len(self.controls())
-        past = getattr(self, "past", False)
-        if k == "k" and past:  # scrolled past the last button (still lit): k goes on up, to the one before
-            self.past = False
-            self.control = max(0, self.control - 1)
-        elif not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
-            self.offset = max(0, self.offset + (1 if k == "j" else -1))
-        elif k == "j" and self.control >= count - 1:  # past the last control: scroll on to the end
-            self.past = True
-            self.offset += 1
-        elif k in ("j", "\t"):
-            self.control = min(count - 1, self.control + 1)
-        elif k in ("k", "\x1b[Z"):
-            self.control = max(0, self.control - 1)
-        elif k == "h" and self.control == 0 and self.offset == 0:  # h or ← at the top: back to the list
+        rows = [at for _, at in self.controls()]
+        if k == "j":
+            self.line += 1
+        elif k == "k":
+            if self.line == 0:  # k on the first row goes back to the list
+                self.focus = "list"
+            self.line = max(0, self.line - 1)
+        elif k == "\t":  # to the next button
+            self.line = next((at for at in rows if at > self.line), self.line)
+        elif k == "\x1b[Z":  # to the one before
+            self.line = next((at for at in reversed(rows) if at < self.line), self.line)
+        elif k in ("g", "G"):
+            self.line = 0 if k == "g" else len(self.plain) - 1
+        elif k == "h" and self.line == 0:  # h or ← on the first row: back to the list
             self.focus = "list"
-        elif k in ("\r", "\n") and count:
-            self.runs[self.tab].press(self.controls()[self.control][0])
+        elif k in ("\r", "\n"):
+            key = next((key for key, at in self.controls() if at == self.line), None)
+            if key:
+                self.runs[self.tab].press(key)
         elif k == "\x1b":
             self.focus = "list"
 
@@ -2357,21 +2369,23 @@ class Agents(Runs):
             self.focus = "list"
             return
         line = self.offset + row - getattr(self, "body_row", 99)
-        for n, (key, at) in enumerate(self.controls()):
+        if line >= 0:
+            self.focus, self.line = "log", line
+        for key, at in self.controls():
             if at == line:
-                self.focus, self.control = "log", n
                 self.runs[self.tab].press(key)
 
     def wheel(self, down, row=0):
         if self.runs and HEAD_ROW < row <= HEAD_ROW + len(getattr(self, "listed", [])):
             return super().wheel(down, row)
         self.offset = max(0, self.offset + (3 if down else -3))
+        self.line = max(0, self.line + (3 if down else -3))
 
     def hints(self):
         if self.focus == "log":
             if not self.controls():
                 return [("h/esc", "back")]
-            return [("enter", "press"), ("h/esc", "back")]
+            return [("tab", "next button"), ("enter", "press"), ("h/esc", "back")]
         return [("L", "side"), ("[ ]", "tabs"), (",", "settings"), ("ctrl+c", "close")]
 
 
@@ -2603,8 +2617,8 @@ class Deck:
         if k == "," and not (view.focus == "log" and view.copy_cursor):
             self.settings_open, self.setting = True, 0
             return
-        if k in ("\t", "\x1b[Z") and view.focus == "log" and view.copy_cursor:
-            view.key(k)  # in a run's output, tab moves between its command and its log
+        if k in ("\t", "\x1b[Z") and view.focus == "log":
+            view.key(k)  # in a run's box, tab moves within it (a run's command and log; an agent's buttons)
         elif k in ("\t", "]"):
             self.choose(self.section + 1)
         elif k in ("\x1b[Z", "["):

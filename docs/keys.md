@@ -42,7 +42,7 @@ apply right now.
 | | `h` `j` `k` `l` at an edge | cross between them as one text; `k` on the first line or `h` on the first character goes back to the list |
 | | `esc` | cancel the selection, or back to the run list |
 | servers | `o` | open the server in the browser |
-| agents | `enter`, then `j` `k`, `enter`, `esc` | move between an agent's controls (its jobs, the fold of a long request) and press one |
+| agents | `enter`, then `j` `k`, `tab`, `enter`, `esc` | in an agent's detail: move a row at a time (the view follows), jump to the next button, press it |
 
 Arrow keys work as `h` `j` `k` `l` everywhere. The run list and the run's box under it each take the
 tab's colour on their border while the cursor is in them; while it is in the list, the run's command
