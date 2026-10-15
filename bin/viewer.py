@@ -43,6 +43,7 @@ import unicodedata
 BASE = sys.argv[1] if len(sys.argv) > 1 else os.environ["STEADING_BASE"]  # plugin panes pass it in the env
 SERVERS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "servers")
 SECTIONS = ["agents", "jobs", "servers", "build", "test", "git", "deploy"]
+FOCUS = {"pane": True}  # whether the deck's pane has the keyboard; without it the accents go grey
 TAB_KEYS = [s[0].upper() for s in SECTIONS]  # A J S B T G D, one each
 # Screen rows (1-based, as in mouse reports): section tabs, then the section's
 # head (run list box, command, info line, rule) and its body.
@@ -1020,17 +1021,18 @@ class Runs:
         """lines in a rounded box cols wide and room rows tall inside, its border in
         the section's colour when lit."""
         inner = max(10, cols - 4)
-        edge = fg(ACCENT[self.kind]) if lit else fg("70;76;88")
+        edge = fg(ACCENT[self.kind]) if lit and FOCUS["pane"] else fg("70;76;88")
         out = [f"{edge}╭{'─' * (inner + 2)}╮{RESET}"]
         for line in (lines + [""] * room)[:room]:
-            line = fit(line, inner)
+            # Without the keyboard the deck's content reads faint too, its colours kept.
+            line = fit(line if FOCUS["pane"] else tint(line, DIMMED_RGB), inner)
             out.append(f"{edge}│{RESET} {line}{RESET}{' ' * max(0, inner - cells(ANSI.sub('', line)))} {edge}│{RESET}")
         return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
     def empty_frame(self, cols, rows):
         """A tab with nothing yet: its empty list, then what will show here and how, centred."""
         title, hint = EMPTY[self.kind]
-        edge, inner = fg(ACCENT[self.kind]), max(10, cols - 4)
+        edge, inner = fg(ACCENT[self.kind] if FOCUS["pane"] else "70;76;88"), max(10, cols - 4)
         head = f" {self.noun} · 0 "
         right = self.title_right()
         if cols - 4 - len(head) - visible_len(right) < 1:
@@ -1061,7 +1063,7 @@ class Runs:
         """The runs in a rounded box, newest on top, the one on show raised;
         scrolls past LIST_ROWS. The border takes the accent while the list has
         the focus."""
-        edge = fg(ACCENT[self.kind]) if self.focus == "list" else fg("70;76;88")
+        edge = fg(ACCENT[self.kind]) if self.focus == "list" and FOCUS["pane"] else fg("70;76;88")
         inner = cols - 2
         title = f" {self.noun} · {len(self.runs)} "
         right = self.title_right()
@@ -1368,11 +1370,11 @@ class Git(Runs):
 
     def __init__(self):
         super().__init__("git")
-        self.repo, self.at, self.reading = "", 0.0, False
+        self.repo, self.looked_at, self.reading = "", 0.0, False
 
     def refresh(self):
-        if time.time() - self.at >= 3 and not self.reading:
-            self.reading, self.at = True, time.time()
+        if time.time() - self.looked_at >= 3 and not self.reading:
+            self.reading, self.looked_at = True, time.time()
             background(self.read_repo)
         return super().refresh()
 
@@ -1421,11 +1423,11 @@ class Servers(Runs):
 
     def __init__(self):
         super().__init__("servers")
-        self.found, self.at, self.scanning = [], 0.0, False
+        self.found, self.looked_at, self.scanning = [], 0.0, False
 
     def refresh(self):
         # lsof takes ~0.2s: scan in a thread so the deck never waits on it.
-        if time.time() - self.at >= 2 and not self.scanning:
+        if time.time() - self.looked_at >= 2 and not self.scanning:
             self.scanning = True
             threading.Thread(target=self.scan, daemon=True).start()
         # Keep each server's object (and its log) and the one picked; lowest port on top.
@@ -1445,7 +1447,7 @@ class Servers(Runs):
             self.tab = keys.index(picked)
         elif self.runs:
             self.select(len(self.runs) - 1)
-        if self.at:  # once a scan has answered
+        if self.looked_at:  # once a scan has answered
             self.seen = set(keys)
         return False
 
@@ -1462,7 +1464,7 @@ class Servers(Runs):
             except (OSError, subprocess.SubprocessError):
                 pass
         self.found = [l.split("\t", 2) for l in out.splitlines() if l.count("\t") == 2]
-        self.at, self.scanning = time.time(), False
+        self.looked_at, self.scanning = time.time(), False
 
     def badge(self):
         return ("●", GREEN_RGB) if self.runs else ("·", MUTED_RGB)
@@ -2294,7 +2296,23 @@ class Deck:
         except OSError:
             pass
 
+    def look_focus(self):
+        """Ask herdr whether this deck's pane has the keyboard (when the terminal
+        sends no focus reports)."""
+        try:
+            out = subprocess.run([os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "get", read(os.path.join(BASE, "pane"))],
+                                 capture_output=True, text=True, timeout=2).stdout
+            FOCUS["pane"] = bool(json.loads(out)["result"]["pane"]["focused"])
+        except (OSError, subprocess.SubprocessError, ValueError, KeyError):
+            pass
+        self.looking = False
+
     def refresh(self):
+        # Focus reports arrive at once, when the terminal and herdr pass them on; herdr is
+        # asked as well, since focus moved by herdr itself (a key, the API) may send none.
+        if not getattr(self, "looking", False) and time.time() - getattr(self, "looked", 0) >= 0.5:
+            self.looking, self.looked = True, time.time()
+            background(self.look_focus)
         # Something new elsewhere marks its tab instead of taking the deck there.
         for i, view in enumerate(self.views):
             if view.refresh() and i != self.section:
@@ -2321,7 +2339,9 @@ class Deck:
             # No number on the tab (1-7 still jump there): more fit a narrow pane.
             # Its first letter underlined: shift and that letter (A, J, S, ...) goes there.
             name = f"\033[4m{name[0]}\033[24m{name[1:]}"
-            if i == self.section:
+            if i == self.section and not FOCUS["pane"]:  # shown, but the keyboard is elsewhere: grey
+                text = f"{bg(ACTIVE_RGB)}{fg(BRIGHT_RGB)}{BOLD} {name} {icon} \033[22m"
+            elif i == self.section:
                 text = f"{bg(ACCENT[view.kind])}{fg(STRIP_RGB)}{BOLD} {name} {icon} \033[22m"
             elif i in self.unseen:
                 text = f"{bg(self.NEW_RGB)}{fg(BRIGHT_RGB)}{BOLD} {name} {icon} \033[22m"
@@ -2343,7 +2363,9 @@ class Deck:
         for line in (head + body)[:rows - 2]:
             out += ["\r\n", fit(line, cols), RESET, "\033[K"]
         out.append("\033[J")
-        hints = "  ".join(f"{fg(BRIGHT_RGB)}{key} {fg(MUTED_RGB)}{what}" for key, what in view.hints())
+        # Keys only matter with the keyboard here: faint without it.
+        key_rgb, what_rgb = (BRIGHT_RGB, MUTED_RGB) if FOCUS["pane"] else (DIMMED_RGB, DIMMED_RGB)
+        hints = "  ".join(f"{fg(key_rgb)}{key} {fg(what_rgb)}{what}" for key, what in view.hints())
         out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
         frame = "".join(out)
         if frame == self.last_frame:  # nothing changed: leave the screen alone
@@ -2437,14 +2459,14 @@ def main():
 
     def restore():
         termios.tcsetattr(fd, termios.TCSADRAIN, saved)
-        sys.stdout.write("\033[<u\033[?1006l\033[?1002l\033[?1000l\033[?7h\033[?25h\033[?1049l")
+        sys.stdout.write("\033[?1004l\033[<u\033[?1006l\033[?1002l\033[?1000l\033[?7h\033[?25h\033[?1049l")
         sys.stdout.flush()
 
     # Alternate screen, hidden cursor, no autowrap (long lines are cut, not
     # wrapped), and SGR mouse reports so clicks and the wheel reach the deck.
     # Kitty keyboard protocol, disambiguate only: esc then comes as its own sequence, so
     # nothing on the way (herdr, the terminal) has to wait to tell it from an arrow key.
-    sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1002h\033[?1006h\033[>1u")
+    sys.stdout.write("\033[?1049h\033[?25l\033[?7l\033[?1000h\033[?1002h\033[?1006h\033[>1u\033[?1004h")  # 1004: focus in/out reports
     try:
         tty.setcbreak(fd)
         while True:
@@ -2475,6 +2497,9 @@ def main():
                         key = legacy(key)
                         view = deck.views[deck.section]
                         typing = getattr(view, "search", None) is not None
+                        if key in ("\x1b[I", "\x1b[O"):  # the pane got or lost the keyboard
+                            FOCUS["pane"] = key == "\x1b[I"
+                            continue
                         if key == "\x03":  # ctrl+c, when the keyboard protocol sends it as a key, not a signal
                             return
                         if key == "q" and not typing:
