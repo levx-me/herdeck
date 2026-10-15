@@ -572,7 +572,7 @@ print(*(r.id for r in reversed(s.runs)))  # top down, as drawn
     expect(r.stdout.toString().trim()).toBe("main p2 p1 k1 g1");
   });
 
-  test("the now card shows a call that ran long with a button to its output in the jobs tab", () => {
+  test("the activity card shows a call that ran long with a button to its output in the jobs tab", () => {
     const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
     const main = join(dir, "s1.jsonl");
     const job = join(dir, "base", "jobs", "runs", "1");
@@ -595,7 +595,7 @@ went = []
 s.jump = lambda kind, path: went.append((kind, path))
 m = s.runs[-1]
 lines = m.plain()
-row = next(l for l in lines if "↗ jobs #1" in l)       # the call, in the now card, with its button
+row = next(l for l in lines if "↗ jobs #1" in l)       # the call, in the activity card, with its button
 print(row.strip("│ ").split("  ")[0])
 print(m.activate(row), went[0][0], went[0][1] == args[2])
 `;
@@ -606,6 +606,45 @@ print(m.activate(row), went[0][0], went[0][1] == args[2])
     const [row, went] = r.stdout.toString().trim().split("\n");
     expect(row).toEndWith("sleep 60"); // the call as a phrase, its spinner before it
     expect(went).toBe("True jobs True");
+  });
+
+  test("unfolded, the activity card scrolls inside with its own cursor; esc folds it back onto its button", () => {
+    const dir = mkdtempSync(join(tmpdir(), "steading-session-"));
+    const main = join(dir, "s1.jsonl");
+    mkdirSync(join(dir, "base"), { recursive: true });
+    const rows = [];
+    for (let i = 0; i < 30; i++) {
+      const at = new Date(Date.now() - (30 - i) * 1000).toISOString();
+      rows.push({ type: "assistant", timestamp: at, message: { content: [{ type: "tool_use", id: `t${i}`, name: "Bash", input: { command: `echo ${i}`, description: `Step ${i}` } }] } });
+      rows.push({ type: "user", timestamp: at, message: { content: [{ type: "tool_result", tool_use_id: `t${i}`, content: "ok" }] } });
+    }
+    writeFileSync(main, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
+    const check = `
+import sys, time
+from importlib.machinery import SourceFileLoader
+args = sys.argv[1:]; sys.argv = sys.argv[:1]
+v = SourceFileLoader("v", args[0]).load_module()
+v.background = lambda fn, *a: fn(*a)
+s = v.Agents(); s.session, s.looked = args[1], time.time()
+s.read_main(); s.refresh()
+shown = lambda: [v.ANSI.sub("", l) for l in s.frame(60, 30)[0]]
+m = s.runs[-1]
+s.list_key("\\r"); shown()                       # into the detail, on the fold (its only button)
+s.key("\\r"); p = shown()                        # unfolded: a window, newest first, all of it in view
+print(s.inside(), sum("Step" in l for l in p) > 5, any("1–" in l and "of 30" in l for l in p))
+for k in "jjj": s.key(k)
+s.key("\\x04"); shown()                          # j a row, ctrl+d half the window
+print(m.activity_at > 3, m.activity_top > 0)
+s.key("G"); p = shown()
+print(any("Step 0" in l for l in p), any("of 30" in l and l.split("of 30")[0].rstrip().endswith("30") for l in p))
+s.key("\\x1b"); p = shown()                      # esc folds; the button is picked again
+print(s.inside(), s.focus, m.focus_key, any("▾ 25 more" in l for l in p))
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
+      env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
+    });
+    expect(r.stderr.toString()).toBe("");
+    expect(r.stdout.toString().trim().split("\n")).toEqual(["True True True", "True True", "True True", "False log activity-fold True"]);
   });
 });
 

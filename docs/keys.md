@@ -42,7 +42,8 @@ apply right now.
 | | `h` `j` `k` `l` at an edge | cross between them as one text; `k` on the first line or `h` on the first character goes back to the list |
 | | `esc` | cancel the selection, or back to the run list |
 | servers | `o` | open the server in the browser |
-| agents | `enter`, then `j` `k`, `tab`, `enter`, `esc` | in an agent's detail: move a row at a time (the view follows), jump to the next button, press it |
+| agents | `enter`, then `j` `k`, `enter`, `esc` | in an agent's detail: move between its buttons, press one |
+| | on "▾ N more": `enter`, then `j` `k`, `ctrl+d` `ctrl+u`, `ctrl+f` `ctrl+b`, `ctrl+e` `ctrl+y`, `g` `G`, `esc` | the activity card unfolds and scrolls on its own, with its own cursor (vim's keys; `enter` on a long call opens its output in jobs); `esc` folds it |
 
 Arrow keys work as `h` `j` `k` `l` everywhere. The run list and the run's box under it each take the
 tab's colour on their border while the cursor is in them; while it is in the list, the run's command

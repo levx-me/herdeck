@@ -811,10 +811,6 @@ class Runs:
         """Text for the right end of the run list's top border."""
         return ""
 
-    def shade(self, y, line):
-        """A log row as drawn (agents mark their cursor row)."""
-        return line
-
     def place_cursor(self):
         """Where the output's cursor goes before the frame scrolls to it: pinned to the
         end while the run grows, or while the cursor is in the list."""
@@ -1022,8 +1018,7 @@ class Runs:
                     out.append(self.marked(y))
                 else:
                     # It reads dim while the cursor is in the list.
-                    out.append(tint(raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused
-                               else self.shade(y, raw[y]))
+                    out.append(tint(raw[y], DIMMED_RGB) if self.focus == "list" and self.dim_unfocused else raw[y])
             return out
 
         top = drawn(extras, self.plain if in_head else [ANSI.sub("", l) for l in extras], 0, len(extras), in_head)
@@ -1178,7 +1173,9 @@ class Runs:
             if selected or fade < 1:
                 # The arrow only while the list is grey (the cursor in the log): whose output it is.
                 arrow = fg(MUTED_RGB) + ("➜" if first and self.focus == "log" else " ")
-                back = blend(ACCENT[self.kind], ACTIVE_RGB, fade) if fade < 1 else ACTIVE_RGB
+                # The selected row stands out while the list has the focus, and steps back while the log has it.
+                ground = ACTIVE_RGB if self.focus == "list" else TAB_RGB
+                back = blend(ACCENT[self.kind], ground, fade) if fade < 1 else ground
                 ink = STRIP_RGB if fade < 0.5 else BRIGHT_RGB  # dark on the bright start, then light
                 weight = "" if sub else BOLD
                 ink = MUTED_RGB if sub and fade >= 0.5 else ink
@@ -1818,7 +1815,7 @@ def bar(parts, width):
     return out + f"{fg(TAB_RGB)}{'░' * (width - used)}{RESET}"
 
 
-NOW_FOLD = re.compile(r"▾ \d+ more|▴ fewer")
+ACTIVITY_FOLD = re.compile(r"▾ \d+ more|▴ fewer")
 
 
 def button(text, rgb, focused):
@@ -1840,12 +1837,12 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
-NOW_SHOWN = 5  # calls in the now card before "▾ N more"
+ACTIVITY_SHOWN = 5  # calls in the activity card before "▾ N more"
 
 
-def dashboard(d, cols, main, title="", links=None, focus=None, now_open=False):
+def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
     """Everything known about an agent, in cards: what it is (session or task), model
-    and usage, what it is doing and did (now), and tasks. A card with nothing is left out."""
+    and usage, what it is doing and did (activity), and tasks. A card with nothing is left out."""
     w = max(16, cols - 4)  # inside a card
     wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<8}{RESET}{value}"
@@ -1884,34 +1881,40 @@ def dashboard(d, cols, main, title="", links=None, focus=None, now_open=False):
         if used:
             usage.append(row("", line))
     out += card("model", usage, cols)
-    # Now: its latest words (the step it said it is on), then what it did, newest first: the last
-    # few, or all of it unfolded. A call that ran long has a button to its output in the jobs tab.
+    # Activity: its latest words (the step it said it is on), then what it did, newest first: the
+    # last few, or unfolded a window (top, cursor, rows) on all of it, the cursor's row lit.
+    # A call that ran long has a button to its output in the jobs tab.
     links = links or {}
-    now = []
+    activity = []
     lines = [re.sub(r"[*_`#>]+", "", l).strip() for l in (d.says or "").splitlines()]
     said = next((l for l in lines if l), "")
     if said:
         when = time.strftime("%H:%M", time.localtime(d.says_at)) if d.says_at else ""
         said = cut(said, w - len(when) - 2)
-        now.append(f"{fg(BRIGHT_RGB)}{said}{RESET}{' ' * max(2, w - cells(said) - len(when))}{fg(MUTED_RGB)}{when}{RESET}")
+        activity.append(f"{fg(BRIGHT_RGB)}{said}{RESET}{' ' * max(2, w - cells(said) - len(when))}{fg(MUTED_RGB)}{when}{RESET}")
     calls = list(reversed(d.recent))
-    shown = calls if now_open else calls[:NOW_SHOWN]
-    for call_id, phrase, started, state in shown:
+    top, at, rows = window or (0, -1, ACTIVITY_SHOWN)
+    for n, (call_id, phrase, started, state) in enumerate(calls[top:top + rows], top):
         path = links.get(call_id)
         link = f"↗ jobs #{os.path.basename(path)}" if path else ""
         right = f"{took(time.time() - started)}" if not state and started else ""
         room = w - 2 - (len(link) + 3 if link else 0) - (len(right) + 1 if right else 0)
         text = cut(phrase, max(4, room))
         mark = f"{fg(AMBER_RGB)}{spinner()}" if not state else f"{fg(GREEN_RGB)}✓" if state == "ok" else f"{fg(RED_RGB)}✗"
-        ink = BRIGHT_RGB if not state else MUTED_RGB
+        ink = BRIGHT_RGB if not state or window else MUTED_RGB  # unfolded, done calls read bright too
         tail = (f"{fg(MUTED_RGB)}{right}{RESET} " if right else "") + (button(link, ACCENT["jobs"], focus == path) if link else "")
         pad = w - 2 - cells(text) - visible_len(tail)
-        now.append(f"{mark}{RESET} {fg(ink)}{text}{RESET}{' ' * max(1, pad)}{tail}")
-    if len(calls) > NOW_SHOWN:  # enter or a click there unfolds or folds it
-        more = len(calls) - NOW_SHOWN
-        now.append(button("▴ fewer" if now_open else f"▾ {more} more", ACCENT["agents"], focus == "now-fold"))
-    if now:
-        out += card("now", now, cols)
+        line = f"{mark}{RESET} {fg(ink)}{text}{RESET}{' ' * max(1, pad)}{tail}"
+        activity.append(bg(ACTIVE_RGB) + line.replace(RESET, RESET + bg(ACTIVE_RGB)) + RESET if n == at else line)
+    if len(calls) > ACTIVITY_SHOWN:  # enter or a click there unfolds or folds it
+        more = len(calls) - ACTIVITY_SHOWN
+        if window:  # where the window is, after the fold
+            where = f"{fg(MUTED_RGB)}  {top + 1}–{min(top + rows, len(calls))} of {len(calls)}{RESET}"
+            activity.append(button("▴ fewer", ACCENT["agents"], False) + where)
+        else:
+            activity.append(button(f"▾ {more} more", ACCENT["agents"], focus == "activity-fold"))
+    if activity:
+        out += card("activity", activity, cols)
     # tasks
     if d.tasks:
         done = sum(1 for _, st in d.tasks.values() if st == "completed")
@@ -2064,7 +2067,7 @@ class AgentRun(Run):
 
     def job_links(self):
         """{tool call id: run path} for its calls the jobs tab lists (the ones that ran long),
-        so the now card can lead to their output."""
+        so the activity card can lead to their output."""
         links = {}
         for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
             call = read(idfile)
@@ -2080,9 +2083,19 @@ class AgentRun(Run):
         links = self.job_links()
         # Found again by "↗ jobs #n": its rows are redrawn (spinner, time) between frames.
         self.job_rows = {f"↗ jobs #{os.path.basename(path)}": path for path in links.values()}
+        self.links = links
+        window = None
+        if getattr(self, "activity_open", False):  # the window keeps the activity cursor in it
+            total = len(self.digest.recent)
+            rows = max(1, min(getattr(self, "activity_rows", 10), total))
+            at = max(0, min(getattr(self, "activity_at", 0), total - 1))
+            top = max(0, min(getattr(self, "activity_top", 0), total - rows))
+            top = at if at < top else at - rows + 1 if at >= top + rows else top
+            self.activity_at, self.activity_top = at, top
+            window = (top, at, rows)
         out = status_block(name, colour, icon, since, self.stamps, self.cols) + \
             dashboard(self.digest, self.cols, isinstance(self, MainRun), self.label().strip(),
-                      links, focus, getattr(self, "now_open", False))
+                      links, focus, window)
         # Its controls, in order, with the row each is on: the keyboard moves between these.
         self.controls = []
         for n, line in enumerate(out):
@@ -2090,22 +2103,30 @@ class AgentRun(Run):
             job = next((p for link, p in self.job_rows.items() if link in text), None)
             if job:
                 self.controls.append((job, n))
-            elif NOW_FOLD.search(text):
-                self.controls.append(("now-fold", n))
+            elif ACTIVITY_FOLD.search(text):
+                self.controls.append(("activity-fold", n))
+                if window:  # where the unfolded card starts and ends: the view holds all of it
+                    self.activity_span = (next(i for i in range(n, -1, -1) if "╭─ activity " in ANSI.sub("", out[i])), n + 1)
         return out
+
+    def activity_job(self):
+        """The job (its run path) of the call under the activity cursor, if it ran long."""
+        calls = list(reversed(self.digest.recent))
+        at = getattr(self, "activity_at", 0)
+        return getattr(self, "links", {}).get(calls[at][0]) if 0 <= at < len(calls) else None
 
     def press(self, key):
         """enter on the control key: a job goes to its output in the jobs tab; the fold shows
         everything the agent did, or the last few again."""
-        if key == "now-fold":
-            self.now_open = not getattr(self, "now_open", False)
+        if key == "activity-fold":
+            self.activity_open = not getattr(self, "activity_open", False)
         elif getattr(self.deck, "jump", None):
             self.deck.jump("jobs", key)
 
     def activate(self, line):
         """A click on a job's button goes to its output in the jobs tab; on the fold, all or fewer."""
-        if NOW_FOLD.search(line):
-            self.press("now-fold")
+        if ACTIVITY_FOLD.search(line):
+            self.press("activity-fold")
             return True
         job = next((p for link, p in getattr(self, "job_rows", {}).items() if link in line), None)
         if job and getattr(self.deck, "jump", None):
@@ -2297,67 +2318,112 @@ class Agents(Runs):
         return ("·", MUTED_RGB)
 
     # An agent's detail is no log: it reads the same picked or not, and enter moves the
-    # keyboard between its controls (its jobs, the fold of a long request) instead.
+    # keyboard between its controls (its jobs, the fold of its activity) instead. Unfolded,
+    # the activity card scrolls on its own, with a cursor of its own, until esc folds it.
     dim_unfocused = copy_cursor = False
-    line = 0  # the detail's cursor row: j/k move it a row at a time, the view follows
+    control = 0
 
     def controls(self):
         return getattr(self.runs[self.tab], "controls", []) if self.runs else []
 
+    def inside(self):
+        """The activity card is unfolded and the keyboard is in it."""
+        return bool(self.runs) and self.focus == "log" and getattr(self.runs[self.tab], "activity_open", False)
+
     def frame(self, cols, rows):
         if self.runs:
             run = self.runs[self.tab]
-            # The button on the cursor's row is lit.
-            run.focus_key = next((key for key, at in self.controls() if at == self.line), None) \
-                if self.focus == "log" else None
+            run.activity_rows = max(3, self.height - 5)  # the card's window: the box, less its said line, borders and fold
+            keys = [k for k, _ in self.controls()]
+            if getattr(self, "want", None) in keys:  # back on the fold after it closes
+                self.control = keys.index(self.want)
+            self.want = None
+            self.control = min(self.control, max(0, len(keys) - 1))
+            if self.inside():
+                run.focus_key = run.activity_job()
+            else:
+                run.focus_key = keys[self.control] if self.focus == "log" and keys else None
         return super().frame(cols, rows)
 
     def place_cursor(self):
-        """In the detail the view follows the cursor row; from the list it stays where it was."""
-        if self.focus == "log":
-            self.line = max(0, min(self.line, len(self.plain) - 1))
-            self.cy = self.line
-        else:
+        """The detail starts at its top and scrolls only to keep the picked control (or the
+        activity cursor) in view."""
+        rows = [n for _, n in self.controls()]
+        span = getattr(self.runs[self.tab], "activity_span", None) if self.inside() else None
+        if span:  # the unfolded card, top to bottom: it scrolls inside, the detail stays put
+            self.offset, self.cy = span[0], min(span[1], span[0] + self.height - 1)
+        elif self.focus == "log" and rows and not getattr(self, "past", False):
+            self.cy = rows[min(self.control, len(rows) - 1)]
+        else:  # no control to follow (or j went on past the last one): the scroll stays as set
             self.cy = self.offset
-
-    def shade(self, y, line):
-        """The cursor's row in the detail, on a lighter ground."""
-        if self.focus != "log" or y != self.line:
-            return line
-        return bg(ACTIVE_RGB) + line.replace(RESET, RESET + bg(ACTIVE_RGB)) + RESET
 
     def select(self, tab):
         super().select(tab)
-        self.offset, self.line = 0, 0
+        self.offset, self.control, self.past = 0, 0, False
 
     def list_key(self, k):
-        if k in ("\r", "\n", "l"):  # into the detail, at its top
-            self.focus, self.line = "log", self.offset
+        if k in ("\r", "\n", "l"):  # into the detail: onto its first control, if it has any
+            self.focus, self.control, self.past = "log", 0, False
             return
         super().list_key(k)
+
+    def fold(self):
+        self.runs[self.tab].activity_open, self.want = False, "activity-fold"
+
+    def activity_key(self, k):
+        """Keys in the unfolded activity card: j/k a row, vim's ctrl+d/u, f/b, e/y, g/G,
+        enter to a job's output, esc (or h) folds it. False: not one of these."""
+        run = self.runs[self.tab]
+        total, rows = len(run.digest.recent), max(1, min(run.activity_rows, len(run.digest.recent)))
+        at, top = getattr(run, "activity_at", 0), getattr(run, "activity_top", 0)
+        if k in ("j", "k"):
+            at += 1 if k == "j" else -1
+        elif k in SCROLLS:
+            step = SCROLLS[k](rows)
+            top = max(0, min(top + step, total - rows))
+            at = max(top, min(at, top + rows - 1)) if k in "\x05\x19" else at + step
+        elif k in ("g", "G"):
+            at = 0 if k == "g" else total - 1
+        elif k in ("\r", "\n"):
+            if run.activity_job():
+                run.press(run.activity_job())
+            return True
+        elif k in ("\x1b", "h"):
+            self.fold()
+            return True
+        else:
+            return False
+        run.activity_at, run.activity_top = max(0, min(at, total - 1)), top
+        return True
 
     def key(self, k):
         if not self.runs or self.focus == "list":
             return super().key(k)
-        rows = [at for _, at in self.controls()]
-        if k == "j":
-            self.line += 1
-        elif k == "k":
-            if self.line == 0:  # k on the first row goes back to the list
-                self.focus = "list"
-            self.line = max(0, self.line - 1)
-        elif k == "\t":  # to the next button
-            self.line = next((at for at in rows if at > self.line), self.line)
-        elif k == "\x1b[Z":  # to the one before
-            self.line = next((at for at in reversed(rows) if at < self.line), self.line)
-        elif k in ("g", "G"):
-            self.line = 0 if k == "g" else len(self.plain) - 1
-        elif k == "h" and self.line == 0:  # h or ← on the first row: back to the list
+        if self.inside():
+            if self.activity_key(k):
+                return
+            self.fold()  # any other key (tab, ...) leaves the card folded, then does what it does
+        count = len(self.controls())
+        past = getattr(self, "past", False)
+        if k == "k" and past:  # scrolled past the last button (still lit): k goes on up, to the one before
+            self.past = False
+            self.control = max(0, self.control - 1)
+        elif not count and k in ("j", "k"):  # nothing to press: j/k scroll the detail
+            self.offset = max(0, self.offset + (1 if k == "j" else -1))
+        elif k == "j" and self.control >= count - 1:  # past the last control: scroll on to the end
+            self.past = True
+            self.offset += 1
+        elif k in ("j", "\t"):
+            self.control = min(count - 1, self.control + 1)
+        elif k in ("k", "\x1b[Z"):
+            self.control = max(0, self.control - 1)
+        elif k == "h" and self.control == 0 and self.offset == 0:  # h or ← at the top: back to the list
             self.focus = "list"
-        elif k in ("\r", "\n"):
-            key = next((key for key, at in self.controls() if at == self.line), None)
-            if key:
-                self.runs[self.tab].press(key)
+        elif k in ("\r", "\n") and count:
+            key = self.controls()[self.control][0]
+            self.runs[self.tab].press(key)
+            if key == "activity-fold" and self.runs[self.tab].activity_open:  # into the card, at its newest
+                self.runs[self.tab].activity_at = self.runs[self.tab].activity_top = 0
         elif k == "\x1b":
             self.focus = "list"
 
@@ -2369,24 +2435,35 @@ class Agents(Runs):
             self.focus = "list"
             return
         line = self.offset + row - getattr(self, "body_row", 99)
-        if line >= 0:
-            self.focus, self.line = "log", line
-        for key, at in self.controls():
+        for n, (key, at) in enumerate(self.controls()):
             if at == line:
+                self.focus, self.control = "log", n
                 self.runs[self.tab].press(key)
+                if key == "activity-fold" and not self.runs[self.tab].activity_open:
+                    self.want = key
+                return
 
     def wheel(self, down, row=0):
         if self.runs and HEAD_ROW < row <= HEAD_ROW + len(getattr(self, "listed", [])):
             return super().wheel(down, row)
+        if self.inside():  # the unfolded card scrolls, the detail stays
+            for _ in range(3):
+                self.activity_key("\x05" if down else "\x19")
+            return
         self.offset = max(0, self.offset + (3 if down else -3))
-        self.line = max(0, self.line + (3 if down else -3))
 
     def hints(self):
+        if self.inside():
+            return [("ctrl+d/u", "page"), ("esc", "fold")]
         if self.focus == "log":
             if not self.controls():
                 return [("h/esc", "back")]
-            return [("tab", "next button"), ("enter", "press"), ("h/esc", "back")]
+            return [("enter", "press"), ("h/esc", "back")]
         return [("L", "side"), ("[ ]", "tabs"), (",", "settings"), ("ctrl+c", "close")]
+
+
+SCROLLS = {"\x04": lambda h: h // 2 or 1, "\x15": lambda h: -(h // 2 or 1), "\x06": lambda h: h, "\x02": lambda h: -h,
+           "\x05": lambda h: 1, "\x19": lambda h: -1}
 
 
 class Deck:

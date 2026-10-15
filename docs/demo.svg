@@ -831,8 +831,8 @@
 <text x="1484.0" y="483.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#464c58">│</text>
 <text x="1022.0" y="502.7" textLength="470.4" lengthAdjust="spacingAndGlyphs" fill="#464c58">╰──────────────────────────────────────────────────────╯</text>
 <text x="1022.0" y="521.7" textLength="16.8" lengthAdjust="spacingAndGlyphs" fill="#464c58">╭─</text>
-<text x="1047.2" y="521.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">now</text>
-<text x="1080.8" y="521.7" textLength="411.6" lengthAdjust="spacingAndGlyphs" fill="#464c58">────────────────────────────────────────────────╮</text>
+<text x="1047.2" y="521.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">activity</text>
+<text x="1122.8" y="521.7" textLength="369.6" lengthAdjust="spacingAndGlyphs" fill="#464c58">───────────────────────────────────────────╮</text>
 <text x="1022.0" y="540.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#464c58">│</text>
 <text x="1038.8" y="540.7" textLength="336.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">Fixing the expiry check, then the tests.</text>
 <text x="1425.2" y="540.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">19:42</text>
