@@ -51,7 +51,8 @@ Commands run in the deck get `CI=1` (no watch modes) and `FORCE_COLOR=1`, `CLICO
 Each open deck reports what its agent is doing to herdr as two pane tokens, renewed while
 the deck is open and gone 20 seconds after it closes:
 
-- `$doing`: the call running, else the agent's latest words, or `Waiting for you`.
+- `$doing`, `$doing2`: the call running, else the agent's latest words, or `Waiting for you`,
+  split at a word over two rows to fit the sidebar.
 - `$progress`: its tasks (`▰▰▰▱▱ 3/5`) and, while it works, the time on the request at hand.
 
 Show them in herdr's agents list with a row layout in `~/.config/herdr/config.toml`:
@@ -61,6 +62,7 @@ Show them in herdr's agents list with a row layout in `~/.config/herdr/config.to
 rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
   ["$doing"],
+  ["$doing2"],
   [{ token = "$progress", dim = true }],
 ]
 ```

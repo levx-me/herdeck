@@ -175,16 +175,21 @@ line(side, 13.5, -1, 13.5, ACTIVE)
 text(side, 14, [("agents", MUTED), ("priority".rjust(SB - 7), MUTED)], -1)
 # Agent rows as Steading lays them out: what each is doing ($doing) and its tasks and time
 # on the request at hand ($progress), reported by its deck (bin/viewer.py Deck.report).
-crew = [("app", "feature", "◐", AMBER, "Run the auth tests", "▰▰▰▱▱ 3/5 · 2m 14s", True),
-        ("api", "main", "○", GREEN, "Paginated the users API", "▰▰▰▰▰ 4/4", False),
-        ("web", "dev", "!", RED, "Waiting for you", "", False),
-        ("docs", "main", "○", GREEN, "Wrote the auth flow page", "", False)]
-for i, (name, tab, icon, colour, doing, progress, on) in enumerate(crew):
+# A long $doing wraps onto a second row ($doing2); empty rows are left out, as herdr does.
+crew = [("app", "feature", "◐", AMBER, ["Run the auth tests again", "after the expiry fix"], "▰▰▰▱▱ 3/5 · 2m 14s", True),
+        ("api", "main", "○", GREEN, ["Paginated the users API"], "▰▰▰▰▰ 4/4", False),
+        ("web", "dev", "!", RED, ["Waiting for you"], "", False),
+        ("docs", "main", "○", GREEN, ["Wrote the auth flow page"], "", False)]
+row = 16
+for name, tab, icon, colour, doing, progress, on in crew:
+    lines = [[(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)]]
+    lines += [[("  " + part, TEXT if on else DIMMED)] for part in doing]
+    lines += [[("  " + progress, MUTED)]] if progress else []
     if on:
-        rect(side, 16 + 3 * i, SB - 1, ACTIVE, rows=3)
-    text(side, 16 + 3 * i, [(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)], -1)
-    text(side, 17 + 3 * i, [("  " + doing, TEXT if on else DIMMED)], -1)
-    text(side, 18 + 3 * i, [("  " + progress, MUTED)], -1)
+        rect(side, row, SB - 1, ACTIVE, rows=len(lines))
+    for n, spans in enumerate(lines):
+        text(side, row + n, spans, -1)
+    row += len(lines)
 text(-3, ROWS - 1, [("«", MUTED)], -1)
 # The tab bar: this space's tabs, then the usage figures herdr's tab_bar_right shows.
 rect(0, -1, A + 1 + D, STRIP)

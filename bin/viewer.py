@@ -2001,6 +2001,7 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
+SIDEBAR_COLS = 24  # herdr's sidebar is 26 wide by default (ui.sidebar_width), less its margin
 JOB_IDS = {}  # a job's id file: its tool call id (bin/hook writes it once)
 ACTIVITY_SHOWN = 5  # calls in the activity card before "▾ N more"
 
@@ -2809,7 +2810,7 @@ class Deck:
                 self.section = SECTIONS.index(read(self.shared_path))
 
     def report(self):
-        """The agent's line for herdr's sidebar: what it is doing ($doing) and its tasks and
+        """The agent's lines for herdr's sidebar: what it is doing ($doing, wrapping onto $doing2) and its tasks and
         time at work ($progress), as pane tokens a ui.sidebar.agents.rows layout can show.
         Sent when they change, and every 10s to renew them; they lapse 20s after the deck
         closes, so a closed deck leaves no stale line."""
@@ -2820,6 +2821,10 @@ class Deck:
                 return
             doing = main.subline()[0].strip()
             doing = doing[:1].upper() + doing[1:]
+            # Two rows of it, split at a word to fit herdr's sidebar (26 columns by default);
+            # herdr cuts what is still too long.
+            lines = wrap_cells(" ".join(doing.split()), SIDEBAR_COLS) if doing else [""]
+            doing, more = lines[0], " ".join(lines[1:])
             d, parts = main.digest, []
             if d.tasks:
                 done, total = sum(1 for _, st in d.tasks.values() if st == "completed"), len(d.tasks)
@@ -2828,12 +2833,12 @@ class Deck:
             if self.views[0].agent_status == "working" and d.request_at:  # time on the request at hand
                 parts.append(took(time.time() - d.request_at))
             progress = " · ".join(parts)
-            now = (doing, progress)
+            now = (doing, more, progress)
             if now == getattr(self, "reported", None) and time.time() - getattr(self, "renewed_at", 0) < 10:
                 return
             args = [os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "report-metadata", agent,
                     "--source", "steading", "--ttl-ms", "20000"]
-            for name, value in (("doing", doing), ("progress", progress)):
+            for name, value in (("doing", doing), ("doing2", more), ("progress", progress)):
                 args += ["--token", f"{name}={value}"] if value else ["--clear-token", name]
             subprocess.run(args, capture_output=True, timeout=3)
             self.reported, self.renewed_at = now, time.time()

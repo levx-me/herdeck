@@ -777,7 +777,7 @@ esac
 });
 
 describe("herdr sidebar tokens", () => {
-  test("a deck reports what its agent is doing and its tasks as $doing and $progress", () => {
+  test("a deck reports what its agent is doing and its tasks as $doing, $doing2 and $progress", () => {
     const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs");
     const { tmpdir } = require("node:os");
     const dir = mkdtempSync(join(tmpdir(), "steading-report-"));
@@ -790,7 +790,7 @@ describe("herdr sidebar tokens", () => {
       { type: "user", timestamp: at, message: { content: "fix the tests" } },
       { type: "assistant", timestamp: at, message: { content: [
         { type: "tool_use", id: "c1", name: "TaskCreate", input: { subject: "One" } },
-        { type: "tool_use", id: "c2", name: "Bash", input: { command: "bun test", description: "run the tests" } }] } },
+        { type: "tool_use", id: "c2", name: "Bash", input: { command: "bun test", description: "run the auth tests again after the expiry fix" } }] } },
     ];
     writeFileSync(main, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
     const check = `
@@ -809,13 +809,14 @@ a.refresh()
 deck.reported_at = 0
 deck.refresh()
 r = [x for x in sent if "report-metadata" in x][-1]
-print(r[3], [t for t in r if t.startswith(("doing=", "progress="))])
+print(r[3], [t for t in r if t.startswith(("doing=", "doing2=", "progress="))])
 `;
     const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
       env: { PATH: process.env.PATH!, STEADING_BASE: base },
     });
     expect(r.stderr.toString()).toBe("");
     const out = r.stdout.toString().trim();
-    expect(out).toStartWith("w1:p1 ['doing=Run the tests', 'progress=▱▱▱▱▱ 0/1 · ");
+    // Wrapped at a word to fit the sidebar's 24 columns, the rest on the second row.
+    expect(out).toStartWith("w1:p1 ['doing=Run the auth tests again', 'doing2=after the expiry fix', 'progress=▱▱▱▱▱ 0/1 · ");
   });
 });
