@@ -29,6 +29,7 @@ import json
 import os
 import re
 import select
+import shlex
 import shutil
 import subprocess
 import sys
@@ -1639,6 +1640,73 @@ KIND_RGB = {"read": "122;162;200", "search": CYAN_RGB, "edit": AMBER_RGB, "run":
 CONTEXT_LIMIT = 200_000  # tokens; a "[1m]" model has 1,000,000
 
 
+GIT_VERBS = {"status": "Checking what changed", "diff": "Looking at the changes", "log": "Reading the history",
+             "show": "Looking at a commit", "add": "Staging changes", "push": "Pushing", "pull": "Pulling",
+             "fetch": "Fetching", "merge": "Merging", "rebase": "Rebasing", "checkout": "Switching branch",
+             "switch": "Switching branch", "branch": "Looking at branches", "stash": "Stashing changes",
+             "reset": "Resetting", "tag": "Tagging", "clone": "Cloning", "ls-remote": "Asking the remote"}
+SETUP = re.compile(r"(cd|export|set|source|\.|unset|true|:)\b")  # steps that only prepare the real one
+
+
+def command_phrase(command, cwd="", kind=""):
+    """A command with no description, in words: what its main step does to what
+    ("Listing docs", "Committing: Fix X", "Running the tests with bun")."""
+    line = (command.strip().splitlines() or [""])[0]
+    steps = [p.strip() for p in re.split(r"&&|\|\||;|\|", line) if p.strip()]
+    step = next((p for p in steps if not SETUP.match(p)), steps[0] if steps else "")
+    try:
+        words = shlex.split(step)
+    except ValueError:
+        words = step.split()
+    while words and re.match(r"[A-Za-z_]\w*=", words[0]):  # FOO=1 cmd
+        words = words[1:]
+    if not words:
+        return line
+    home = os.path.expanduser("~")
+    def where(p):
+        p = os.path.relpath(p, cwd) if cwd and p.startswith(cwd + "/") else p
+        return "~" + p[len(home):] if p.startswith(home + "/") else p
+    prog, args = os.path.basename(words[0]), words[1:]
+    plain = [where(a) for a in args if not a.startswith("-")]
+    target = plain[-1] if plain else ""
+    sub = plain[0] if plain else ""
+    if prog == "git":
+        if sub == "commit":
+            msg = next((args[i + 1] for i, a in enumerate(args[:-1]) if a in ("-m", "-am")), "")
+            return f"Committing: {msg.splitlines()[0]}" if msg else "Committing"
+        return GIT_VERBS.get(sub, f"Running git {sub}".strip())
+    if kind == "test" or sub == "test" or prog in ("pytest", "jest", "vitest"):
+        return f"Running the tests with {prog}"
+    if kind == "build" or sub == "build":
+        return f"Building with {prog}"
+    if kind == "deploy":
+        return f"Deploying with {prog}"
+    if prog in ("npm", "pnpm", "yarn", "bun") and sub == "run" and len(plain) > 1:
+        return f"Running {plain[1]}"
+    if prog in ("ls", "tree"):
+        return f"Listing {target or 'files'}"
+    if prog in ("find", "fd"):
+        return f"Finding files in {sub or '.'}"
+    if prog == "sed" and "-i" in args:
+        return f"Editing {target}"
+    if prog in ("cat", "head", "tail", "less", "sed", "wc", "jq", "awk"):
+        return f"Reading {target}" if target else f"Running {prog}"
+    if prog in ("grep", "rg", "ag"):
+        return f"Searching for {sub}" + (f" in {target}" if len(plain) > 1 else "")
+    verbs = {"mkdir": "Creating", "rm": "Removing", "rmdir": "Removing", "mv": "Moving", "cp": "Copying",
+             "touch": "Creating", "chmod": "Changing permissions of", "open": "Opening"}
+    if prog in verbs:
+        return f"{verbs[prog]} {target}".strip()
+    if prog in ("curl", "wget"):
+        url = next((a for a in args if "://" in a), "")
+        return f"Fetching {urllib.parse.urlparse(url).netloc or url}".strip()
+    if prog.startswith(("python", "node", "bun", "deno", "ruby", "perl")):
+        if not plain or "-c" in args or "-e" in args or "-" in args or "<<" in step:
+            return f"Running a {prog.rstrip('0123456789.').capitalize()} script"
+        return f"Running {sub}"
+    return f"Running {prog}"
+
+
 def tool_summary(name, args, cwd=""):
     """A tool call as a phrase a person reads: a command's own description (Claude writes one
     for nearly every Bash call), else what the call works on, behind a verb."""
@@ -1649,7 +1717,11 @@ def tool_summary(name, args, cwd=""):
     if cwd and path.startswith(cwd + "/"):
         path = os.path.relpath(path, cwd)
     if name == "Bash":
-        return pick("description") or (pick("command").splitlines() or [""])[0]
+        said = pick("description")
+        tagged = re.match(r"(test|build|git|deploy): (.+)", said)  # Steading's "<kind>: <command>"
+        if tagged:
+            return command_phrase(tagged[2], cwd, tagged[1])
+        return said or command_phrase(pick("command"), cwd)
     verbs = {"Read": "Reading", "Write": "Writing", "Edit": "Editing", "MultiEdit": "Editing",
              "NotebookEdit": "Editing"}
     if name in verbs:

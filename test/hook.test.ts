@@ -604,7 +604,7 @@ print(m.activate(row), went[0][0], went[0][1] == args[2])
     });
     expect(r.stderr.toString()).toBe("");
     const [row, went] = r.stdout.toString().trim().split("\n");
-    expect(row).toEndWith("sleep 60"); // the call as a phrase, its spinner before it
+    expect(row).toEndWith("Running sleep"); // the call as a phrase, its spinner before it
     expect(went).toBe("True jobs True");
   });
 
@@ -671,7 +671,7 @@ for log in [[" 131 pass", " 0 fail"], ["=== 1 failed, 44 passed in 0.1s ==="], [
 });
 
 describe("an agent's calls read as phrases", () => {
-  test("a command's description, else a verb and what it works on", () => {
+  test("a command's description, else its main step in words; a verb and what it works on", () => {
     const check = `
 import sys
 from importlib.machinery import SourceFileLoader
@@ -679,6 +679,9 @@ sys.argv = ["v", "/tmp"]
 v = SourceFileLoader("v", "${join(root, "bin/viewer.py")}").load_module()
 for name, args in [("Bash", {"command": "cd x; python3 - <<'EOF'", "description": "Fix the dedupe"}),
                    ("Bash", {"command": "pnpm test\\necho done"}),
+                   ("Bash", {"command": "cd /repo/x && ls -la docs"}),
+                   ("Bash", {"command": "cd /tmp; claude --version"}),
+                   ("Bash", {"command": "x", "description": 'git: git commit -m "Fix X" && git push'}),
                    ("Read", {"file_path": "/repo/lib/llm.ts"}),
                    ("Grep", {"pattern": "NAMES", "path": "/repo/lib"}),
                    ("WebFetch", {"url": "https://docs.anthropic.com/en/batch"}),
@@ -688,7 +691,7 @@ for name, args in [("Bash", {"command": "cd x; python3 - <<'EOF'", "description"
     const r = Bun.spawnSync(["python3", "-I", "-c", check]);
     expect(r.stderr.toString()).toBe("");
     expect(r.stdout.toString().trim().split("\n")).toEqual([
-      "Fix the dedupe", "pnpm test", "Reading lib/llm.ts", "Searching for NAMES in lib",
+      "Fix the dedupe", "Running the tests with pnpm", "Listing docs", "Running claude", "Committing: Fix X", "Reading lib/llm.ts", "Searching for NAMES in lib",
       "Reading docs.anthropic.com", "Handing off: Map the tests",
     ]);
   });
