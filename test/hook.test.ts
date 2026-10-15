@@ -595,7 +595,7 @@ went = []
 s.jump = lambda kind, path: went.append((kind, path))
 m = s.runs[-1]
 lines = m.plain()
-at = next(n for n, l in enumerate(lines) if "─ jobs ─" in l)  # the jobs card
+at = next(n for n, l in enumerate(lines) if "─ jobs ·" in l)  # the jobs card
 print(lines[at + 1].strip("│ "))                       # its label, whole
 print(lines[at + 2].strip("│ ").split()[-2:])          # under it: the way to the jobs tab
 print(m.activate(lines[at + 2]), went[0][0], went[0][1] == args[2])

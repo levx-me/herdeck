@@ -1580,6 +1580,7 @@ class Digest:
         self.outputs = []                      # (time, output tokens) per reply, the last few minutes
         self.seen_messages = set()
         self.open, self.last_tool = {}, None   # tool calls without a result; the latest call
+        self.called = set()                    # every tool call id it made (its jobs are among them)
         self.says = ""
         self.tasks, self.task_seq = {}, 0      # TaskCreate / TaskUpdate (TodoWrite too)
         self.first = self.last = None
@@ -1638,6 +1639,7 @@ class Digest:
                 continue
             what = " ".join(tool_summary(name, args, self.cwd).split())  # one line, heredocs too
             self.open[b.get("id")] = (name, what, self.last)
+            self.called.add(b.get("id"))
             self.last_tool = (name, what, self.last)
             kind = TOOL_KINDS.get(name, "other")
             self.kinds[kind] = self.kinds.get(kind, 0) + 1
@@ -1700,7 +1702,7 @@ def bar(parts, width):
     return out + f"{fg(TAB_RGB)}{'░' * (width - used)}{RESET}"
 
 
-FOLD = re.compile(r"▾ \d+ more lines?|▴ less")
+JOBS_FOLD = re.compile(r"▾ \d+ more jobs?|▴ fewer jobs")
 
 
 def button(text, rgb, focused):
@@ -1708,7 +1710,6 @@ def button(text, rgb, focused):
     if focused:
         return f"{bg(rgb)}{fg(STRIP_RGB)}{BOLD} {text} \033[22m{RESET}"
     return f"{bg(TAB_RGB)}{fg(rgb)} {text} {RESET}"
-PROMPT_LINES = 4  # a prompt (request) folded to this many lines
 
 
 def card(title, lines, cols):
@@ -1723,9 +1724,9 @@ def card(title, lines, cols):
     return out + [f"{edge}╰{'─' * (inner + 2)}╯{RESET}"]
 
 
-def dashboard(d, cols, main, expanded=False, title="", jobs=(), focus=None):
-    """Everything known about an agent, in cards: what it is (session or task), its
-    jobs, model and usage, tasks, and the conversation. A card with nothing is left out."""
+def dashboard(d, cols, main, title="", jobs=(), focus=None, hidden=0, jobs_open=False):
+    """Everything known about an agent, in cards: what it is (session or task), model
+    and usage, its jobs, and tasks. A card with nothing is left out."""
     w = max(16, cols - 4)  # inside a card
     wrap = lambda text, n=w: wrap_cells(" ".join(str(text).split()), n)
     row = lambda label, value: f"{fg(MUTED_RGB)}{label:<8}{RESET}{value}"
@@ -1733,9 +1734,6 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=(), focus=None):
     # What it is: the session's title (herdr's pane label), or the task a subagent was given.
     if title:
         out += card("session" if main else "task", [f"{BOLD}{part}{RESET}" for part in wrap(title)], cols)
-    # Its calls that show in the jobs tab, as they read there; enter or a click goes to them.
-    if jobs:
-        out += card("jobs", [line for lines in jobs for line in lines], cols)
     # model · effort · thinking, context, tokens, tools
     model = (d.model or d.requested or "?").replace("claude-", "")
     chips = [f"{bg(TAB_RGB)}{fg(BRIGHT_RGB)} {model} {RESET}"]
@@ -1767,6 +1765,13 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=(), focus=None):
         if used:
             usage.append(row("", line))
     out += card("model", usage, cols)
+    # The jobs it ran, as the jobs tab lists them; enter or a click goes to one there.
+    if jobs:
+        rows = [line for lines in jobs for line in lines]
+        if hidden:  # enter or a click there shows them all, or folds them again
+            control = "▴ fewer jobs" if jobs_open else f"▾ {hidden} more job{'s' * (hidden != 1)}"
+            rows.append(button(control, ACCENT["jobs"], focus == "jobs-fold"))
+        out += card(f"jobs · {len(jobs) + (0 if jobs_open else hidden)}", rows, cols)
     # tasks
     if d.tasks:
         done = sum(1 for _, st in d.tasks.values() if st == "completed")
@@ -1780,21 +1785,6 @@ def dashboard(d, cols, main, expanded=False, title="", jobs=(), focus=None):
             for n, part in enumerate(wrap(subject, w - 2)):  # wrapped under itself, not cut
                 todo.append(f"{mark if n == 0 else ' '}{RESET} {part}")
         out += card(f"tasks {done}/{len(d.tasks)}", todo, cols)
-    # The conversation: what it was asked, what it last said, and (a subagent) its report.
-    talk = []
-    who = lambda name, n: f"{fg(ACCENT['agents'])}{name:>5} ›{RESET} " if n == 0 else " " * 8
-    asked = d.request if main else d.prompt
-    lines = [part for line in asked.strip().splitlines() for part in wrap(line, w - 8)]
-    shown = lines if expanded else lines[:PROMPT_LINES]
-    talk += [who("you" if main else "asked", n) + part for n, part in enumerate(shown)]
-    if len(lines) > PROMPT_LINES:  # enter or a click there folds or unfolds it
-        more = len(lines) - PROMPT_LINES
-        control = "▴ less" if expanded else f"▾ {more} more line{'s' * (more != 1)}"
-        talk.append(" " * 8 + button(control, ACCENT["agents"], focus == "fold"))
-    talk += [who("ai", n) + part for n, part in enumerate(wrap(d.says, w - 8)[:3] if d.says else [])]
-    talk += [who("done", n) + part for n, part in enumerate(wrap(d.report, w - 8)[:4] if d.report else [])]
-    if talk:
-        out += card("conversation", talk, cols)
     return out
 
 
@@ -1813,7 +1803,6 @@ class AgentRun(Run):
         self.full = self.cmd = self.meta.get("description") or self.id
         self.first, self.calls, self.read_to, self.stamps, self.cols = os.path.getmtime(path), 0, 0, [], 60
         self.digest = Digest()
-        self.expanded = False  # its prompt (request) shown whole
         self.count()
 
     def count(self):
@@ -1933,24 +1922,37 @@ class AgentRun(Run):
             return "running", colour, icon, f"for {took(time.time() - stamps[0])}"
         return "idle", MUTED_RGB, icon, ""
 
+    JOBS_SHOWN = 4  # jobs in the card before "▾ N more"
+
     def jobs(self, focus=None):
-        """(its link text, its rows, run path) for its calls running now that the jobs tab shows;
-        the one whose path is focus has its button lit."""
-        out, self.job_labels = [], {}
+        """(its link text, its rows, run path) for the jobs it ran, as the jobs tab lists them:
+        those running first, then the newest; JOBS_SHOWN of them unless unfolded. The one
+        whose path is focus has its button lit."""
+        mine = []
         for idfile in glob.glob(os.path.join(BASE, "jobs", "runs", "*", "id")):
             path = os.path.dirname(idfile)
-            if read(idfile) in self.digest.open and Jobs.shows(path):
+            if read(idfile) in self.digest.called and Jobs.shows(path):
                 job = JobRun(path)
-                icon, colour = job.status()
-                # Its label whole, then under it, to the right: state, time and the way to it.
-                w = max(16, self.cols - 4)  # inside its card
-                link = f"↗ jobs #{os.path.basename(path)}"
-                status = f"{icon} {job.age()}   {link} "
-                lines = [part for part in wrap_cells(job.label(), w)]
-                lines.append(" " * max(0, w - cells(status)) + f"{fg(colour)}{icon}{fg(MUTED_RGB)} {job.age()}  "
-                             + button(link, ACCENT["jobs"], focus == path))
-                out.append((link, lines, path))
-                self.job_labels[job.label()[:24]] = path
+                running = job.status()[1] == AMBER_RGB
+                mine.append((not running, -int(read(os.path.join(path, "start"), "0") or 0), path, job))
+        mine.sort()
+        self.jobs_hidden = max(0, len(mine) - self.JOBS_SHOWN)
+        if not getattr(self, "jobs_open", False):
+            mine = mine[:self.JOBS_SHOWN]
+        out, self.job_labels = [], {}
+        w = max(16, self.cols - 4)  # inside its card
+        for _, _, path, job in mine:
+            icon, colour = job.status()
+            # Its label whole, then under it, to the right: state, how long (and when) and the way to it.
+            when = job.age() if colour == AMBER_RGB else \
+                f"{int(job.end() or time.time()) - int(read(os.path.join(path, 'start'), '0') or 0)}s · {job.age()}"
+            link = f"↗ jobs #{os.path.basename(path)}"
+            status = f"{icon} {when}   {link} "
+            lines = wrap_cells(job.label(), w)
+            lines.append(" " * max(0, w - cells(status)) + f"{fg(colour)}{icon}{fg(MUTED_RGB)} {when}  "
+                         + button(link, ACCENT["jobs"], focus == path))
+            out.append((link, lines, path))
+            self.job_labels[job.label()[:24]] = path
         return out
 
     def lines(self):
@@ -1962,29 +1964,30 @@ class AgentRun(Run):
         # Found again by "↗ jobs #n": its rows are redrawn (spinner, time) between frames.
         self.job_rows = {link: path for link, _, path in jobs}
         out = status_block(name, colour, icon, since, self.stamps, self.cols) + \
-            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.expanded, self.label().strip(),
-                      [lines for _, lines, _ in jobs], focus)
+            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.label().strip(),
+                      [lines for _, lines, _ in jobs], focus, self.jobs_hidden, getattr(self, "jobs_open", False))
         # Its controls, in order, with the row each is on: the keyboard moves between these.
         self.controls = []
         for n, line in enumerate(out):
             text = ANSI.sub("", line)
             job = next((p for link, p in self.job_rows.items() if link in text), None)
-            if job or FOLD.search(text):
-                self.controls.append((job or "fold", n))
+            if job:
+                self.controls.append((job, n))
+            elif JOBS_FOLD.search(text):
+                self.controls.append(("jobs-fold", n))
         return out
 
     def press(self, key):
-        """enter on the control key: a job goes to the jobs tab, the fold folds or unfolds."""
-        if key == "fold":
-            self.expanded = not self.expanded
+        """enter on the control key: a job goes to the jobs tab; the fold shows all its jobs or fewer."""
+        if key == "jobs-fold":
+            self.jobs_open = not getattr(self, "jobs_open", False)
         elif getattr(self.deck, "jump", None):
             self.deck.jump("jobs", key)
 
     def activate(self, line):
-        """enter or a click on [… N more lines] shows the whole prompt; on [less], folds it.
-        On a job, it goes to that job in the jobs tab."""
-        if FOLD.search(line):
-            self.expanded = not self.expanded
+        """A click on a job goes to it in the jobs tab; on the fold, all its jobs or fewer."""
+        if JOBS_FOLD.search(line):
+            self.press("jobs-fold")
             return True
         job = next((p for link, p in getattr(self, "job_rows", {}).items() if link in line), None) or \
             next((p for label, p in getattr(self, "job_labels", {}).items() if label and label in line), None)
@@ -2005,7 +2008,6 @@ class MainRun(AgentRun):
         self.tag, self.is_git = "", False
         self.first, self.calls, self.read_to, self.stamps, self.cols = os.path.getmtime(path), 0, 0, [], 60
         self.full = self.cmd = "main agent"
-        self.expanded = False
 
     def count(self):  # read with the main transcript (Agents.read_main)
         self.stamps, self.digest = self.deck.stamps, self.deck.digest

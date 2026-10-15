@@ -415,7 +415,8 @@ def label(name, *runs):
 def card(title, rows):
     """Rows in a rounded box the deck's width, its title in the top border (bin/viewer.py card)."""
     inner, edge = D - 8, "#464c58"  # inside the run's box
-    width = lambda runs: sum(1 if t == SPIN else len(t) for t, *_ in runs)
+    width = lambda runs: sum(1 if t == SPIN else max(len(t(n)) for n in range(CYCLE)) if callable(t) else len(t)
+                             for t, *_ in runs)
     top = [("╭─", edge), (f" {title} ", MUTED), ("─" * (inner - len(title) - 2) + "─╮", edge)]
     return [top] + [[("│ ", edge), *r, (" " * (inner - width(r)) + " │", edge)] for r in rows] + \
         [[("╰" + "─" * (inner + 2) + "╯", edge)]]
@@ -457,18 +458,20 @@ def scene_agents():
             [("tools   ", MUTED), *bar([(9, GREEN), (6, BLUE), (5, AMBER), (2, CYAN)], 22)],
             [("        ", MUTED), ("■ ", GREEN), ("run 9  ", MUTED), ("■ ", BLUE), ("read 6  ", MUTED),
              ("■ ", AMBER), ("edit 5  ", MUTED), ("■ ", CYAN), ("search 2", MUTED)]]),
+        *card("jobs · 3", [
+            [("Wait for the API to answer", TEXT)],
+            [(" " * 25, MUTED), (SPIN, AMBER), (lambda t: f" running {9 + t}s".ljust(13), MUTED),
+             (" ↗ jobs #3 ", ACCENT["JOBS"], False, None, TAB)],
+            [("Install Playwright's Chromium", TEXT)],
+            [(" " * 23, MUTED), ("✓", GREEN), (" 72s · 4m ago  ", MUTED), (" ↗ jobs #2 ", ACCENT["JOBS"], False, None, TAB)],
+            [("Seed the dev database", TEXT)],
+            [(" " * 22, MUTED), ("✓", GREEN), (" 48s · 26m ago  ", MUTED), (" ↗ jobs #1 ", ACCENT["JOBS"], False, None, TAB)]]),
         *card("tasks 3/5", [
             [("✓ ", GREEN), ("Add the refresh-token store", TEXT)],
             [("✓ ", GREEN), ("Rotate on every refresh", TEXT)],
             [("✓ ", GREEN), ("Detect a reused token", TEXT)],
             [("◐ ", AMBER), ("Fix the last-second expiry", TEXT)],
             [("○ ", MUTED), ("Document the flow", TEXT)]]),
-        *card("conversation", [
-            [("  you › ", ACCENT["AGENTS"]), ("add refresh tokens to the auth", TEXT)],
-            [("        ", MUTED), ("middleware, with rotation and reuse", TEXT)],
-            [("        ", MUTED), ("detection", TEXT)],
-            [("   ai › ", ACCENT["AGENTS"]), ("Fixing the expiry check and running", TEXT)],
-            [("        ", MUTED), ("the tests again.", TEXT)]]),
     ])
     hints([("j/k", "select"), ("L", "side"), ("[ ]", "sections"), ("ctrl+c", "close")])  # nothing to press here
 
