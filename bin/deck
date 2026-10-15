@@ -5,7 +5,8 @@
 #                 or close it; on the deck itself, close that deck
 #   deck auto     herdr event pane.agent_detected: open a deck beside the pane
 #                 an agent (claude, codex, opencode, ...) just showed up in.
-#                 Off when $HERDR_PLUGIN_CONFIG_DIR/no-auto-open exists.
+#                 Off with "Open with agents" in the deck's settings (or a
+#                 $HERDR_PLUGIN_CONFIG_DIR/no-auto-open file).
 #   deck flip BASE  L in a deck: reopen it on the other side of its agent (right
 #                 or above); that agent's deck keeps opening there.
 set -u
@@ -35,7 +36,10 @@ case ${1:-} in
     fi
     ;;
   auto)
-    [ -e "${HERDR_PLUGIN_CONFIG_DIR:-/nonexistent}/no-auto-open" ] && exit 0
+    config=${HERDR_PLUGIN_CONFIG_DIR:-$HOME/.config/herdr/plugins/config/steading}
+    [ -e "$config/no-auto-open" ] && exit 0
+    # Off in the deck's settings (",": Open with agents).
+    [ "$(jq -r '.open_with_agents | tostring' "$config/settings.json" 2>/dev/null)" = false ] && exit 0
     pane=$(printf '%s' "${HERDR_PLUGIN_EVENT_JSON:-'{}'}" | jq -r '.data.pane_id // empty')
     [ -n "$pane" ] && ! is_deck "$pane" || exit 0
     cwd=$(herdr pane get "$pane" | jq -r '.result.pane.cwd // empty')

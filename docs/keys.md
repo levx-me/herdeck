@@ -19,7 +19,7 @@ command = "steading.toggle"
   deck beside it (under 140 columns). `L` in the deck moves it to the other side, and that agent's
   deck keeps opening there.
 - A deck you closed stays closed: runs are still recorded, and show when you open it again.
-- To stop decks opening when an agent starts: `touch ~/.config/herdr/plugins/config/steading/no-auto-open`.
+- To stop decks opening when an agent starts, turn off **Open with agents** in the settings (`,`).
 
 ## Keys
 
@@ -31,7 +31,7 @@ apply right now.
 | anywhere | `[` `]` (and, outside a log, `tab` `shift+tab`), `1`–`7` | previous / next tab, jump to one |
 | | `A` `J` `S` `B` `T` `I` `D` | jump to a tab by its underlined letter (git is `I`: `G` stays vim's bottom; not inside a log, where `B` moves the cursor) |
 | | `L` | move the deck to the other side of the agent |
-| | `,` | settings: whether a new run takes the deck to its tab (off: it marks the tab) |
+| | `,` | settings: follow new runs to their tab, open a deck with each agent, the jobs threshold (5, 10 or 30s) |
 | | `ctrl+c` | close the deck (`q` only goes back from a log to the list, so a stray `q` closes nothing) |
 | run list | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top), the newest, the oldest |
 | | `enter` `l` | move into its output |

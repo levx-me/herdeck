@@ -28,13 +28,14 @@ outcome() {
   fi
 }
 
-# A job bin/hook followed: kept with how it ended when it ran 10s or more, else dropped.
+# A job bin/hook followed: kept with how it ended when it ran 5s or more (the lowest jobs
+# threshold the deck's settings offer; it shows those past the one set), else dropped.
 id=$(printf '%s' "$input" | jq -r '.tool_use_id // empty')
 job=$(grep -lxF -- "$id" "${TMPDIR:-/tmp}/steading/$(printf '%s' "$HERDR_PANE_ID" | tr ':/' '__')"/jobs/runs/*/id 2>/dev/null | head -n 1)
 if [ -n "$id" ] && [ -n "$job" ]; then
   job=${job%/id}
   start=$(cat "$job/start" 2>/dev/null)
-  if [ -n "$start" ] && [ $(( $(date +%s) - start )) -ge 10 ]; then
+  if [ -n "$start" ] && [ $(( $(date +%s) - start )) -ge 5 ]; then
     outcome "$job"
     date +%s > "$job/end"
     rm -f "$job/source" # Claude Code removes its file once the call is done

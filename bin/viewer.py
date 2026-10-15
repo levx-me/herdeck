@@ -48,9 +48,13 @@ FOCUS = {"pane": True}  # whether the deck's pane has the keyboard; without it t
 # Settings, shared by every deck: the "," popup writes them, each deck rereads them when they change.
 SETTINGS_PATH = os.path.join(os.environ.get("HERDR_PLUGIN_CONFIG_DIR")
                              or os.path.expanduser("~/.config/herdr/plugins/config/steading"), "settings.json")
-SETTINGS = [  # (key, label, what it does, default)
-    ("follow", "Follow new runs", "a new run takes the deck to its tab, instead of marking the tab", False),
+SETTINGS = [  # (key, label, what it does, default, choices: None for on/off)
+    ("follow", "Follow new runs", "A new run takes the deck to its tab, instead of marking the tab.", False, None),
+    ("open_with_agents", "Open with agents", "A deck opens beside each agent as it starts.",
+     True, None),
+    ("jobs_threshold", "Jobs threshold", "How long a command runs before the jobs tab shows it.", 10, [5, 10, 30]),
 ]
+CURRENT = {}  # the settings in force, reread by the deck when the file changes
 
 
 def settings():
@@ -59,7 +63,12 @@ def settings():
             saved = json.load(f)
     except (OSError, ValueError):
         saved = {}
-    return {key: bool(saved.get(key, default)) for key, _, _, default in SETTINGS}
+    out = {}
+    for key, _, _, default, choices in SETTINGS:
+        value = saved.get(key, default)
+        out[key] = (value if value in choices else default) if choices else bool(value)
+    CURRENT.update(out)
+    return out
 
 
 def save_settings(values):
@@ -734,7 +743,7 @@ def status_words(kind, icon, rgb):
 # What an empty tab says: a title, and where its runs come from.
 EMPTY = {
     "agents": ("No Claude Code session", "The agent and its subagents show here once a session starts in this pane."),
-    "jobs": ("No long-running commands", "Commands that run 10s or more show here, live, while they run."),
+    "jobs": ("No long-running commands", "Commands that run past the jobs threshold (10s, set with ,) show here, live."),
     "servers": ("No dev servers running", "Ports opened by this project, or from any pane of its herdr workspace, show here."),
     "build": ("No builds yet", "npm run build, tsc, cargo build, … show here as the agent runs them."),
     "test": ("No test runs yet", "npm test, pytest, go test, forge test, … show here as the agent runs them."),
@@ -1417,11 +1426,10 @@ class JobRun(Run):
 
 class Jobs(Runs):
     """The agent's other commands (not tests or builds, which run in the deck)
-    that have taken 10s or more, running or done."""
+    that have taken the jobs threshold (10s unless set) or more, running or done."""
 
     noun = "jobs"
     run_class = JobRun
-    LONG = 10
 
     def __init__(self):
         super().__init__("jobs")
@@ -1432,7 +1440,7 @@ class Jobs(Runs):
         if not start:
             return False  # not started yet (or waiting on a permission prompt)
         end = read(os.path.join(path, "end"))
-        return (int(end) if end else time.time()) - int(start) >= Jobs.LONG
+        return (int(end) if end else time.time()) - int(start) >= CURRENT.get("jobs_threshold", 10)
 
 
 class Git(Runs):
@@ -2391,16 +2399,19 @@ class Deck:
         title = " Settings "
         lines = [f"{edge}╭─{fg(BRIGHT_RGB)}{BOLD}{title}\033[22m{edge}{'─' * (width - 3 - len(title))}╮{RESET}"]
         body = [""]
-        for n, (key, label, what, _) in enumerate(SETTINGS):
+        for n, (key, label, what, _, choices) in enumerate(SETTINGS):
             on = self.settings[key]
-            switch = f"{bg(GREEN_RGB)}{fg(STRIP_RGB)}{BOLD}  ON  \033[22m" if on else f"{bg(ACTIVE_RGB)}{fg(MUTED_RGB)}  OFF "
+            if choices:  # a value picked from a few: h/l or space step through them
+                switch = f"{bg(ACCENT['agents'])}{fg(STRIP_RGB)}{BOLD} ‹{on:>2}s› \033[22m"
+            else:
+                switch = f"{bg(GREEN_RGB)}{fg(STRIP_RGB)}{BOLD}  ON   \033[22m" if on else f"{bg(ACTIVE_RGB)}{fg(MUTED_RGB)}  OFF  "
             picked = n == self.setting
             mark = f"{fg(ACCENT['agents'])}❯" if picked else " "
             name = f"{BOLD if picked else ''}{fg(BRIGHT_RGB)}{label}\033[22m"
-            body.append(f"{mark} {name}{face}{' ' * max(1, inner - 2 - len(label) - 6)}{switch}{RESET}")
+            body.append(f"{mark} {name}{face}{' ' * max(1, inner - 2 - len(label) - 7)}{switch}{RESET}")
             body += [f"  {fg(MUTED_RGB)}{part}" for part in wrap_cells(what, inner - 2)]
             body.append("")
-        body.append(f"{fg(DIMMED_RGB)}j/k move · space toggle · esc/q close")
+        body.append(f"{fg(DIMMED_RGB)}j/k move · space h/l change · q close")
         body.append("")
         for line in body:
             pad = inner - cells(ANSI.sub("", line))
@@ -2491,7 +2502,7 @@ class Deck:
         out.append("\033[J")
         # Keys only matter with the keyboard here: faint without it.
         key_rgb, what_rgb = (BRIGHT_RGB, MUTED_RGB) if FOCUS["pane"] else (DIMMED_RGB, DIMMED_RGB)
-        pairs = [("j/k", "move"), ("space", "toggle"), ("esc", "close")] if self.settings_open else view.hints()
+        pairs = [("j/k", "move"), ("space", "change"), ("esc", "close")] if self.settings_open else view.hints()
         hints = "  ".join(f"{fg(key_rgb)}{key} {fg(what_rgb)}{what}" for key, what in pairs)
         out += [f"\033[{rows};1H", bg(STRIP_RGB), " ", fit(hints, cols - 1), bg(STRIP_RGB), "\033[K", RESET]
         frame = "".join(out)
@@ -2538,9 +2549,14 @@ class Deck:
             elif k in ("k", "\x1b[Z"):
                 self.setting = max(0, self.setting - 1)
             elif k in (" ", "\r", "\n", "l", "h"):
-                key = SETTINGS[self.setting][0]
-                self.settings[key] = not self.settings[key]
+                key, _, _, _, choices = SETTINGS[self.setting]
+                if choices:  # the next value (h: the one before)
+                    at = choices.index(self.settings[key]) + (-1 if k == "h" else 1)
+                    self.settings[key] = choices[at % len(choices)]
+                else:
+                    self.settings[key] = not self.settings[key]
                 save_settings(self.settings)
+                CURRENT.update(self.settings)
             elif k in ("\x1b", ",", "q"):  # (q reaches here from the main loop)
                 self.settings_open = False
             return

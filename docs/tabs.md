@@ -41,7 +41,7 @@ script given a long timeout. Each with what it is for (the call's description), 
 against its timeout (`15s of 2m`), and its output as it comes. Once done it keeps its output and
 exit code, a failure in red.
 
-**Comes in when** any other command has run for 10 seconds. Shorter ones never show. The output is
+**Comes in when** any other command has run for 10 seconds (the jobs threshold: 5, 10 or 30 in the settings, `,`). Shorter ones never show. The output is
 read from the file Claude Code writes the call's output to, so the call itself is never changed.
 
 ## servers
