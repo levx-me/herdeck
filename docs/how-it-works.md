@@ -62,7 +62,7 @@ Show them in herdr's agents list with a row layout in `~/.config/herdr/config.to
 [ui.sidebar.agents]
 rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
-  [{ token = "$repo", fg = "#89b4fa" }],
+  [{ token = "$repo", dim = true }],
   [{ token = "$model", dim = true }, { token = "$ctx", dim = true }, { token = "$ctxhot", fg = "#e06c75", bold = true }],
 ]
 ```

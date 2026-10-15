@@ -61,7 +61,7 @@ herdr에 pane 토큰으로 알려 줍니다. deck이 열려 있지 않아도 됩
 [ui.sidebar.agents]
 rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
-  [{ token = "$repo", fg = "#89b4fa" }],
+  [{ token = "$repo", dim = true }],
   [{ token = "$model", dim = true }, { token = "$ctx", dim = true }, { token = "$ctxhot", fg = "#e06c75", bold = true }],
 ]
 ```

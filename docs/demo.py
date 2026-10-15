@@ -181,7 +181,7 @@ crew = [("app", "feature", "◐", AMBER, "feat/refresh · 3 changed", "opus-5-5"
         ("docs", "main", "○", GREEN, "main · clean", "haiku-5-5", "▰▱▱▱▱ 12%", False, False)]
 row = 16
 for name, tab, icon, colour, repo, model, ctx, hot, on in crew:
-    lines = [[(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)], [("  " + repo, BLUE)],
+    lines = [[(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)], [("  " + repo, MUTED)],
              [("  " + model + " · ", MUTED), (ctx, RED, True) if hot else (ctx, MUTED)]]
     if on:
         rect(side, row, SB - 1, ACTIVE, rows=len(lines))
