@@ -15,9 +15,8 @@ command = "steading.toggle"
 ```
 
 - `prefix+d` opens the deck beside the focused pane, or closes it; on the deck itself it closes that deck.
-- The deck opens to the right of the agent, or on top of it when the agent pane is too narrow for a
-  deck beside it (under 140 columns). `L` in the deck moves it to the other side, and that agent's
-  deck keeps opening there.
+- The deck opens to the right of the agent. `L` in the deck moves it on top instead (or back), and
+  that agent's deck keeps opening there.
 - A deck you closed stays closed: runs are still recorded, and show when you open it again.
 - To stop decks opening when an agent starts, turn off **Open with agents** in the settings (`,`).
 

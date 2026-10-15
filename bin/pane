@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Make sure the agent has its Steading deck: one viewer pane split off to the
-# right (or above a narrow agent pane, or where L last put it), with agents, jobs, servers, build, test, git and deploy sections. Prints the pane id.
+# right (or above, where L last put it), with agents, jobs, servers, build, test, git and deploy sections. Prints the pane id.
 #
 #   pane [--follow] [SECTION] [CWD]
 #                           SECTION (agents|jobs|servers|build|test|git|deploy) is brought forward;
@@ -29,16 +29,9 @@ fi
 [ -n "$follow" ] && exit 0
 printf '%s\n' "$agent" > "$base/agent" # for L in the deck (bin/deck flip)
 
-# Beside the agent or above it: where this agent's deck last was (L in the deck
-# flips it), else by the agent pane's size: right when 40% of its width still
-# holds a deck (56 columns), above when it is too narrow for that but tall enough.
+# Beside the agent (right) unless L in this agent's deck put it above.
 placement=$(cat "$base/placement" 2>/dev/null)
-if [ "$placement" != right ] && [ "$placement" != up ]; then
-  read -r width height < <(herdr pane layout --pane "$agent" 2>/dev/null |
-    jq -r --arg p "$agent" '.result.layout.panes[] | select(.pane_id == $p) | "\(.rect.width) \(.rect.height)"')
-  placement=right
-  [ "${width:-999}" -lt 140 ] && [ "${height:-0}" -ge 30 ] && placement=up
-fi
+[ "$placement" = up ] || placement=right
 # herdr splits right or down; a deck on top is split below, then swapped up.
 direction=right; [ "$placement" = up ] && direction=down
 
