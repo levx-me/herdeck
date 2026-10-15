@@ -222,6 +222,9 @@ def link(url, text):
     return f"\033]8;;{url}\a{text}\033]8;;\a"
 
 
+CLOSE_W = 3  # " ✕ " at the tab strip's left end
+
+
 def strip(cells, cols, active, new=frozenset(), new_rgb=RED_RGB):
     """Lay cells [(width, text)] on a dark strip, scrolled so `active` shows.
 
@@ -2758,8 +2761,10 @@ class Deck:
             else:
                 text = f"{bg(TAB_RGB)}{fg(MUTED_RGB)} {name} {fg(colour)}{icon} "
             cells.append((len(view.kind) + 4, text))
-        bar, self.spans = strip(cells, cols, self.section, self.unseen, self.NEW_RGB)
-        return bar
+        # The strip starts with ✕: a click there closes the deck, as ctrl+c does.
+        bar, spans = strip(cells, cols - CLOSE_W, self.section, self.unseen, self.NEW_RGB)
+        self.spans = [(i, x0 + CLOSE_W, x1 + CLOSE_W) for i, x0, x1 in spans]
+        return f"{bg(STRIP_RGB)}{fg(RED_RGB)}{BOLD} ✕ \033[22m" + bar
 
     def draw(self):
         cols, rows = shutil.get_terminal_size()
@@ -2802,6 +2807,8 @@ class Deck:
             getattr(self.views[self.section], "drag", lambda r, c: None)(row, col)
         elif button in (64, 65):
             self.views[self.section].wheel(button == 65, row)
+        elif button == 0 and row == 1 and col <= CLOSE_W:
+            self.closing = True
         elif button == 0 and row == 1:
             for i, x0, x1 in self.spans:
                 if x0 <= col <= x1:
@@ -2809,7 +2816,7 @@ class Deck:
                     return
             # The scroll marks: ‹ picks the hidden tab before the shown ones, › the one after;
             # with something new that way (or a click on the count), the nearest new tab.
-            if self.spans and col <= 1 and self.spans[0][0] > 0:
+            if self.spans and col <= CLOSE_W + 1 and self.spans[0][0] > 0:
                 left = [i for i in self.unseen if i < self.section]
                 self.choose(max(left) if left else self.spans[0][0] - 1)
             elif self.spans and col > self.spans[-1][2]:
@@ -2931,6 +2938,8 @@ def main():
                             deck.mouse(int(button), int(col), int(row))
                         elif int(button) == 0:  # left button let go
                             getattr(deck.views[deck.section], "release", lambda: None)()
+                    if getattr(deck, "closing", False):  # its ✕ was clicked
+                        return
                     if events:
                         continue
                     # One read can hold several keys (fast presses, arrows): take them one at a time.

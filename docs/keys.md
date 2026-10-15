@@ -31,7 +31,7 @@ apply right now.
 | | `A` `J` `S` `B` `T` `I` `D` | jump to a tab by its underlined letter (git is `I`: `G` stays vim's bottom; not inside a log, where `B` moves the cursor) |
 | | `L` | move the deck to the other side of the agent |
 | | `,` | settings: follow new runs to their tab, open a deck with each agent, the jobs threshold (5, 10 or 30s) |
-| | `ctrl+c` | close the deck (`q` only goes back from a log to the list, so a stray `q` closes nothing) |
+| | `ctrl+c`, or a click on `✕` at the tabs' left end | close the deck (`q` only goes back from a log to the list, so a stray `q` closes nothing) |
 | run list | `j` `k` (or `↓` `↑`), `gg` `G` | pick a run (newest on top), the newest, the oldest |
 | | `enter` `l` | move into its output |
 | output | `h` `j` `k` `l`, `w` `b` `e`, `W` `B` `E`, `0` `^` `$`, `{` `}` | move the cursor (herdr copy-mode keys) |

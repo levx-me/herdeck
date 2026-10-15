@@ -238,12 +238,14 @@ def section_bar(active):
     rect(d0, 0, D, STRIP)
     widths = [len(name) + 4 for name, _, _ in SECTIONS]
     count = " 1 new " if active < 3 else ""  # the build tab, new until shown (bin/viewer.py strip)
-    room = D - 2 - (len(count) + 1 if count else 0)
+    close = 3  # " ✕ " first: a click closes the deck (bin/viewer.py CLOSE_W)
+    room = D - close - 2 - (len(count) + 1 if count else 0)
     first = 0
     while first < active and sum(w + 1 for w in widths[first:active + 1]) > room:
         first += 1
-    col, used = d0 + 1, 0
-    text(d0, 0, [("‹" if first else " ", MUTED)], end)
+    col, used = d0 + close + 1, 0
+    text(d0, 0, [(" ✕ ", RED, True)], end)
+    text(d0 + close, 0, [("‹" if first else " ", MUTED)], end)
     shown_last = first
     for i in range(first, len(SECTIONS)):
         name, icon, colour = SECTIONS[i]

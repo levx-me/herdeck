@@ -231,110 +231,111 @@
 <text x="425.6" y="806.7" textLength="168.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">(shift+tab to cycle)</text>
 <g class="s s0">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<rect x="1013.6" y="71.0" width="84.0" height="19.0" rx="0" fill="#8fa8d2"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">A</text>
-<text x="1030.4" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">GENTS</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<rect x="1038.8" y="71.0" width="84.0" height="19.0" rx="0" fill="#8fa8d2"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">A</text>
+<text x="1055.6" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">GENTS</text>
 <g class="b b0">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
-<rect x="1106.0" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1114.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
-<text x="1122.8" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
+<rect x="1131.2" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1139.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="1148.0" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1181.6" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1190.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
-<text x="1198.4" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
-<text x="1257.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<rect x="1282.4" y="71.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
-<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
-<text x="1299.2" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
+<rect x="1206.8" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1215.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="1223.6" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<rect x="1307.6" y="71.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
+<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
+<text x="1324.4" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
 <g class="b b0">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠙</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠹</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠸</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠼</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠴</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠦</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠧</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠇</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠏</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠏</text>
 </g>
-<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<text x="1391.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <rect x="1450.4" y="71.0" width="58.8" height="19.0" rx="0" fill="#976870"/>
 <text x="1458.8" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">1 new</text>
 <rect x="1009.4" y="99.5" width="495.6" height="95.0" rx="5" fill="none" stroke="#8fa8d2"/>
@@ -990,110 +991,111 @@
 </g>
 <g class="s s1">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<rect x="1013.6" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
-<text x="1030.4" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<rect x="1038.8" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="1055.6" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1106.0" y="71.0" width="67.2" height="19.0" rx="0" fill="#7fb4b4"/>
-<text x="1114.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">J</text>
-<text x="1122.8" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">OBS</text>
+<rect x="1131.2" y="71.0" width="67.2" height="19.0" rx="0" fill="#7fb4b4"/>
+<text x="1139.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">J</text>
+<text x="1148.0" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">OBS</text>
 <g class="b b0">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
-<rect x="1181.6" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1190.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
-<text x="1198.4" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
-<text x="1257.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<rect x="1282.4" y="71.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
-<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
-<text x="1299.2" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
+<rect x="1206.8" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1215.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="1223.6" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<rect x="1307.6" y="71.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
+<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
+<text x="1324.4" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
 <g class="b b0">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠙</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠹</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠸</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠼</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠴</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠦</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠧</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠇</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠏</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠏</text>
 </g>
-<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<text x="1391.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <rect x="1450.4" y="71.0" width="58.8" height="19.0" rx="0" fill="#976870"/>
 <text x="1458.8" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">1 new</text>
 <g class="t t5">
@@ -1788,110 +1790,111 @@
 </g>
 <g class="s s2">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<rect x="1013.6" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
-<text x="1030.4" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<rect x="1038.8" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="1055.6" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1106.0" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1114.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
-<text x="1122.8" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
+<rect x="1131.2" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1139.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="1148.0" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1181.6" y="71.0" width="92.4" height="19.0" rx="0" fill="#98b17d"/>
-<text x="1190.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">S</text>
-<text x="1198.4" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">ERVERS</text>
-<text x="1257.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">●</text>
-<rect x="1282.4" y="71.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
-<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
-<text x="1299.2" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
+<rect x="1206.8" y="71.0" width="92.4" height="19.0" rx="0" fill="#98b17d"/>
+<text x="1215.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">S</text>
+<text x="1223.6" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">ERVERS</text>
+<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">●</text>
+<rect x="1307.6" y="71.0" width="75.6" height="19.0" rx="0" fill="#976870"/>
+<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold" text-decoration="underline">B</text>
+<text x="1324.4" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">UILD</text>
 <g class="b b0">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠙</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠹</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠸</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠼</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠴</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠦</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠧</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠇</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠏</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">⠏</text>
 </g>
-<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<text x="1391.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <rect x="1450.4" y="71.0" width="58.8" height="19.0" rx="0" fill="#976870"/>
 <text x="1458.8" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4" font-weight="bold">1 new</text>
 <g class="t t8">
@@ -2188,143 +2191,144 @@
 </g>
 <g class="s s3">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<rect x="1013.6" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
-<text x="1030.4" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<rect x="1038.8" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="1055.6" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1106.0" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1114.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
-<text x="1122.8" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
+<rect x="1131.2" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1139.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="1148.0" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1181.6" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1190.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
-<text x="1198.4" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
-<text x="1257.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<rect x="1282.4" y="71.0" width="75.6" height="19.0" rx="0" fill="#d8b46a"/>
-<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">B</text>
-<text x="1299.2" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">UILD</text>
+<rect x="1206.8" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1215.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="1223.6" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<rect x="1307.6" y="71.0" width="75.6" height="19.0" rx="0" fill="#d8b46a"/>
+<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">B</text>
+<text x="1324.4" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">UILD</text>
 <g class="b b0">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
-<rect x="1366.4" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1374.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
-<text x="1383.2" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
+<rect x="1391.6" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1400.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
+<text x="1408.4" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
 <g class="b b0">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<text x="1467.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <g class="t t11">
 <rect x="1009.4" y="99.5" width="495.6" height="76.0" rx="5" fill="none" stroke="#d8b46a"/>
 <rect x="1017.8" y="91.9" width="84.0" height="15.2" fill="#1b1e23"/>
@@ -2975,143 +2979,144 @@
 </g>
 <g class="s s4">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<rect x="1013.6" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
-<text x="1030.4" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<rect x="1038.8" y="71.0" width="84.0" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">A</text>
+<text x="1055.6" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">GENTS</text>
 <g class="b b0">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1080.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1106.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1106.0" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1114.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
-<text x="1122.8" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
+<rect x="1131.2" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1139.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="1148.0" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1156.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1181.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1181.6" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1190.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
-<text x="1198.4" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
-<text x="1257.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<rect x="1282.4" y="71.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
-<text x="1299.2" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
+<rect x="1206.8" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1215.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="1223.6" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<rect x="1307.6" y="71.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
+<text x="1324.4" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
 <g class="b b0">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1366.4" y="71.0" width="67.2" height="19.0" rx="0" fill="#7aa2c8"/>
-<text x="1374.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">T</text>
-<text x="1383.2" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">EST</text>
+<rect x="1391.6" y="71.0" width="67.2" height="19.0" rx="0" fill="#7aa2c8"/>
+<text x="1400.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">T</text>
+<text x="1408.4" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">EST</text>
 <g class="b b0">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠋</text>
 </g>
 <g class="b b1">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠙</text>
 </g>
 <g class="b b2">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠹</text>
 </g>
 <g class="b b3">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠸</text>
 </g>
 <g class="b b4">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠼</text>
 </g>
 <g class="b b5">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠴</text>
 </g>
 <g class="b b6">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠦</text>
 </g>
 <g class="b b7">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠧</text>
 </g>
 <g class="b b8">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠇</text>
 </g>
 <g class="b b9">
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">⠏</text>
 </g>
-<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<text x="1467.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <g class="t t14">
 <rect x="1009.4" y="99.5" width="495.6" height="114.0" rx="5" fill="none" stroke="#7aa2c8"/>
 <rect x="1017.8" y="91.9" width="84.0" height="15.2" fill="#1b1e23"/>
@@ -3796,116 +3801,117 @@
 </g>
 <g class="s s5">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1005.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
-<rect x="1013.6" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
-<text x="1030.4" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<text x="1030.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
+<rect x="1038.8" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">J</text>
+<text x="1055.6" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OBS</text>
 <g class="b b0">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1064.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1089.2" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1097.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
-<text x="1106.0" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
-<text x="1164.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<rect x="1190.0" y="71.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
-<text x="1206.8" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
+<rect x="1114.4" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1122.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="1131.2" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1190.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<rect x="1215.2" y="71.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1223.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
+<text x="1232.0" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
 <g class="b b0">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1274.0" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
-<text x="1290.8" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
+<rect x="1299.2" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1307.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
+<text x="1316.0" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
 <g class="b b0">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1349.6" y="71.0" width="58.8" height="19.0" rx="0" fill="#b48ead"/>
-<text x="1358.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">G</text>
-<text x="1366.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">I</text>
-<text x="1374.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">T</text>
-<text x="1391.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">✓</text>
-<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
+<rect x="1374.8" y="71.0" width="58.8" height="19.0" rx="0" fill="#b48ead"/>
+<text x="1383.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">G</text>
+<text x="1391.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">I</text>
+<text x="1400.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">T</text>
+<text x="1416.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">✓</text>
+<text x="1442.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">›</text>
 <g class="t t17">
 <rect x="1009.4" y="99.5" width="495.6" height="114.0" rx="5" fill="none" stroke="#b48ead"/>
 <rect x="1017.8" y="91.9" width="84.0" height="15.2" fill="#1b1e23"/>
@@ -4196,86 +4202,87 @@
 </g>
 <g class="s s6">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1005.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
-<rect x="1013.6" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1022.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
-<text x="1030.4" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
-<text x="1089.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
-<rect x="1114.4" y="71.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1122.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
-<text x="1131.2" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
+<text x="1013.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d" font-weight="bold">✕</text>
+<text x="1030.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">‹</text>
+<rect x="1038.8" y="71.0" width="92.4" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1047.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">S</text>
+<text x="1055.6" y="84.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">ERVERS</text>
+<text x="1114.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">●</text>
+<rect x="1139.6" y="71.0" width="75.6" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1148.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">B</text>
+<text x="1156.4" y="84.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">UILD</text>
 <g class="b b0">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1173.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1198.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1198.4" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1206.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
-<text x="1215.2" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
+<rect x="1223.6" y="71.0" width="67.2" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1232.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">T</text>
+<text x="1240.4" y="84.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">EST</text>
 <g class="b b0">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠋</text>
 </g>
 <g class="b b1">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠙</text>
 </g>
 <g class="b b2">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠹</text>
 </g>
 <g class="b b3">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠸</text>
 </g>
 <g class="b b4">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠼</text>
 </g>
 <g class="b b5">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠴</text>
 </g>
 <g class="b b6">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠦</text>
 </g>
 <g class="b b7">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠧</text>
 </g>
 <g class="b b8">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠇</text>
 </g>
 <g class="b b9">
-<text x="1248.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
+<text x="1274.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d8b46a">⠏</text>
 </g>
-<rect x="1274.0" y="71.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
-<text x="1282.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">G</text>
-<text x="1290.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">I</text>
-<text x="1299.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">T</text>
-<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
-<rect x="1341.2" y="71.0" width="84.0" height="19.0" rx="0" fill="#d19a66"/>
-<text x="1349.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">D</text>
-<text x="1358.0" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">EPLOY</text>
-<text x="1408.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">·</text>
+<rect x="1299.2" y="71.0" width="58.8" height="19.0" rx="0" fill="#2c313a"/>
+<text x="1307.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">G</text>
+<text x="1316.0" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c" text-decoration="underline">I</text>
+<text x="1324.4" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">T</text>
+<text x="1341.2" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#98b17d">✓</text>
+<rect x="1366.4" y="71.0" width="84.0" height="19.0" rx="0" fill="#d19a66"/>
+<text x="1374.8" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold" text-decoration="underline">D</text>
+<text x="1383.2" y="84.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">EPLOY</text>
+<text x="1433.6" y="84.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#21252b" font-weight="bold">·</text>
 <g class="t t20">
 <rect x="1009.4" y="99.5" width="495.6" height="76.0" rx="5" fill="none" stroke="#d19a66"/>
 <rect x="1017.8" y="91.9" width="84.0" height="15.2" fill="#1b1e23"/>
