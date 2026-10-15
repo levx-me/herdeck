@@ -2708,13 +2708,26 @@ class Deck:
     def choose(self, i):
         """A section picked by hand: show it here and in every other deck."""
         self.section = i % len(self.views)
-        def share(name=SECTIONS[self.section]):  # off the loop: the switch itself draws at once
+        # Written off the loop, so the switch draws at once; one writer, always the latest
+        # pick, so fast switching never leaves an older tab in the file for the other decks.
+        self.share_want = SECTIONS[self.section]
+        if getattr(self, "sharing", False):
+            return
+        self.sharing = True
+        def share():
             try:
-                with open(self.shared_path, "w") as f:
-                    f.write(name)
-                self.shared_at = self.mtime(self.shared_path)
-            except OSError:
-                pass
+                while True:
+                    name = self.share_want
+                    try:
+                        with open(self.shared_path, "w") as f:
+                            f.write(name)
+                        self.shared_at = self.mtime(self.shared_path)
+                    except OSError:
+                        pass
+                    if self.share_want == name:
+                        return
+            finally:
+                self.sharing = False
         background(share)
 
     def arrived(self, i):
