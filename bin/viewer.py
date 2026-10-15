@@ -1448,13 +1448,20 @@ class Jobs(Runs):
     def __init__(self):
         super().__init__("jobs")
 
+    ended = {}  # run path: how long it took, once it has ended (its files no longer change)
+
     @staticmethod
     def shows(path):
-        start = read(os.path.join(path, "start"))
-        if not start:
-            return False  # not started yet (or waiting on a permission prompt)
-        end = read(os.path.join(path, "end"))
-        return (int(end) if end else time.time()) - int(start) >= CURRENT.get("jobs_threshold", 10)
+        took = Jobs.ended.get(path)
+        if took is None:  # still running (or not looked at yet): read its times
+            start = read(os.path.join(path, "start"))
+            if not start:
+                return False  # not started yet (or waiting on a permission prompt)
+            end = read(os.path.join(path, "end"))
+            if not end:
+                return time.time() - int(start) >= CURRENT.get("jobs_threshold", 10)
+            took = Jobs.ended[path] = int(end) - int(start)
+        return took >= CURRENT.get("jobs_threshold", 10)
 
 
 class Git(Runs):
@@ -2435,8 +2442,19 @@ class Agents(Runs):
             background(self.read_main)
         folder = self.session[:-len(".jsonl")] + "/subagents" if self.session else ""
         paths = glob.glob(f"{folder}/agent-*.jsonl") + glob.glob(f"{folder}/workflows/*/agent-*.jsonl") if folder else []
+        # A subagent's transcript is read in the background the first time (a deck starting
+        # beside a long session would otherwise stall on all of them); it joins once read.
         keep = {r.path: r for r in getattr(self, "every", [])}
-        self.every = [keep.get(p) or AgentRun(p, self) for p in paths]
+        missing = [p for p in paths if p not in keep and p not in getattr(self, "built", {})]
+        if missing and not getattr(self, "building", False):
+            self.building, self.built = True, dict(getattr(self, "built", {}))
+            def build(todo=missing):
+                for p in todo:
+                    self.built[p] = AgentRun(p, self)
+                self.building = False
+            background(build)
+        keep.update(getattr(self, "built", {}))
+        self.every = [keep[p] for p in paths if p in keep]
         if self.session and (self.main is None or self.main.path != self.session):
             self.main = MainRun(self.session, self)
         # The subagents at work as a tree: the newest on top, each subagent's own
@@ -2451,6 +2469,10 @@ class Agents(Runs):
         # New: a subagent never seen before. (An ended one can show as at work for a moment
         # until the main transcript is read; coming back is not being new.)
         ever = getattr(self, "ever", None)
+        if self.session and getattr(self, "seeded", None) != self.session:
+            # What the session already had when the deck found it is not new, read yet or not.
+            self.seeded = self.session
+            ever = (ever or set()) | set(paths) | {self.session}
         new = ever is not None and any(r.path not in ever for r in runs)
         self.ever = (ever or set()) | {r.path for r in self.every} | {r.path for r in runs}
         picked = self.runs[self.tab].path if self.runs else None
