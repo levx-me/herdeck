@@ -2863,7 +2863,8 @@ class Deck:
             self.choose(int(k) - 1)
         elif k in TAB_KEYS and not (view.focus == "log" and view.copy_cursor):
             self.choose(TAB_KEYS.index(k))  # shift+its letter; in a log, B stays a copy-mode key
-        elif k == "L":  # reopen beside / above the agent; this process goes with the old pane
+        elif k == "L" and not getattr(self, "flipping", False):  # reopen beside / above the agent; this process goes with the old pane
+            self.flipping = True  # more L while it moves would each start a flip of their own
             subprocess.Popen([os.path.join(os.path.dirname(os.path.abspath(__file__)), "deck"), "flip", BASE],
                              stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                              start_new_session=True)

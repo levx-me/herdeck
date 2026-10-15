@@ -52,6 +52,14 @@ case ${1:-} in
     [ -n "$agent" ] || agent=$(herdr pane list 2>/dev/null | jq -r '.result.panes[].pane_id' |
       while read -r p; do [ "$(printf '%s' "$p" | tr ':/' '__')" = "$(basename "$base")" ] && echo "$p"; done | head -n 1)
     [ -n "$agent" ] || exit 1
+    # Flips take turns with each other and with openers (bin/pane), so a burst of L
+    # never leaves more than one deck.
+    until mkdir "$base/lock" 2>/dev/null; do
+      [ -n "$(find "$base/lock" -maxdepth 0 -mmin +1 2>/dev/null)" ] && rmdir "$base/lock" 2>/dev/null
+      sleep 0.1
+    done
+    trap 'rmdir "$base/lock" 2>/dev/null' EXIT
+    export STEADING_LOCKED=1
     [ "$(cat "$base/placement" 2>/dev/null)" = up ] && to=right || to=up
     printf '%s\n' "$to" > "$base/placement"
     old=$(cat "$base/pane" 2>/dev/null)

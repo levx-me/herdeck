@@ -747,3 +747,31 @@ describe("jobs: other commands followed while they run", () => {
     expect(existsSync(job(short))).toBe(false);
   });
 });
+
+describe("one deck per agent", () => {
+  test("openers and L flips at the same moment leave a single deck", () => {
+    const { mkdtempSync, writeFileSync, chmodSync, readdirSync } = require("node:fs");
+    const { tmpdir } = require("node:os");
+    const dir = mkdtempSync(join(tmpdir(), "steading-race-"));
+    // A herdr that is slow to open a pane, so the openers overlap.
+    writeFileSync(join(dir, "herdr"), `#!/bin/bash
+d=${dir}
+case "$1 $2" in
+  "plugin pane") sleep 0.3; n=$(( $(ls $d/panes 2>/dev/null | wc -l) + 1 )); mkdir -p $d/panes; touch $d/panes/p$n
+                 echo "{\\"result\\":{\\"plugin_pane\\":{\\"pane\\":{\\"pane_id\\":\\"p$n\\"}}}}";;
+  "pane get") [ -e $d/panes/$3 ] && echo '{"result":{"pane":{"focused":false}}}' || exit 1;;
+  "pane close") rm -f $d/panes/$3;;
+  *) echo '{}';;
+esac
+`);
+    chmodSync(join(dir, "herdr"), 0o755);
+    const env = { PATH: `${dir}:${process.env.PATH}`, TMPDIR: join(dir, "tmp"), HERDR_PANE_ID: "w1:p0", HERDR_SOCKET_PATH: "/nonexistent" };
+    const base = join(dir, "tmp", "steading", "w1_p0");
+    const burst = (cmd: string) =>
+      Bun.spawnSync(["bash", "-c", `for i in 1 2 3 4 5; do ${cmd} & done; wait`], { env, cwd: root });
+    burst(`bash bin/pane "" /tmp >/dev/null`);
+    expect(readdirSync(join(dir, "panes")).length).toBe(1);
+    burst(`bash bin/deck flip ${base}`);
+    expect(readdirSync(join(dir, "panes")).length).toBe(1);
+  }, 30000);
+});

@@ -21,6 +21,17 @@ mkdir -p "$base"
 git -C "$cwd" rev-parse --show-toplevel 2>/dev/null > "$base/root" || printf '%s\n' "$cwd" > "$base/root"
 [ -n "$section" ] && printf '%s\n' "$section" > "$base/focus"
 
+# One deck per agent: openers (an agent starting, prefix+t, L pressed fast) take turns,
+# so a second one finds the first one's deck instead of opening its own.
+# bin/deck flip holds the lock already (STEADING_LOCKED).
+if [ -z "${STEADING_LOCKED:-}" ]; then
+  until mkdir "$base/lock" 2>/dev/null; do
+    # A lock left by an opener that died (a minute old): take it over.
+    [ -n "$(find "$base/lock" -maxdepth 0 -mmin +1 2>/dev/null)" ] && rmdir "$base/lock" 2>/dev/null
+    sleep 0.1
+  done
+  trap 'rmdir "$base/lock" 2>/dev/null' EXIT
+fi
 pane=$(cat "$base/pane" 2>/dev/null)
 if [ -n "$pane" ] && herdr pane get "$pane" >/dev/null 2>&1; then
   printf '%s\n' "$pane"
