@@ -930,6 +930,10 @@ class Runs:
         if not in_head:
             self.part = "log"
         self.raw, self.plain = (extras, [ANSI.sub("", l) for l in extras]) if in_head else (log_raw, log_plain)
+        if in_head and getattr(self, "to_end", False):
+            self.to_end = False
+            self.cy = max(0, len(self.plain) - 1)
+            self.cx = max(0, len(self.plain[self.cy]) - 1)
         cursor = self.focus == "log" and self.copy_cursor
 
         running = run.status()[1] == AMBER_RGB and not isinstance(run, AgentRun)  # agents have no output
@@ -1186,10 +1190,21 @@ class Runs:
         if k in ("\t", "\x1b[Z"):
             self.switch_part()
             return
-        # h (or ←) at the box's top-left corner leaves it for the list, as l (→) came in.
-        if k == "h" and self.cy == 0 and self.cx == 0 and self.anchor is None \
-                and (self.part == "head" or not getattr(self, "has_head", False)):
-            self.focus = "list"
+        # The box reads as one text, the command lines then the log: h (←) at the very first
+        # character steps out of a part (from the command lines to the list, from the log to
+        # the command lines' end), l (→) at the command lines' last character into the log.
+        if self.anchor is None and k == "h" and self.cy == 0 and self.cx == 0:
+            if self.part == "head" or not getattr(self, "has_head", False):
+                self.focus = "list"
+            else:
+                self.switch_part()
+                self.to_end = True  # the next frame puts the cursor on the command lines' last character
+            return
+        if self.anchor is None and k == "l" and self.part == "head" and self.plain \
+                and self.cy == len(self.plain) - 1 and self.cx >= len(self.plain[self.cy]) - 1:
+            self.switch_part()
+            self.cy = self.cx = self.offset = 0  # the log's first character
+            self.follow = False
             return
         if k in ("\r", "\n") and self.plain:  # enter on a control line of the log ([… more], [less])
             getattr(self.runs[self.tab], "activate", lambda line: False)(self.plain[self.cy])
