@@ -2382,25 +2382,29 @@ class Deck:
             self.unseen.add(i)
 
     def popup(self, cols, rows):
-        """The settings popup: (first row, its lines) centred in the pane."""
-        width = min(cols - 4, 56)
-        inner = width - 4
-        edge = fg(ACCENT["agents"])
-        lines = [f"{edge}╭─{fg(BRIGHT_RGB)}{BOLD} settings \033[22m{edge}{'─' * (width - 13)}╮{RESET}"]
+        """The settings popup: (first row, its lines, first column) centred in the pane,
+        on a raised background."""
+        width = max(30, min(cols - 6, 66))
+        inner = width - 6
+        face = bg("44;49;58")  # the popup's ground: lighter than the deck under it
+        edge = f"{face}{fg(ACCENT['agents'])}"
+        title = " Settings "
+        lines = [f"{edge}╭─{fg(BRIGHT_RGB)}{BOLD}{title}\033[22m{edge}{'─' * (width - 3 - len(title))}╮{RESET}"]
         body = [""]
         for n, (key, label, what, _) in enumerate(SETTINGS):
             on = self.settings[key]
-            switch = f"{bg(GREEN_RGB)}{fg(STRIP_RGB)}{BOLD} on  \033[22m" if on else f"{bg(TAB_RGB)}{fg(MUTED_RGB)} off "
+            switch = f"{bg(GREEN_RGB)}{fg(STRIP_RGB)}{BOLD}  ON  \033[22m" if on else f"{bg(ACTIVE_RGB)}{fg(MUTED_RGB)}  OFF "
             picked = n == self.setting
-            mark = f"{fg(ACCENT['agents'])}›" if picked else " "
+            mark = f"{fg(ACCENT['agents'])}❯" if picked else " "
             name = f"{BOLD if picked else ''}{fg(BRIGHT_RGB)}{label}\033[22m"
-            body.append(f"{mark} {name}{' ' * max(1, inner - 2 - len(label) - 5)}{switch}{RESET}")
-            body += [f"  {fg(MUTED_RGB)}{part}{RESET}" for part in wrap_cells(what, inner - 2)]
+            body.append(f"{mark} {name}{face}{' ' * max(1, inner - 2 - len(label) - 6)}{switch}{RESET}")
+            body += [f"  {fg(MUTED_RGB)}{part}" for part in wrap_cells(what, inner - 2)]
             body.append("")
-        body.append(f"{fg(DIMMED_RGB)}j/k move · space toggle · esc close{RESET}")
+        body.append(f"{fg(DIMMED_RGB)}j/k move · space toggle · esc/q close")
+        body.append("")
         for line in body:
             pad = inner - cells(ANSI.sub("", line))
-            lines.append(f"{edge}│{RESET} {bg(STRIP_RGB)}{line}{bg(STRIP_RGB)}{' ' * max(0, pad)} {RESET}{edge}│{RESET}")
+            lines.append(f"{edge}│{face}  {line.replace(RESET, RESET + face)}{face}{' ' * max(0, pad)}  {edge}│{RESET}")
         lines.append(f"{edge}╰{'─' * (width - 2)}╯{RESET}")
         return max(1, (rows - len(lines)) // 2), lines, (cols - width) // 2
 
@@ -2472,7 +2476,8 @@ class Deck:
         # instead of clearing the screen, so nothing flashes between frames.
         bar, lines = self.section_bar(cols), (head + body)[:rows - 2]
         if self.settings_open:  # the popup over the deck, the deck faint around it
-            lines = [tint(line, DIMMED_RGB) for line in lines] + [""] * max(0, rows - 2 - len(lines))
+            # The deck behind it loses its colours: one dark grey, so the popup stands out.
+            lines = [f"{fg('58;62;70')}{ANSI.sub('', line)}" for line in lines] + [""] * max(0, rows - 2 - len(lines))
             first, box, left = self.popup(cols, rows - 2)
             for n, line in enumerate(box):
                 if 0 <= first + n < len(lines):
@@ -2536,7 +2541,7 @@ class Deck:
                 key = SETTINGS[self.setting][0]
                 self.settings[key] = not self.settings[key]
                 save_settings(self.settings)
-            elif k in ("\x1b", ",", "q"):
+            elif k in ("\x1b", ",", "q"):  # (q reaches here from the main loop)
                 self.settings_open = False
             return
         if k == "," and not (view.focus == "log" and view.copy_cursor):
@@ -2639,6 +2644,9 @@ def main():
                             continue
                         if key == "\x03":  # ctrl+c, when the keyboard protocol sends it as a key, not a signal
                             return
+                        if key == "q" and deck.settings_open:  # q closes the settings popup
+                            deck.key(key)
+                            continue
                         if key == "q" and not typing:
                             if getattr(view, "focus", "list") != "log":
                                 continue  # a stray q no longer closes the deck: ctrl+c (or prefix+t) does
