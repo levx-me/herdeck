@@ -1949,6 +1949,8 @@ class AgentRun(Run):
             link = f"↗ jobs #{os.path.basename(path)}"
             status = f"{icon} {when}   {link} "
             lines = wrap_cells(job.label(), w)
+            if len(lines) > 2:  # two lines at most, … where it goes on
+                lines = [lines[0], cut(lines[1], w - 1) + ("" if cells(lines[1]) >= w - 1 else "…")]
             lines.append(" " * max(0, w - cells(status)) + f"{fg(colour)}{icon}{fg(MUTED_RGB)} {when}  "
                          + button(link, ACCENT["jobs"], focus == path))
             out.append((link, lines, path))
