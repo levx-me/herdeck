@@ -474,10 +474,10 @@ def scene_agents():
             [("◐ ", AMBER), ("Fix the last-second expiry", TEXT)],
             [("○ ", MUTED), ("Document the flow", TEXT)]]),
     ])
-    hints([("j/k", "select"), ("L", "side"), ("[ ]", "sections"), ("ctrl+c", "close")])  # nothing to press here
+    hints([("L", "side"), ("[ ]", "sections"), (",", "settings"), ("ctrl+c", "close")])
 
 
-RUN_KEYS = [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "sections"), ("ctrl+c", "close")]
+RUN_KEYS = [("L", "side"), ("[ ]", "sections"), (",", "settings"), ("ctrl+c", "close")]
 
 
 def scene_jobs():
@@ -528,7 +528,7 @@ def scene_servers():
             [("- KV Namespaces: SESSIONS", TEXT)], [],
             [("[wrangler:info] Ready on ", TEXT), ("http://localhost:8787", CYAN)],
             [("[wrangler:info] GET /health ", TEXT), ("200", GREEN), (" OK (3ms)", MUTED)]),
-    ], [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("L", "side"), ("[ ]", "tabs")])  # q close: cut off at this width, as in the deck
+    ], [("o", "browser"), ("L", "side"), ("[ ]", "tabs"), (",", "settings"), ("ctrl+c", "close")])
 
 
 def scene_build():

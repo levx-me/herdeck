@@ -982,12 +982,12 @@
 <text x="1055.6" y="768.7" textLength="142.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Document the flow</text>
 <text x="1484.0" y="768.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#464c58">│</text>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1131.2" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1181.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1030.4" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1080.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1114.4" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1198.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
 <text x="1299.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
 <text x="1358.0" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
@@ -1780,16 +1780,14 @@
 <text x="1055.6" y="293.7" textLength="294.0" lengthAdjust="spacingAndGlyphs" fill="#98b17d">Seeded 2,400 users, 18,250 sessions</text>
 </g>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="1164.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
-<text x="1215.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1232.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1282.4" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1316.0" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
-<text x="1400.0" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
-<text x="1458.8" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1030.4" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1080.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1114.4" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1198.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
+<text x="1299.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
+<text x="1358.0" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 <g class="s s2">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
@@ -2180,16 +2178,16 @@
 <text x="1290.8" y="369.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">OK (3ms)</text>
 </g>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="1164.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">log</text>
-<text x="1206.8" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">o</text>
-<text x="1223.6" y="806.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">browser</text>
-<text x="1299.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1316.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1366.4" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1400.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tabs</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">o</text>
+<text x="1030.4" y="806.7" textLength="58.8" lengthAdjust="spacingAndGlyphs" fill="#787f8c">browser</text>
+<text x="1106.0" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1122.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1173.2" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1206.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">tabs</text>
+<text x="1257.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1274.0" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
+<text x="1358.0" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
+<text x="1416.8" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 <g class="s s3">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
@@ -2969,16 +2967,14 @@
 <text x="1164.8" y="464.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#d0868d">^</text>
 </g>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="1164.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
-<text x="1215.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1232.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1282.4" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1316.0" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
-<text x="1400.0" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
-<text x="1458.8" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1030.4" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1080.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1114.4" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1198.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
+<text x="1299.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
+<text x="1358.0" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 <g class="s s4">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
@@ -3792,16 +3788,14 @@
 <text x="1164.8" y="426.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">1.94s</text>
 </g>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="1164.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
-<text x="1215.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1232.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1282.4" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1316.0" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
-<text x="1400.0" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
-<text x="1458.8" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1030.4" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1080.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1114.4" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1198.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
+<text x="1299.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
+<text x="1358.0" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 <g class="s s5">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
@@ -4194,16 +4188,14 @@
 <text x="1022.0" y="312.7" textLength="327.6" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">Switched to a new branch 'feat/refresh'</text>
 </g>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="1164.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
-<text x="1215.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1232.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1282.4" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1316.0" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
-<text x="1400.0" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
-<text x="1458.8" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1030.4" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1080.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1114.4" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1198.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
+<text x="1299.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
+<text x="1358.0" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 <g class="s s6">
 <rect x="1005.2" y="71.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
@@ -4597,15 +4589,13 @@
 <text x="1055.6" y="350.7" textLength="184.8" lengthAdjust="spacingAndGlyphs" fill="#abb2bf">on type 'TokenRecord'.</text>
 </g>
 <rect x="1005.2" y="793.0" width="504.0" height="19.0" rx="0" fill="#21252b"/>
-<text x="1013.6" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">j/k</text>
-<text x="1047.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#787f8c">select</text>
-<text x="1114.4" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">enter</text>
-<text x="1164.8" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">open</text>
-<text x="1215.2" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
-<text x="1232.0" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
-<text x="1282.4" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
-<text x="1316.0" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
-<text x="1400.0" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
-<text x="1458.8" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
+<text x="1013.6" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">L</text>
+<text x="1030.4" y="806.7" textLength="33.6" lengthAdjust="spacingAndGlyphs" fill="#787f8c">side</text>
+<text x="1080.8" y="806.7" textLength="25.2" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">[ ]</text>
+<text x="1114.4" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">sections</text>
+<text x="1198.4" y="806.7" textLength="8.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">,</text>
+<text x="1215.2" y="806.7" textLength="67.2" lengthAdjust="spacingAndGlyphs" fill="#787f8c">settings</text>
+<text x="1299.2" y="806.7" textLength="50.4" lengthAdjust="spacingAndGlyphs" fill="#dcdfe4">ctrl+c</text>
+<text x="1358.0" y="806.7" textLength="42.0" lengthAdjust="spacingAndGlyphs" fill="#787f8c">close</text>
 </g>
 </svg>

@@ -1309,7 +1309,7 @@ class Runs:
         if self.search is not None:
             return [("enter", "find"), ("esc", "cancel")]
         if self.focus == "list":
-            return [("j/k", "select"), ("enter", "open"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
+            return [("L", "side"), ("[ ]", "tabs"), (",", "settings"), ("ctrl+c", "close")]
         return [("hjkl w b", "move"), ("tab", "command/log"), ("v/V", "select"), ("y", "copy"), ("/ ?", "search"),
                 ("esc/q", "back")]
 
@@ -1549,7 +1549,7 @@ class Servers(Runs):
 
     def hints(self):
         if self.focus == "list" and self.search is None:
-            return [("j/k", "select"), ("enter", "log"), ("o", "browser"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
+            return [("o", "browser"), ("L", "side"), ("[ ]", "tabs"), (",", "settings"), ("ctrl+c", "close")]
         return super().hints()
 
     def list_key(self, k):
@@ -2322,9 +2322,9 @@ class Agents(Runs):
     def hints(self):
         if self.focus == "log":
             if not self.controls():
-                return [("j/k", "scroll"), ("h/esc", "back")]
-            return [("j/k", "move"), ("enter", "press"), ("h/esc", "back")]
-        return [("j/k", "select"), ("enter", "detail"), ("L", "side"), ("[ ]", "tabs"), ("ctrl+c", "close")]
+                return [("h/esc", "back")]
+            return [("enter", "press"), ("h/esc", "back")]
+        return [("L", "side"), ("[ ]", "tabs"), (",", "settings"), ("ctrl+c", "close")]
 
 
 class Deck:
