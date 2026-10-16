@@ -814,4 +814,26 @@ describe("herdr sidebar tokens", () => {
     expect(readFileSync(join(dir, "calls"), "utf8").trim().split("\n").length).toBe(2);
     expect(existsSync(join(dir, "steading", "w1_p1", "sidebar"))).toBe(true);
   });
+
+  test("a resumed conversation's tasks are found under the team its process started", () => {
+    const { mkdtempSync, writeFileSync, readFileSync, mkdirSync, chmodSync } = require("node:fs");
+    const { tmpdir } = require("node:os");
+    const dir = mkdtempSync(join(tmpdir(), "steading-resume-"));
+    const home = join(dir, "home", ".claude");
+    writeFileSync(join(dir, "herdr"), `#!/bin/sh\necho "$@" >> ${dir}/calls\n`);
+    chmodSync(join(dir, "herdr"), 0o755);
+    // The conversation is aaaa1111; the process that resumed it started at 5000 and made team bbbb2222.
+    mkdirSync(join(home, "sessions"), { recursive: true });
+    writeFileSync(join(home, "sessions", "42.json"), JSON.stringify({ sessionId: "aaaa1111-x", startedAt: 5000, cwd: "/p" }));
+    mkdirSync(join(home, "teams", "session-bbbb2222"), { recursive: true });
+    writeFileSync(join(home, "teams", "session-bbbb2222", "config.json"),
+      JSON.stringify({ createdAt: 4200, members: [{ name: "team-lead", cwd: "/p" }] }));
+    mkdirSync(join(home, "tasks", "session-bbbb2222"), { recursive: true });
+    for (const [i, status] of ["completed", "pending"].entries())
+      writeFileSync(join(home, "tasks", "session-bbbb2222", `${i + 1}.json`), JSON.stringify({ status }));
+    const env = { PATH: process.env.PATH!, HOME: join(dir, "home"), TMPDIR: dir, HERDR_ENV: "1", HERDR_PANE_ID: "w1:p1", HERDR_BIN_PATH: join(dir, "herdr") };
+    Bun.spawnSync(["python3", "-I", join(root, "bin/sidebar.py")], { env,
+      stdin: Buffer.from(JSON.stringify({ hook_event_name: "Stop", session_id: "aaaa1111-x", cwd: dir })) });
+    expect(readFileSync(join(dir, "calls"), "utf8")).toContain("--token tasks=▰▰▱▱▱ 1/2");
+  });
 });
