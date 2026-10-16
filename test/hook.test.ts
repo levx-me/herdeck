@@ -777,7 +777,7 @@ esac
 });
 
 describe("herdr sidebar tokens", () => {
-  test("the hook reports the agent's repository and context use, once per 3s, and skips subagents", () => {
+  test("the hook reports the agent's repository, context use and tasks, once per 3s, and skips subagents", () => {
     const { mkdtempSync, writeFileSync, readFileSync, existsSync, chmodSync } = require("node:fs");
     const { tmpdir } = require("node:os");
     const dir = mkdtempSync(join(tmpdir(), "steading-sidebar-"));
@@ -790,10 +790,15 @@ describe("herdr sidebar tokens", () => {
     writeFileSync(transcript, [usage(1000), usage(170000)].join("\n") + "\n");
     Bun.spawnSync(["git", "init", "-q", join(dir, "repo")]);
     writeFileSync(join(dir, "repo", "a.txt"), "x");
-    const env = { PATH: process.env.PATH!, TMPDIR: dir, HERDR_ENV: "1", HERDR_PANE_ID: "w1:p1", HERDR_BIN_PATH: join(dir, "herdr") };
+    // Claude Code's task list for the session: one file per task.
+    const tasks = join(dir, "home", ".claude", "tasks", "session-abcd1234");
+    require("node:fs").mkdirSync(tasks, { recursive: true });
+    ["completed", "in_progress", "pending"].forEach((status, i) =>
+      writeFileSync(join(tasks, `${i + 1}.json`), JSON.stringify({ id: String(i + 1), subject: "t", status })));
+    const env = { PATH: process.env.PATH!, HOME: join(dir, "home"), TMPDIR: dir, HERDR_ENV: "1", HERDR_PANE_ID: "w1:p1", HERDR_BIN_PATH: join(dir, "herdr") };
     const hook = (event: object) =>
       Bun.spawnSync(["python3", "-I", join(root, "bin/sidebar.py")], { env, stdin: Buffer.from(JSON.stringify(event)) });
-    const event = { hook_event_name: "PostToolUse", cwd: join(dir, "repo"), transcript_path: transcript };
+    const event = { hook_event_name: "PostToolUse", session_id: "abcd1234-0000", cwd: join(dir, "repo"), transcript_path: transcript };
     hook(event);
     hook(event); // within 3s: skipped
     hook({ ...event, agent_id: "sub" }); // a subagent: skipped
@@ -804,6 +809,7 @@ describe("herdr sidebar tokens", () => {
     expect(calls[0]).toContain("1 changed");
     expect(calls[0]).toContain("--token model=opus-5-5");
     expect(calls[0]).toContain("--clear-token ctx --token ctxhot=▰▰▰▰▱ 85%");
+    expect(calls[0]).toContain("--token tasks=▰▰▱▱▱ 1/3");
     hook({ ...event, hook_event_name: "Stop" }); // the end of a turn always reports
     expect(readFileSync(join(dir, "calls"), "utf8").trim().split("\n").length).toBe(2);
     expect(existsSync(join(dir, "steading", "w1_p1", "sidebar"))).toBe(true);

@@ -55,6 +55,7 @@ agent's repository and context use to herdr as pane tokens, with or without a de
 - `$model`: the model.
 - `$ctx`: context used, a bar and a percentage; from 80% on it is `$ctxhot` instead, so
   the layout can colour it.
+- `$tasks`: the agent's task list (TaskCreate/TaskUpdate), a bar and done/total.
 
 Show them in herdr's agents list with a row layout in `~/.config/herdr/config.toml`:
 
@@ -64,6 +65,7 @@ rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
   [{ token = "$repo", dim = true }],
   [{ token = "$model", dim = true }, { token = "$ctx", dim = true }, { token = "$ctxhot", fg = "#e06c75", bold = true }],
+  [{ token = "$tasks", dim = true }],
 ]
 ```
 

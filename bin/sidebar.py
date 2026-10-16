@@ -6,6 +6,7 @@ context use, as herdr pane tokens for its sidebar, with or without a deck open.
   $model   the model
   $ctx     context used: a bar and a percentage, below 80%
   $ctxhot  the same from 80% on, so a ui.sidebar.agents.rows layout can colour it
+  $tasks   its task list: a bar and done/total, from ~/.claude/tasks/session-<id>
 
 Tool calls report at most every 3 seconds; the end of a turn always reports."""
 import json
@@ -22,7 +23,7 @@ if os.environ.get("HERDR_ENV") != "1" or not pane or event.get("agent_id"):
 state = os.path.join(os.environ.get("TMPDIR", "/tmp"), "steading", pane.replace(":", "_").replace("/", "_"))
 stamp = os.path.join(state, "sidebar")
 try:
-    if event.get("hook_event_name") != "Stop" and time.time() - os.path.getmtime(stamp) < 3:
+    if event.get("hook_event_name") != "Stop" and event.get("tool_name") not in ("TaskCreate", "TaskUpdate") and time.time() - os.path.getmtime(stamp) < 3:
         sys.exit(0)
 except OSError:
     pass
@@ -57,9 +58,25 @@ if d.context:
     filled = min(5, round(pct / 20))
     ctx = f"{'▰' * filled}{'▱' * (5 - filled)} {pct}%"
 
+# The task list (TaskCreate/TaskUpdate), as Claude Code keeps it: one JSON file per task.
+tasks = []
+folder = os.path.expanduser(f"~/.claude/tasks/session-{event.get('session_id', '')[:8]}")
+for name in (os.listdir(folder) if event.get("session_id") and os.path.isdir(folder) else []):
+    try:
+        with open(os.path.join(folder, name)) as f:
+            tasks.append(json.load(f).get("status"))
+    except (OSError, ValueError):
+        pass
+tasks = [t for t in tasks if t in ("pending", "in_progress", "completed")]
+done = tasks.count("completed")
+bar = ""
+if tasks:
+    filled = round(5 * done / len(tasks))
+    bar = f"{'▰' * filled}{'▱' * (5 - filled)} {done}/{len(tasks)}"
+
 args = [os.environ.get("HERDR_BIN_PATH", "herdr"), "pane", "report-metadata", pane, "--source", "steading"]
 hot = ctx and v.context_use(d)[0] >= 80
-for name, value in (("repo", repo), ("model", model), ("ctx", "" if hot else ctx), ("ctxhot", ctx if hot else "")):
+for name, value in (("repo", repo), ("model", model), ("ctx", "" if hot else ctx), ("ctxhot", ctx if hot else ""), ("tasks", bar)):
     args += ["--token", f"{name}={value}"] if value else ["--clear-token", name]
 try:
     subprocess.run(args, capture_output=True, timeout=5)

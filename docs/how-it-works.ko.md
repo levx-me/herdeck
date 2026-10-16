@@ -54,6 +54,7 @@ herdr에 pane 토큰으로 알려 줍니다. deck이 열려 있지 않아도 됩
 - `$repo`: 브랜치, 안 올린 커밋(`↑`)과 안 받은 커밋(`↓`), 커밋 안 한 파일 수.
 - `$model`: 모델.
 - `$ctx`: 컨텍스트 사용량(막대와 퍼센트). 80%부터는 `$ctxhot`으로 바뀌어 행 구성에서 색을 줄 수 있습니다.
+- `$tasks`: 에이전트의 할 일 목록(TaskCreate/TaskUpdate), 막대와 완료/전체.
 
 `~/.config/herdr/config.toml`의 행 구성으로 herdr agents 목록에 보이게 합니다.
 
@@ -63,6 +64,7 @@ rows = [
   ["state_icon", { token = "workspace", bold = true }, "tab"],
   [{ token = "$repo", dim = true }],
   [{ token = "$model", dim = true }, { token = "$ctx", dim = true }, { token = "$ctxhot", fg = "#e06c75", bold = true }],
+  [{ token = "$tasks", dim = true }],
 ]
 ```
 

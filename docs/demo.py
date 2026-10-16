@@ -174,15 +174,16 @@ text(side, 12, [("new", DIMMED), ("● ".rjust(SB - 8), BLUE), ("menu", DIMMED)]
 line(side, 13.5, -1, 13.5, ACTIVE)
 text(side, 14, [("agents", MUTED), ("priority".rjust(SB - 7), MUTED)], -1)
 # Agent rows as Steading lays them out: each agent's repository ($repo) and model and
-# context use ($ctx, or $ctxhot in red from 80%), reported by its hook (bin/sidebar).
-crew = [("app", "feature", "◐", AMBER, "feat/refresh · 3 changed", "opus-5-5", "▰▰▱▱▱ 34%", False, True),
-        ("api", "main", "○", GREEN, "main ↑2 · clean", "sonnet-5-5", "▰▰▰▱▱ 58%", False, False),
-        ("web", "dev", "!", RED, "dev ↓1 · 1 changed", "opus-5-5", "▰▰▰▰▱ 86%", True, False),
-        ("docs", "main", "○", GREEN, "main · clean", "haiku-5-5", "▰▱▱▱▱ 12%", False, False)]
+# context use ($ctx, or $ctxhot in red from 80%) and tasks ($tasks), reported by its hook (bin/sidebar).
+crew = [("app", "feature", "◐", AMBER, "feat/refresh · 3 changed", "opus-5-5", "▰▰▱▱▱ 34%", False, "▰▰▰▱▱ 3/5", True),
+        ("api", "main", "○", GREEN, "main ↑2 · clean", "sonnet-5-5", "▰▰▰▱▱ 58%", False, "", False),
+        ("web", "dev", "!", RED, "dev ↓1 · 1 changed", "opus-5-5", "▰▰▰▰▱ 86%", True, "▰▱▱▱▱ 1/4", False),
+        ("docs", "main", "○", GREEN, "main · clean", "haiku-5-5", "▰▱▱▱▱ 12%", False, "", False)]
 row = 16
-for name, tab, icon, colour, repo, model, ctx, hot, on in crew:
+for name, tab, icon, colour, repo, model, ctx, hot, tasks, on in crew:
     lines = [[(icon + " ", colour), (name, BRIGHT, True), (" · " + tab, MUTED)], [("  " + repo, MUTED)],
              [("  " + model + " · ", MUTED), (ctx, RED, True) if hot else (ctx, MUTED)]]
+    lines += [[("  " + tasks, MUTED)]] if tasks else []
     if on:
         rect(side, row, SB - 1, ACTIVE, rows=len(lines))
     for n, spans in enumerate(lines):
