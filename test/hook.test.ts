@@ -837,3 +837,57 @@ describe("herdr sidebar tokens", () => {
     expect(readFileSync(join(dir, "calls"), "utf8")).toContain("--token tasks=▰▰▱▱▱ 1/2");
   });
 });
+
+describe("a task's story", () => {
+  test("enter on a task shows when it was made, the request, what Claude said as it moved, and mentions; esc goes back", () => {
+    const { mkdtempSync, writeFileSync, mkdirSync } = require("node:fs");
+    const { tmpdir } = require("node:os");
+    const dir = mkdtempSync(join(tmpdir(), "steading-story-"));
+    mkdirSync(join(dir, "base"), { recursive: true });
+    const at = (s: number) => new Date(Date.now() - (100 - s) * 1000).toISOString();
+    const say = (s: number, text: string) => ({ type: "assistant", timestamp: at(s), message: { content: [{ type: "text", text }] } });
+    const call = (s: number, id: string, name: string, input: object) =>
+      ({ type: "assistant", timestamp: at(s), message: { content: [{ type: "tool_use", id, name, input }] } });
+    const result = (s: number, id: string, text: string) =>
+      ({ type: "user", timestamp: at(s), message: { content: [{ type: "tool_result", tool_use_id: id, content: text }] } });
+    const rows = [
+      { type: "user", timestamp: at(1), message: { content: "fix the back button" } },
+      call(2, "c1", "TaskCreate", { subject: "Fix the back button" }),
+      result(3, "c1", "Task #4 created successfully: Fix the back button"), // the list's own number, not 1
+      say(4, "On it."),
+      call(5, "c2", "TaskUpdate", { taskId: "4", status: "in_progress" }),
+      say(6, "Keeping the scroll position on back."),
+      say(7, "Fix the back button is in review now."),
+      call(8, "c3", "TaskUpdate", { taskId: "4", status: "completed" }),
+      say(9, "Shipped."),
+    ];
+    const main = join(dir, "s1.jsonl");
+    writeFileSync(main, rows.map((r) => JSON.stringify(r)).join("\n") + "\n");
+    const check = `
+import sys
+from importlib.machinery import SourceFileLoader
+args = sys.argv[1:]; sys.argv = sys.argv[:1]
+v = SourceFileLoader("v", args[0]).load_module()
+v.background = lambda fn, *a: fn(*a)
+a = v.Agents(); a.find_session = lambda: None; a.session = args[1]; a.read_main(); a.refresh()
+show = lambda: [v.ANSI.sub("", l) for l in a.frame(70, 40)[0]]
+a.list_key("\\r"); show()
+keys = [k for k, _ in a.controls()]
+a.control = keys.index("task:4"); show(); a.key("\\r"); p = show()
+story = [l.strip("│ ") for l in p]
+print(" | ".join(" ".join(s.split()) for s in story if s))
+a.key("\\x1b"); show(); show()
+print(a.story(), a.controls()[a.control][0])
+`;
+    const r = Bun.spawnSync(["python3", "-I", "-c", check, join(root, "bin/viewer.py"), main], {
+      env: { PATH: process.env.PATH!, STEADING_BASE: join(dir, "base") },
+    });
+    expect(r.stderr.toString()).toBe("");
+    const [story, back] = r.stdout.toString().trim().split("\n");
+    for (const part of ["← task · done", "created | you fix the back button", "created | Claude On it.",
+                        "started | Claude Keeping the scroll position on back.",
+                        "mentioned | Claude Fix the back button is in review now.", "done | Claude Shipped."])
+      expect(story).toContain(part);
+    expect(back).toBe("None task:4");
+  });
+});

@@ -1861,8 +1861,43 @@ class Digest:
         self.report = self.prompt = self.request = ""
         self.request_at = None                 # when the latest request came: the main agent's turn
         self.cwd = ""
-        self.task_calls = {}                   # TaskCreate call id -> its order
+        self.task_calls = {}                   # TaskCreate call id -> the task id it was given
+        self.task_log = {}                     # task id -> [[time, what, who, text]], its story in the talk
+        self.task_waiting = []                 # events waiting for the next thing Claude says
         self.results = {}                      # tool call id -> failed?, for the calls it got answers to
+
+    def task_id_from(self, block):
+        """A TaskCreate's result names the id the task got ("Task #4 created"): the list
+        restarts with each process, so the order of calls alone can be wrong."""
+        tid = self.task_calls.pop(block.get("tool_use_id"), None)
+        content = block.get("content")
+        text = content if isinstance(content, str) else " ".join(
+            c.get("text", "") for c in content or [] if isinstance(c, dict))
+        found = re.search(r"Task #(\d+)", text or "")
+        if tid is None or not found or found.group(1) == tid:
+            return
+        real = found.group(1)
+        if real in self.tasks:  # an older list's task with the same number: kept apart
+            self.tasks[f"{real}·{tid}"] = self.tasks.pop(real)
+            self.task_log[f"{real}·{tid}"] = self.task_log.pop(real, [])
+        self.tasks[real] = self.tasks.pop(tid)
+        self.task_log[real] = self.task_log.pop(tid, [])
+        for event in self.task_waiting:
+            if event[4] == tid:
+                event[4] = real
+
+    def task_words(self, text):
+        """What Claude says: the reply each waiting task event was waiting for, and a
+        mention for any task named in it."""
+        for when, what, who, _, tid in self.task_waiting:
+            if tid in self.task_log:
+                self.task_log[tid].append([when, what, who, text])
+        self.task_waiting = []
+        for tid, (subject, _) in self.tasks.items():
+            log = self.task_log.setdefault(tid, [])
+            if len(subject) >= 6 and subject in text and not (log and log[-1][3] == text):
+                log.append([self.last, "mentioned", "Claude", text])
+            del log[:-30]  # the latest of a long story
 
     def feed(self, row):
         try:
@@ -1888,6 +1923,7 @@ class Digest:
                         if call[0] == b.get("tool_use_id"):
                             call[3] = "error" if b.get("is_error") else "ok"
                     self.results[b.get("tool_use_id")] = bool(b.get("is_error"))
+                    self.task_id_from(b)
             return
         if row.get("type") != "assistant":
             return
@@ -1907,6 +1943,7 @@ class Digest:
                 continue
             if b.get("type") == "text" and b.get("text", "").strip():
                 self.says = b["text"].strip()
+                self.task_words(self.says)
             if b.get("type") != "tool_use":
                 continue
             name, args = b.get("name", ""), b.get("input") or {}
@@ -1922,12 +1959,20 @@ class Digest:
             self.kinds[kind] = self.kinds.get(kind, 0) + 1
             if name == "TaskCreate":
                 self.task_seq += 1
-                self.tasks[str(self.task_seq)] = [args.get("subject", ""), "pending"]
+                tid = str(self.task_seq)  # until its result says the id it was given
+                self.tasks[tid] = [args.get("subject", ""), "pending"]
+                self.task_calls[b.get("id")] = tid
+                self.task_log[tid] = [[self.last, "created", "you", self.request]]
+                self.task_waiting.append([self.last, "created", "Claude", "", tid])  # what Claude says next
             elif name == "TaskUpdate" and str(args.get("taskId")) in self.tasks:
+                tid = str(args["taskId"])
                 if args.get("status") == "deleted":
-                    self.tasks.pop(str(args["taskId"]))
-                elif args.get("status"):
-                    self.tasks[str(args["taskId"])][1] = args["status"]
+                    self.tasks.pop(tid)
+                    self.task_log.pop(tid, None)
+                elif args.get("status") and args["status"] != self.tasks[tid][1]:
+                    self.tasks[tid][1] = args["status"]
+                    what = {"in_progress": "started", "completed": "done"}.get(args["status"], args["status"])
+                    self.task_waiting.append([self.last, what, "Claude", "", tid])
             elif name == "TodoWrite" and isinstance(args.get("todos"), list):
                 self.tasks = {str(i): [t.get("content", ""), t.get("status", "pending")]
                               for i, t in enumerate(args["todos"]) if isinstance(t, dict)}
@@ -2012,7 +2057,7 @@ def context_use(d):
     return (min(100, d.context * 100 // limit) if d.context else 0), limit
 
 
-def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
+def dashboard(d, cols, main, title="", links=None, focus=None, window=None, task_rows=None):
     """Everything known about an agent, in cards: what it is (session or task), model
     and usage, what it is doing and did (activity), and tasks. A card with nothing is left out."""
     w = max(16, cols - 4)  # inside a card
@@ -2111,17 +2156,50 @@ def dashboard(d, cols, main, title="", links=None, focus=None, window=None):
     # tasks
     if d.tasks:
         done = sum(1 for _, st in d.tasks.values() if st == "completed")
-        items, todo = list(d.tasks.values()), []
+        items, todo = list(d.tasks.items()), []
         # A long list keeps what is left in full; the done ones fold into a count.
         if len(items) > 8 and done:
             todo.append(f"{fg(GREEN_RGB)}✓{RESET} {fg(MUTED_RGB)}{done} done{RESET}")
-            items = [t for t in items if t[1] != "completed"]
-        for subject, st in items:
+            items = [t for t in items if t[1][1] != "completed"]
+        for tid, (subject, st) in items:
             mark = {"completed": f"{fg(GREEN_RGB)}✓", "in_progress": f"{fg(AMBER_RGB)}◐"}.get(st, f"{fg(MUTED_RGB)}○")
+            lit = focus == f"task:{tid}"  # enter opens its story
+            if task_rows is not None:  # the row it starts on, inside the card (after its top border)
+                task_rows.append((len(out) + 1 + len(todo), tid))
             for n, part in enumerate(wrap(subject, w - 2)):  # wrapped under itself, not cut
-                todo.append(f"{mark if n == 0 else ' '}{RESET} {part}")
+                line = f"{mark if n == 0 else ' '}{RESET} {part}"
+                todo.append(bg(ACTIVE_RGB) + line.replace(RESET, RESET + bg(ACTIVE_RGB)) + " " * max(0, w - visible_len(line)) + RESET
+                            if lit else line)
         out += card(f"tasks {done}/{len(d.tasks)}", todo, cols)
     return out
+
+
+TASK_STATES = {"completed": ("✓", GREEN_RGB, "done"), "in_progress": ("◐", AMBER_RGB, "in progress")}
+
+
+def task_story(d, tid, cols):
+    """One task's story in the talk, oldest first: when it was made and the request it came
+    from, what Claude said as it started and finished it, and where Claude named it."""
+    subject, st = d.tasks[tid]
+    icon, rgb, state = TASK_STATES.get(st, ("○", MUTED_RGB, "pending"))
+    w = max(16, cols - 4)
+    lines, said = [], None
+    for when, what, who, text in d.task_log.get(tid, []):
+        # Its own lines kept (lists, paragraphs), markdown marks left out.
+        text = "\n".join(" ".join(l.split()) for l in re.sub(r"[*_`#>]+", "", text or "").splitlines() if l.strip())
+        stamp = time.strftime("%H:%M", time.localtime(when)) if when else "     "
+        lines.append(f"{fg(MUTED_RGB)}{stamp}{RESET}  {fg(BRIGHT_RGB)}{BOLD}{what}\033[22m{RESET}")
+        if not text or text == said:  # the same words as the step before: said once
+            continue
+        said = text
+        whose = f"{fg(ACCENT['agents'] if who == 'Claude' else AMBER_RGB)}{who}{RESET}  "
+        text = text[:1200] + ("…" if len(text) > 1200 else "")
+        parts = [p for l in text.splitlines() for p in wrap_cells(l, w - 2 - len(who) - 2)]
+        lines += [("  " + whose if n == 0 else " " * (len(who) + 4)) + part for n, part in enumerate(parts)]
+    if not lines:
+        lines.append(f"{fg(MUTED_RGB)}nothing said about it yet{RESET}")
+    head = [f"{fg(rgb)}{icon}{RESET} {BOLD}{part}\033[22m" for part in wrap_cells(subject, w - 2)]
+    return card(f"← task · {state}", head + [""] + lines, cols)
 
 
 class AgentRun(Run):
@@ -2283,9 +2361,14 @@ class AgentRun(Run):
             at = max(0, min(getattr(self, "activity_at", 0), total - 1))
             window = {"top": max(0, getattr(self, "activity_top", 0)), "at": at,
                       "rows": getattr(self, "activity_rows", 10)}  # rows of the card, not calls: they wrap
-        out = status_block(name, colour, icon, since, self.stamps, self.cols) + \
-            dashboard(self.digest, self.cols, isinstance(self, MainRun), self.label().strip(),
-                      links, focus, window)
+        if getattr(self, "task_open", None) in self.digest.tasks:  # one task's story, in place of the cards
+            self.controls = []
+            return task_story(self.digest, self.task_open, self.cols)
+        self.task_open = None
+        head = status_block(name, colour, icon, since, self.stamps, self.cols)
+        task_rows = []
+        out = head + dashboard(self.digest, self.cols, isinstance(self, MainRun), self.label().strip(),
+                               links, focus, window, task_rows)
         if window:  # the top the card settled on, the cursor's call in view
             self.activity_at, self.activity_top = window["at"], window["top"]
         # Its controls, in order, with the row each is on: the keyboard moves between these.
@@ -2299,6 +2382,8 @@ class AgentRun(Run):
                 self.controls.append(("activity-fold", n))
                 if window:  # where the unfolded card starts and ends: the view holds all of it
                     self.activity_span = (next(i for i in range(n, -1, -1) if "╭─ activity " in ANSI.sub("", out[i])), n + 1)
+        self.controls += [(f"task:{tid}", len(head) + row) for row, tid in task_rows]
+        self.controls.sort(key=lambda c: c[1])
         return out
 
     def activity_job(self):
@@ -2312,6 +2397,8 @@ class AgentRun(Run):
         everything the agent did, or the last few again."""
         if key == "activity-fold":
             self.activity_open = not getattr(self, "activity_open", False)
+        elif key.startswith("task:"):  # its story, until esc
+            self.task_open = key[len("task:"):]
         elif getattr(self.deck, "jump", None):
             self.deck.jump("jobs", key)
 
@@ -2542,9 +2629,9 @@ class Agents(Runs):
             run = self.runs[self.tab]
             run.activity_rows = max(3, self.height - 5)  # the card's window: the box, less its said line, borders and fold
             keys = [k for k, _ in self.controls()]
-            if getattr(self, "want", None) in keys:  # back on the fold after it closes
+            if getattr(self, "want", None) in keys:  # back on the control that opened what just closed
                 self.control = keys.index(self.want)
-            self.want = None
+                self.want = None
             self.control = min(self.control, max(0, len(keys) - 1))
             if self.inside():
                 run.focus_key = run.activity_job()
@@ -2603,9 +2690,24 @@ class Agents(Runs):
         run.activity_at, run.activity_top = max(0, min(at, total - 1)), top
         return True
 
+    def story(self):
+        """The task whose story the detail shows, if one is open."""
+        return getattr(self.runs[self.tab], "task_open", None) if self.runs and self.focus == "log" else None
+
     def key(self, k):
         if not self.runs or self.focus == "list":
             return super().key(k)
+        if self.story():  # a task's story: it scrolls; esc (or h) goes back to the task in the list
+            if k in ("\x1b", "h"):
+                self.want = f"task:{self.story()}"
+                self.runs[self.tab].task_open, self.offset = None, getattr(self, "story_from", 0)
+            elif k in ("j", "k"):
+                self.offset = max(0, self.offset + (1 if k == "j" else -1))
+            elif k in SCROLLS:
+                self.offset = max(0, self.offset + SCROLLS[k](max(1, self.height)))
+            elif k in ("g", "G"):
+                self.offset = 0 if k == "g" else len(self.plain)
+            return
         if self.inside():
             if self.activity_key(k):
                 return
@@ -2628,6 +2730,8 @@ class Agents(Runs):
             self.focus = "list"
         elif k in ("\r", "\n") and count:
             key = self.controls()[self.control][0]
+            if key.startswith("task:"):  # its story opens at its top; esc comes back here
+                self.story_from, self.offset = self.offset, 0
             self.runs[self.tab].press(key)
             if key == "activity-fold" and self.runs[self.tab].activity_open:  # into the card, at its newest
                 self.runs[self.tab].activity_at = self.runs[self.tab].activity_top = 0
@@ -2645,6 +2749,8 @@ class Agents(Runs):
         for n, (key, at) in enumerate(self.controls()):
             if at == line:
                 self.focus, self.control = "log", n
+                if key.startswith("task:"):  # its story opens at its top; esc comes back here
+                    self.story_from, self.offset = self.offset, 0
                 self.runs[self.tab].press(key)
                 if key == "activity-fold" and not self.runs[self.tab].activity_open:
                     self.want = key
@@ -2660,6 +2766,8 @@ class Agents(Runs):
         self.offset = max(0, self.offset + (3 if down else -3))
 
     def hints(self):
+        if self.story():
+            return [("j/k", "scroll"), ("esc", "back")]
         if self.inside():
             return [("ctrl+d/u", "page"), ("esc", "fold")]
         if self.focus == "log":
