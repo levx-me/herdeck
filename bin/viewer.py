@@ -2697,8 +2697,8 @@ class Agents(Runs):
     def key(self, k):
         if not self.runs or self.focus == "list":
             return super().key(k)
-        if self.story():  # a task's story: it scrolls; esc (or h) goes back to the task in the list
-            if k in ("\x1b", "h"):
+        if self.story():  # a task's story: it scrolls; esc, h or backspace goes back to the task
+            if k in ("\x1b", "h", "\x7f", "\x08"):
                 self.want = f"task:{self.story()}"
                 self.runs[self.tab].task_open, self.offset = None, getattr(self, "story_from", 0)
             elif k in ("j", "k"):
@@ -2746,6 +2746,10 @@ class Agents(Runs):
             self.focus = "list"
             return
         line = self.offset + row - getattr(self, "body_row", 99)
+        if self.story():  # a task's story: a click on its "← task" border goes back
+            if 0 <= line < len(self.plain) and "← task" in self.plain[line]:
+                self.key("\x1b")
+            return
         for n, (key, at) in enumerate(self.controls()):
             if at == line:
                 self.focus, self.control = "log", n
@@ -2767,7 +2771,7 @@ class Agents(Runs):
 
     def hints(self):
         if self.story():
-            return [("j/k", "scroll"), ("esc", "back")]
+            return [("j/k", "scroll"), ("esc/⌫", "back")]
         if self.inside():
             return [("ctrl+d/u", "page"), ("esc", "fold")]
         if self.focus == "log":

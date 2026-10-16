@@ -43,7 +43,7 @@ apply right now.
 | | `esc` | cancel the selection, or back to the run list |
 | servers | `o` | open the server in the browser |
 | agents | `enter`, then `j` `k`, `enter`, `esc` | in an agent's detail: move between its buttons and tasks, press one |
-| | `enter` on a task, then `j` `k`, `ctrl+d` `ctrl+u`, `esc` | its story: when it was made and the request it came from, what Claude said as it started and finished it, and where Claude named it; `esc` goes back |
+| | `enter` on a task, then `j` `k`, `ctrl+d` `ctrl+u`, `esc` or backspace | its story: when it was made and the request it came from, what Claude said as it started and finished it, and where Claude named it; `esc`, backspace or a click on `← task` goes back |
 | | on "▾ N more": `enter`, then `j` `k`, `ctrl+d` `ctrl+u`, `ctrl+f` `ctrl+b`, `ctrl+e` `ctrl+y`, `g` `G`, `esc` | the activity card unfolds and scrolls on its own, with its own cursor (vim's keys; `enter` on a long call opens its output in jobs); `esc` folds it |
 
 Arrow keys work as `h` `j` `k` `l` everywhere. The run list and the run's box under it each take the
